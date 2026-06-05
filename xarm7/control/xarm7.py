@@ -489,12 +489,17 @@ class XArm7:
     ):
         p_robot_mm = np.asarray(p_robot_mm, dtype=np.float64).reshape(3)
 
-        x_offset_mm = -5.0
+        right = 1
+        left = -1
+        x_offset_mm = -0.0
+        k_roll = -4.0
 
         if side == "right":
-            x_offset_mm *= 1.0
+            x_offset_mm *= right
+            y_offset_mm = k_roll*right*np.sin(d_roll_rad)
         elif side == "left":
-            x_offset_mm *= -1.0
+            x_offset_mm *= left
+            y_offset_mm = k_roll*left*np.sin(d_roll_rad)
         else:
             raise ValueError("side must be 'right' or 'left'")
 
@@ -502,7 +507,7 @@ class XArm7:
 
         target_pose = [
             float(p_robot_mm[0] + x_offset_mm),
-            float(p_robot_mm[1]),
+            float(p_robot_mm[1] + y_offset_mm),
             float(p_robot_mm[2]),
             float(curr[3] + d_roll_rad),
             float(curr[4]),
@@ -1248,7 +1253,54 @@ class XArm7:
 
         return True
 
+    def moveJ_to_return_pose_direct(
+        arm,
+        joint_deg=None,
+        speed=20,
+        mvacc=200,
+        wait=True,
+    ):
+        """
+        calibration_valid.py 内だけで使う退避姿勢移動。
+        xarm7.py は変更しない。
+        joint_deg 単位: deg
+        """
 
+        if joint_deg is None:
+            joint_deg = RETURN_JOINT_DEG
+
+        print("\n========== RETURN JOINT MOVE ==========")
+        print("target joint deg =", joint_deg)
+        print("speed =", speed)
+        print("mvacc =", mvacc)
+        print("=======================================\n")
+
+        # XArm7クラスの中にSDK本体が arm.arm として入っている場合
+        sdk_arm = getattr(arm, "arm", None)
+
+        # もし arm.arm が無ければ arm._arm も見る
+        if sdk_arm is None:
+            sdk_arm = getattr(arm, "_arm", None)
+
+        # それでも無ければ、XArm7自体が set_servo_angle を持っているか見る
+        if sdk_arm is None:
+            sdk_arm = arm
+
+        if not hasattr(sdk_arm, "set_servo_angle"):
+            raise RuntimeError(
+                "set_servo_angle が見つからない。XArm7内のSDK本体の変数名を確認して。"
+            )
+
+        ret = sdk_arm.set_servo_angle(
+            angle=joint_deg,
+            speed=speed,
+            mvacc=mvacc,
+            is_radian=False,
+            wait=wait,
+        )
+
+        print("[return pose ret] =", ret)
+        return ret
 
 def main():
     rclpy.init()

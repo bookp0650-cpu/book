@@ -82,7 +82,7 @@ def cam_mm_to_robot_mm(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260216_165845_copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260604_204926 copy.json",
     dy_adj_mm: float = 0.0,
 ) -> np.ndarray:
     """
@@ -115,7 +115,7 @@ def get_camera_debug_info(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260216_165845.json",
+    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260604_204926 copy.json",
     dy_adj_mm: float = 0.0,
 ):
     """
@@ -173,7 +173,7 @@ def print_camera_debug_info(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260216_165845_copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260601_185858.json",
     dy_adj_mm: float = 0.0,
 ) -> np.ndarray:
     """

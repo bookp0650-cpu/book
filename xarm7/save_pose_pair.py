@@ -33,10 +33,10 @@ def main():
         default="xarm7/handeye_pairs",
         help="output directory"
     )
-    ap.add_argument("--num-samples", type=int, default=10, help="number of samples to save")
-    ap.add_argument("--marker-len-m", type=float, default=0.149, help="marker side length [m] (e.g. 0.040)")
+    ap.add_argument("--num-samples", type=int, default=40, help="number of samples to save")
+    ap.add_argument("--marker-len-m", type=float, default=0.15, help="marker side length [m] (e.g. 0.040)")
     ap.add_argument("--marker-id", type=int, default=0, help="use specific marker id (optional)")
-    ap.add_argument("--aruco-dict", type=str, default="DICT_4X4_100", help="ArUco dict name")
+    ap.add_argument("--aruco-dict", type=str, default="DICT_4X4_1000", help="ArUco dict name")
     ap.add_argument("--width", type=int, default=640)
     ap.add_argument("--height", type=int, default=480)
     ap.add_argument("--fps", type=int, default=30)

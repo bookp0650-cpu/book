@@ -1,11 +1,9 @@
 [
-
   {
-    "book_name": "ロボットシミュレーション",
-    "ISBN_number": "9784627846913",
-    "bookshelf_ID": "1-1-1-1"
+  "book_name": "簡単実践ロボットシミュレーション",
+  "ISBN_number": "9784627846913",
+  "bookshelf_ID": "1-1-1-1"
   },
-
   {
     "book_name": "ScanSnap",
     "ISBN_number": "9784297118846",

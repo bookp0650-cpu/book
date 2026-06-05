@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-06-04T20:49:26",
+  "input_json": "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_pairs_20260604_202044_238.json",
+  "settings": {
+    "method": "DANIILIDIS",
+    "robot_euler_order": "zyx",
+    "robot_angle_unit": "deg",
+    "robot_pos_unit_in_input": "mm",
+    "target_tvec_unit_in_input": "m"
+  },
+  "T_cam_tcp": [
+    [0.0, 0.0, -1.0, 0.18],
+    [1.0, 0.0, 0.0, -0.006],
+    [0.0, -1.0, 0.0, -0.10],
+    [0.000000, 0.000000, 0.000000, 1.000000]
+  ],
+  "T_tcp_cam": [
+    [0.0, 1.0, 0.0, -0.006],
+    [0.0, 0.0, -1.0, -0.10],
+    [-1.0, 0.0, 0.0, 0.18],
+    [0.000000, 0.000000, 0.000000, 1.000000]
+  ]
+}

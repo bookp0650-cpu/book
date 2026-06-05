@@ -84,7 +84,7 @@ def T_from_Rt(Rm: np.ndarray, t: np.ndarray) -> np.ndarray:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in-json", type=str, default="/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_pairs_20260601_144910_076.json", help="handeye_pairs_*.json")
+    ap.add_argument("--in-json", type=str, default="/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_pairs_20260604_202044_238.json", help="handeye_pairs_*.json")
     ap.add_argument("--out-json", type=str, default="", help="output json path (optional)")
     ap.add_argument("--euler-order", type=str, default="zyx",
                     help="robot euler order for [roll,pitch,yaw]. try xyz first; if bad try zyx")

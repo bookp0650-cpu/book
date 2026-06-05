@@ -3,7 +3,7 @@ from rs_d435i.get_book_position import GetBookSpinePosition
 import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval 
 import Dynamixel_win_pro_hand_book.HandBook_Storage as HandBook_storage
 from pathlib import Path
-from detection.pro_handbook.sam_py_demo.get_book_points_revised import run_capture_and_pca
+from detection.pro_handbook.sam_py_demo.get_book_points import run_capture_and_pca
 from xarm7.control.move_to_container_test import Move_to_Container
 from xarm7.control.shelf_id_manager import ShelfIDManager
 from detection.pro_handbook.sam_py_demo.bar_code.book_barcode_test_rightside import book_barcode_sequence
@@ -261,17 +261,17 @@ def main_sequence(
         print("認識開始")
         start = time.perf_counter()
         try:
-            roll, p_xmax, book_width, shot_dir = run_capture_and_pca(query=book_name)
+            roll, target, book_width, shot_dir = run_capture_and_pca(query=book_name)
             print(f"""
             ===== PCA RESULT =====
             roll        : {roll}
-            p_xmax      : {p_xmax}
+            target      : {target}
             book_width  : {book_width}
             ======================
             """)
 
-            if p_xmax is None:
-                raise RuntimeError("Recognition failed: p_xmax is None")
+            if target is None:
+                raise RuntimeError("Recognition failed: target is None")
  
         except Exception as e:
             print(f" recognition failed -> skip this book: {e}")
@@ -326,14 +326,14 @@ def main_sequence(
             encoding="utf-8",
         )    
         print("adjusted roll (deg) =", np.degrees(roll))
-        p_max = 1000 * p_xmax       #mからmmへ
+        target_mm = 1000 * target       #mからmmへ
         
         p_robot_mm = print_camera_debug_info(
             arm,
-            p_max
+            target_mm
         )
         # ロボット座標系での対象点 [mm]
-        p_robot_mm = cam_mm_to_robot_mm(arm, p_max)
+        p_robot_mm = cam_mm_to_robot_mm(arm, target_mm)
 
         
         safe_motion(

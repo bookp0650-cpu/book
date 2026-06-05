@@ -3842,7 +3842,7 @@ def run_capture_and_pca(
                 s_bin_size_px=5.0,
                 s_gap_allow_px=28.0,
                 length_reference_mode="robust_percentile",
-                length_reference_percentile=85.0,
+                length_reference_percentile=95.0,
                 min_length_ratio=0.95,
                 relaxed_edge_length_ratio=0.95,
                 min_points_per_t_bin=6,

@@ -1,4 +1,4 @@
-from .get_book_points_revised import run_capture_and_pca_offline
+from .get_book_points import run_capture_and_pca_offline
 from pathlib import Path
 import numpy as np
 import time

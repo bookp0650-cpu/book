@@ -3,7 +3,7 @@ from rs_d435i.get_book_position import GetBookSpinePosition
 import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval 
 import Dynamixel_win_pro_hand_book.HandBook_Storage as HandBook_storage
 from pathlib import Path
-from detection.pro_handbook.sam_py_demo.get_book_points_revised import run_capture_and_pca
+from detection.pro_handbook.sam_py_demo.get_book_points import run_capture_and_pca
 from xarm7.control.move_to_container_test import Move_to_Container
 from xarm7.control.shelf_id_manager import ShelfIDManager
 from detection.pro_handbook.sam_py_demo.bar_code.book_barcode import book_barcode_sequence

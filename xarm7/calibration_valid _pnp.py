@@ -7,8 +7,6 @@ from pathlib import Path
 # =========================================================
 # import path fix
 # /home/book/pro_book/pro_hand_book_python を import パスに追加
-# このファイル:
-# /home/book/pro_book/pro_hand_book_python/xarm7/calibration_valid.py
 # =========================================================
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -25,7 +23,6 @@ import pyrealsense2 as rs
 from rclpy.executors import MultiThreadedExecutor
 
 from xarm7.control.xarm7 import XArm7
-from xarm7.control.xarm_monitor import XArmMonitor, safe_motion
 from xarm7.control.robot_base_coordinate import (
     cam_mm_to_robot_mm,
     print_camera_debug_info,
@@ -41,31 +38,32 @@ CONFIG_PATH = "Retrieval_integration.yaml"
 ARUCO_DICT_NAME = "DICT_4X4_1000"
 TARGET_MARKER_ID = 0
 
-# 実際に印刷したマーカーの一辺 [m]
-# ただし今回はPnPを使わないので，主に表示・確認用
-# Depth座標計算には直接使わない
+# 必ず実測値を入れる
+# 印刷したArUcoの黒枠ではなく「マーカー一辺」の実寸[m]
+# 150 mmなら 0.150
+# 149 mmなら 0.149
 MARKER_LENGTH_M = 0.150
 
-# 右棚なら right，左棚なら left
 SIDE = "right"
 
-# roll方向が逆なら -1.0 にする
-ROLL_SIGN = 1.0
+# roll方向が逆なら -1.0
+ROLL_SIGN = -1.0
 
-# rollに固定オフセットを足したい場合
-# 例: 90度足すなら np.deg2rad(90.0)
+# rollに固定オフセットを入れたい場合
 ROLL_OFFSET_RAD = 0.0
 
-# Depth中央値を取る範囲
-# window=5なら 11x11 pixel
-DEPTH_WINDOW = 5
-
-# Depthの許容範囲 [m]
-DEPTH_MIN_M = 0.05
-DEPTH_MAX_M = 2.0
-
-# 移動前確認
 ASK_BEFORE_MOVE = True
+
+# リーチング後に戻る関節角[deg]
+RETURN_JOINT_DEG = [
+    106.8,
+    -28.0,
+    149.7,
+    52.4,
+    32.2,
+    28.8,
+    51.6,
+]
 
 
 # =========================================================
@@ -96,14 +94,10 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 
 # =========================================================
-# xArm recovery helper
+# xArm helper
 # =========================================================
 
 def try_call(obj, name, *args, **kwargs):
-    """
-    XArm7の実装差を吸収するための安全呼び出し。
-    メソッドが無ければ何もしない。
-    """
     fn = getattr(obj, name, None)
     if fn is None:
         return None
@@ -116,20 +110,14 @@ def try_call(obj, name, *args, **kwargs):
 
 
 def recover_xarm_if_possible(arm):
-    """
-    前回 Ctrl+C / emergency_stop 後の状態をできるだけ復帰する。
-    XArm7クラス側に存在するメソッドだけ実行される。
-    """
     print("Try xArm recovery...")
 
-    # wrapper名の違いに備えて複数候補
     try_call(arm, "clean_error")
     try_call(arm, "clean_warn")
     try_call(arm, "motion_enable", enable=True)
     try_call(arm, "set_mode", 0)
     try_call(arm, "set_state", 0)
 
-    # XArm7内部にarmなどを持っている場合の保険
     inner = getattr(arm, "arm", None)
     if inner is not None:
         try_call(inner, "clean_error")
@@ -139,6 +127,53 @@ def recover_xarm_if_possible(arm):
         try_call(inner, "set_state", 0)
 
     time.sleep(0.5)
+
+
+def moveJ_to_return_pose_direct(
+    arm,
+    joint_deg=None,
+    speed=20,
+    mvacc=200,
+    wait=True,
+):
+    """
+    calibration_valid_pnp.py 内だけで使う退避姿勢移動。
+    xarm7.py は変更しない。
+    joint_deg 単位: deg
+    """
+
+    if joint_deg is None:
+        joint_deg = RETURN_JOINT_DEG
+
+    print("\n========== RETURN JOINT MOVE ==========")
+    print("target joint deg =", joint_deg)
+    print("speed =", speed)
+    print("mvacc =", mvacc)
+    print("=======================================\n")
+
+    sdk_arm = getattr(arm, "arm", None)
+
+    if sdk_arm is None:
+        sdk_arm = getattr(arm, "_arm", None)
+
+    if sdk_arm is None:
+        sdk_arm = arm
+
+    if not hasattr(sdk_arm, "set_servo_angle"):
+        raise RuntimeError(
+            "set_servo_angle が見つからない。XArm7内のSDK本体の変数名を確認して。"
+        )
+
+    ret = sdk_arm.set_servo_angle(
+        angle=joint_deg,
+        speed=speed,
+        mvacc=mvacc,
+        is_radian=False,
+        wait=wait,
+    )
+
+    print("[return pose ret] =", ret)
+    return ret
 
 
 # =========================================================
@@ -172,13 +207,11 @@ def get_aruco_dict(name: str):
 def create_aruco_detector():
     aruco_dict = get_aruco_dict(ARUCO_DICT_NAME)
 
-    # OpenCV 4.7以降
     if hasattr(cv2.aruco, "ArucoDetector"):
         params = cv2.aruco.DetectorParameters()
         detector = cv2.aruco.ArucoDetector(aruco_dict, params)
         return detector, aruco_dict
 
-    # 古いOpenCV
     params = cv2.aruco.DetectorParameters_create()
     return None, aruco_dict
 
@@ -193,10 +226,8 @@ def normalize_angle_rad(a):
 
 def normalize_roll_for_marker(image_angle_rad):
     """
-    画像上のArUco上辺角度をroll補正量にする。
-
-    注意:
-    これはPnP姿勢ではなく，画像上の2D傾きだけを使う。
+    ArUco上辺の画像上角度をroll補正量にする。
+    PnP姿勢のrollではなく，画像上の傾きだけを使う。
     """
     a = normalize_angle_rad(image_angle_rad)
 
@@ -211,68 +242,85 @@ def normalize_roll_for_marker(image_angle_rad):
 
 
 # =========================================================
-# RealSense depth -> camera coordinate
+# camera intrinsics for PnP
 # =========================================================
 
-def pixel_to_camera_depth(u, v, depth_frame, intr, window=5):
-    """
-    OpenCV pixel座標(u, v) + RealSense Depthから
-    camera座標 [X, Y, Z] [m] を返す。
+def get_camera_matrix_and_dist(intr):
+    camera_matrix = np.array([
+        [intr.fx, 0.0, intr.ppx],
+        [0.0, intr.fy, intr.ppy],
+        [0.0, 0.0, 1.0],
+    ], dtype=np.float64)
 
-    PnPは使わない。
-    ZはRealSense depth_frame.get_distance()。
-    X,YはRealSense color intrinsicsから計算。
+    dist_coeffs = np.array(intr.coeffs, dtype=np.float64).reshape(-1, 1)
 
-    camera座標:
-        X: 画像右
-        Y: 画像下
-        Z: カメラ前方
-    """
-    depths = []
-
-    h = depth_frame.get_height()
-    w = depth_frame.get_width()
-
-    for dy in range(-window, window + 1):
-        for dx in range(-window, window + 1):
-            uu = int(round(u + dx))
-            vv = int(round(v + dy))
-
-            if uu < 0 or uu >= w or vv < 0 or vv >= h:
-                continue
-
-            d = depth_frame.get_distance(uu, vv)
-
-            if DEPTH_MIN_M < d < DEPTH_MAX_M:
-                depths.append(float(d))
-
-    if len(depths) == 0:
-        return None
-
-    Z = float(np.median(depths))
-    X = (float(u) - intr.ppx) / intr.fx * Z
-    Y = (float(v) - intr.ppy) / intr.fy * Z
-
-    return np.array([X, Y, Z], dtype=np.float64)
+    return camera_matrix, dist_coeffs
 
 
 # =========================================================
-# ArUco detection only
+# PnP
+# =========================================================
+
+def estimate_aruco_pose_pnp(marker_corners, intr):
+    """
+    ArUco 4隅からsolvePnPでマーカー中心のcamera座標を推定する。
+    Depthは一切使わない。
+
+    marker_corners:
+        shape = (4, 2)
+        corner order:
+            0: top-left
+            1: top-right
+            2: bottom-right
+            3: bottom-left
+
+    return:
+        rvec: marker姿勢
+        tvec: marker中心のcamera座標[m]
+    """
+
+    L = MARKER_LENGTH_M
+    h = L / 2.0
+
+    # OpenCV ArUco corners の順序に合わせる
+    obj_points = np.array([
+        [-h,  h, 0.0],
+        [ h,  h, 0.0],
+        [ h, -h, 0.0],
+        [-h, -h, 0.0],
+    ], dtype=np.float64)
+
+    img_points = marker_corners.astype(np.float64)
+
+    camera_matrix, dist_coeffs = get_camera_matrix_and_dist(intr)
+
+    # 正方形マーカーなのでIPPE_SQUAREを使用
+    ok, rvec, tvec = cv2.solvePnP(
+        obj_points,
+        img_points,
+        camera_matrix,
+        dist_coeffs,
+        flags=cv2.SOLVEPNP_IPPE_SQUARE,
+    )
+
+    if not ok:
+        return None, None
+
+    return rvec.reshape(3), tvec.reshape(3)
+
+
+# =========================================================
+# ArUco 2D detection
 # =========================================================
 
 def detect_aruco_marker_2d(color, detector, aruco_dict):
     """
-    ArUcoを2D検出するだけ。
-    PnPなし。
-    Depthなし。
+    ArUcoを2D検出する。
+    PnP用に4隅を返す。
+    Depthは使わない。
 
     return:
-        {
-            center_uv,
-            image_angle_rad,
-            d_roll_rad,
-            debug
-        }
+        result, debug
     """
     debug = color.copy()
     gray = cv2.cvtColor(color, cv2.COLOR_BGR2GRAY)
@@ -319,13 +367,10 @@ def detect_aruco_marker_2d(color, detector, aruco_dict):
     marker_corners = corners[target_index].reshape(4, 2)
     marker_id = int(ids_flat[target_index])
 
-    # 中心pixel
     center_uv = marker_corners.mean(axis=0)
     u, v = center_uv
 
-    # ArUcoのcorner順:
-    # 0: top-left, 1: top-right, 2: bottom-right, 3: bottom-left
-    # 上辺の画像上角度だけ使う
+    # 上辺の画像上角度
     p0 = marker_corners[0]
     p1 = marker_corners[1]
     image_angle_rad = np.arctan2(
@@ -335,7 +380,6 @@ def detect_aruco_marker_2d(color, detector, aruco_dict):
 
     d_roll_rad = normalize_roll_for_marker(image_angle_rad)
 
-    # debug draw
     cv2.circle(debug, (int(u), int(v)), 6, (0, 255, 0), -1)
 
     cv2.line(
@@ -387,7 +431,9 @@ def detect_aruco_marker_2d(color, detector, aruco_dict):
     )
 
     result = {
+        "marker_id": marker_id,
         "center_uv": center_uv.astype(np.float64),
+        "marker_corners": marker_corners.astype(np.float64),
         "image_angle_rad": float(image_angle_rad),
         "d_roll_rad": float(d_roll_rad),
     }
@@ -396,39 +442,33 @@ def detect_aruco_marker_2d(color, detector, aruco_dict):
 
 
 # =========================================================
-# RealSense loop
+# RealSense loop PnP only
 # =========================================================
 
-def run_capture_and_aruco_center_depth():
+def run_capture_and_aruco_center_pnp():
     """
-    RealSenseを起動してOpenCV画面を出す。
-    Enterを押した瞬間に、
-      1. ArUco中心pixel
-      2. RealSense Depth
-      3. camera座標 target_m
-      4. 画像上傾き d_roll_rad
-    を返す。
+    RealSense color画像からArUcoを検出し，
+    ArUco 4隅 + カメラ内部パラメータ + 実寸マーカーサイズからPnPでcamera座標を出す。
 
-    PnPは完全に使わない。
+    Depthは一切使わない。
     """
     detector, aruco_dict = create_aruco_detector()
 
     pipeline = rs.pipeline()
     config = rs.config()
 
+    # PnP検証ではcolorだけ使う
     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 
     profile = pipeline.start(config)
-
-    # depthをcolorにalign
-    align = rs.align(rs.stream.color)
 
     color_stream = profile.get_stream(rs.stream.color)
     intr = color_stream.as_video_stream_profile().get_intrinsics()
 
     print("===================================")
     print("RealSense started")
+    print("POSITION SOURCE : PnP")
+    print("Depth           : NOT USED")
     print("ArUco dictionary:", ARUCO_DICT_NAME)
     print("Target marker ID:", TARGET_MARKER_ID)
     print("Marker length [m]:", MARKER_LENGTH_M)
@@ -436,23 +476,20 @@ def run_capture_and_aruco_center_depth():
     print("fy :", intr.fy)
     print("ppx:", intr.ppx)
     print("ppy:", intr.ppy)
+    print("coeffs:", intr.coeffs)
     print("===================================")
-    print("ENTER : calculate target from RealSense Depth")
+    print("ENTER : calculate target from PnP")
     print("ESC   : cancel")
     print("===================================")
 
     last_result = None
-    last_depth_frame = None
 
     try:
         while True:
             frames = pipeline.wait_for_frames()
-            aligned = align.process(frames)
+            color_frame = frames.get_color_frame()
 
-            color_frame = aligned.get_color_frame()
-            depth_frame = aligned.get_depth_frame()
-
-            if not color_frame or not depth_frame:
+            if not color_frame:
                 continue
 
             color = np.asanyarray(color_frame.get_data())
@@ -464,62 +501,74 @@ def run_capture_and_aruco_center_depth():
             )
 
             if result is not None:
-                last_result = result
-                last_depth_frame = depth_frame
+                marker_corners = result["marker_corners"]
 
-                u, v = result["center_uv"]
-                d = depth_frame.get_distance(int(round(u)), int(round(v)))
-
-                cv2.putText(
-                    debug,
-                    f"center depth={d:.3f} m",
-                    (20, 175),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.8,
-                    (0, 255, 0),
-                    2,
+                rvec, tvec = estimate_aruco_pose_pnp(
+                    marker_corners=marker_corners,
+                    intr=intr,
                 )
 
-            cv2.imshow("aruco depth detection", debug)
+                if rvec is not None and tvec is not None:
+                    camera_matrix, dist_coeffs = get_camera_matrix_and_dist(intr)
+
+                    try:
+                        cv2.drawFrameAxes(
+                            debug,
+                            camera_matrix,
+                            dist_coeffs,
+                            rvec,
+                            tvec,
+                            MARKER_LENGTH_M * 0.5,
+                        )
+                    except Exception:
+                        pass
+
+                    cv2.putText(
+                        debug,
+                        f"PnP X={tvec[0]*1000:.1f} Y={tvec[1]*1000:.1f} Z={tvec[2]*1000:.1f} mm",
+                        (20, 175),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.65,
+                        (0, 255, 0),
+                        2,
+                    )
+
+                    result["pnp_rvec"] = rvec
+                    result["pnp_tvec_m"] = tvec
+
+                last_result = result
+
+            cv2.imshow("aruco pnp detection", debug)
 
             key = cv2.waitKey(1) & 0xFF
 
-            # ESC
             if key == 27:
                 print("Canceled by ESC")
                 return None, None
 
-            # ENTER
             if key in (10, 13):
-                if last_result is None or last_depth_frame is None:
+                if last_result is None:
                     print("ArUcoが検出できていない")
                     continue
 
-                u, v = last_result["center_uv"]
-
-                target_m = pixel_to_camera_depth(
-                    u,
-                    v,
-                    last_depth_frame,
-                    intr,
-                    window=DEPTH_WINDOW,
-                )
-
-                if target_m is None:
-                    print("Depthが取得できない")
+                if "pnp_tvec_m" not in last_result:
+                    print("PnPが失敗している")
                     continue
 
+                target_m = last_result["pnp_tvec_m"]
                 d_roll_rad = last_result["d_roll_rad"]
+
+                u, v = last_result["center_uv"]
 
                 print("")
                 print("========== ARUCO TARGET ==========")
-                print("POSITION SOURCE : RealSense Depth")
-                print("PnP             : NOT USED")
+                print("POSITION SOURCE : PnP")
+                print("Depth           : NOT USED")
                 print(f"center pixel u={u:.2f}, v={v:.2f}")
                 print(f"image angle = {np.degrees(last_result['image_angle_rad']):.2f} deg")
                 print(f"d_roll      = {np.degrees(d_roll_rad):.2f} deg")
-                print("target camera [m]  =", target_m)
-                print("target camera [mm] =", target_m * 1000.0)
+                print("target camera PnP [m]  =", target_m)
+                print("target camera PnP [mm] =", target_m * 1000.0)
                 print("==================================")
                 print("")
 
@@ -534,76 +583,21 @@ def run_capture_and_aruco_center_depth():
 # reaching like box
 # =========================================================
 
-RETURN_JOINT_DEG = [
-    106.8,
-    -28.0,
-    149.7,
-    52.4,
-    32.2,
-    28.8,
-    51.6,
-]
-def moveJ_to_return_pose_direct(
-    arm,
-    joint_deg=None,
-    speed=20,
-    mvacc=200,
-    wait=True,
-):
+def reach_aruco_center_like_box_pnp(arm: XArm7, side: str = "right"):
     """
-    calibration_valid.py 内だけで使う退避姿勢移動。
-    xarm7.py は変更しない。
-    joint_deg 単位: deg
-    """
-
-    if joint_deg is None:
-        joint_deg = RETURN_JOINT_DEG
-
-    print("\n========== RETURN JOINT MOVE ==========")
-    print("target joint deg =", joint_deg)
-    print("speed =", speed)
-    print("mvacc =", mvacc)
-    print("=======================================\n")
-
-    # XArm7クラスの中にSDK本体が arm.arm として入っている場合
-    sdk_arm = getattr(arm, "arm", None)
-
-    # もし arm.arm が無ければ arm._arm も見る
-    if sdk_arm is None:
-        sdk_arm = getattr(arm, "_arm", None)
-
-    # それでも無ければ、XArm7自体が set_servo_angle を持っているか見る
-    if sdk_arm is None:
-        sdk_arm = arm
-
-    if not hasattr(sdk_arm, "set_servo_angle"):
-        raise RuntimeError(
-            "set_servo_angle が見つからない。XArm7内のSDK本体の変数名を確認して。"
-        )
-
-    ret = sdk_arm.set_servo_angle(
-        angle=joint_deg,
-        speed=speed,
-        mvacc=mvacc,
-        is_radian=False,
-        wait=wait,
-    )
-
-    print("[return pose ret] =", ret)
-    return ret
-
-def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
-    """
-    リーチング箱と同じ処理:
-      target_m
+    PnP版:
+      ArUco 4隅
+      -> solvePnP
+      -> target_m
       -> target_mm
       -> cam_mm_to_robot_mm()
       -> move_to_target_xyz_and_roll()
     """
-    d_roll_rad, target_m = run_capture_and_aruco_center_depth()
+
+    d_roll_rad, target_m = run_capture_and_aruco_center_pnp()
 
     if target_m is None:
-        raise RuntimeError("ArUco recognition canceled or failed")
+        raise RuntimeError("ArUco PnP recognition canceled or failed")
 
     target_mm = 1000.0 * target_m
 
@@ -626,15 +620,11 @@ def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
     print("==================================")
 
     if ASK_BEFORE_MOVE:
-        ans = input("Move robot? [y/N]: ")
+        ans = input("Move robot? [y/N]: ").strip()
         if ans.lower() != "y":
             print("移動キャンセル")
             return
 
-    # 重要:
-    # XArmMonitorは認識待機中に作らない。
-    # 待機中に state=5 を異常判定して emergency_stop するため。
-    # move直前だけ作る。
     print("========== DIRECT MOVE CALL ==========")
     print("Calling arm.move_to_target_xyz_and_roll() directly...")
     print("p_robot_mm =", p_robot_mm)
@@ -650,7 +640,7 @@ def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
     )
 
     print("move_to_target_xyz_and_roll returned:", ret)
-    print("aruco center reaching done")
+    print("aruco PnP center reaching done")
 
     input("Enterで退避姿勢に戻る / Ctrl+Cで終了: ")
 
@@ -664,6 +654,8 @@ def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
 
     print("return pose returned:", ret2)
     print("returned to calibration return pose")
+
+
 # =========================================================
 # main
 # =========================================================
@@ -673,7 +665,7 @@ def main():
 
     rclpy.init()
 
-    node = rclpy.create_node("aruco_center_depth_reaching_test")
+    node = rclpy.create_node("aruco_center_pnp_reaching_test")
 
     XARM_HOST = config["robot"]["xarm"]["host"]
 
@@ -692,7 +684,7 @@ def main():
 
         recover_xarm_if_possible(arm)
 
-        reach_aruco_center_like_box(
+        reach_aruco_center_like_box_pnp(
             arm=arm,
             side=SIDE,
         )
