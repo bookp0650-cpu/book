@@ -488,18 +488,21 @@ class XArm7:
         pos_tol_mm: float = 1.0,
     ):
         p_robot_mm = np.asarray(p_robot_mm, dtype=np.float64).reshape(3)
-
+        y = p_robot_mm[1]
         right = 1
         left = -1
-        x_offset_mm = -0.0
-        k_roll = -4.0
+        x_offset_mm = 0 
 
         if side == "right":
+            roll_calib_right = 2.2256*d_roll_rad - 0.5437
+            target_position_calib_right =  -3e-8 * y**3 + 5e-6 * y**2 + 0.015 * y+ 3.4206
             x_offset_mm *= right
-            y_offset_mm = k_roll*right*np.sin(d_roll_rad)
+            u_offset_mm = roll_calib_right + target_position_calib_right
+            y_offset_mm = u_offset_mm/np.cos(d_roll_rad)
+            calib_rad = 0.0107*d_roll_rad + 0.003
         elif side == "left":
             x_offset_mm *= left
-            y_offset_mm = k_roll*left*np.sin(d_roll_rad)
+            y_offset_mm = 0
         else:
             raise ValueError("side must be 'right' or 'left'")
 
@@ -507,9 +510,9 @@ class XArm7:
 
         target_pose = [
             float(p_robot_mm[0] + x_offset_mm),
-            float(p_robot_mm[1] + y_offset_mm),
+            float(p_robot_mm[1] + y_offset_mm ),
             float(p_robot_mm[2]),
-            float(curr[3] + d_roll_rad),
+            float(curr[3] + d_roll_rad + calib_rad ),
             float(curr[4]),
             float(curr[5]),
         ]

@@ -1,0 +1,88 @@
+{
+"created_at": "2026-07-18T16:58:58",
+"input_csv": "/home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/charuco_handeye_samples_20260718_163556.csv",
+
+"settings": {
+"method": "DANIILIDIS",
+"algorithm": "OpenCV calibrateHandEye + weighted nonlinear least_squares",
+"source_T_base_tcp_translation_unit": "mm",
+"source_T_cam_board_translation_unit": "m",
+"output_translation_unit": "m",
+"nonlinear_refinement": true,
+"optimized_unknown_count": 12,
+"position_weights_xyz": [1.0000, 50.0000, 30.0000],
+"rotation_weights_rpy": [30.0000, 1.0000, 1.0000],
+"robust_loss": "soft_l1",
+"robust_f_scale": 2.0000,
+"T_cam_tcp_meaning": "camera_to_tcp",
+"T_tcp_cam_meaning": "tcp_to_camera"
+},
+
+"T_cam_tcp": [
+[0.0028, -0.0026, -1.0000, 0.1852],
+[0.9999, -0.0113, 0.0029, -0.0017],
+[-0.0114, -0.9999, 0.0025, -0.1016],
+[0.0000, 0.0000, 0.0000, 1.0000]
+],
+
+"T_tcp_cam": [
+[0.0028, 0.9999, -0.0114, 0.0000],
+[-0.0026, -0.0113, -0.9999, -0.1011],
+[-1.0000, 0.0029, 0.0025, 0.1855],
+[0.0000, 0.0000, 0.0000, 1.0000]
+],
+
+"optimization": {
+"success": true,
+"message": "ftol termination condition is satisfied",
+"nfev": 18,
+"cost": 7673.3099,
+"optimality": 0.1196,
+
+
+"initial_T_cam_tcp": [
+  [0.0202, 0.0192, -0.9996, 0.2486],
+  [0.9989, -0.0430, 0.0193, -0.0263],
+  [-0.0426, -0.9989, -0.0200, -0.0873],
+  [0.0000, 0.0000, 0.0000, 1.0000]
+],
+
+"optimized_T_base_board": [
+  [0.0694, -0.0188, 0.9974, 0.7884],
+  [0.0113, -0.9997, -0.0196, -0.3813],
+  [0.9975, 0.0126, -0.0692, -0.1003],
+  [0.0000, 0.0000, 0.0000, 1.0000]
+],
+
+"initial_consistency": {
+  "base_x_rmse_mm": 5.4685,
+  "base_y_rmse_mm": 7.7476,
+  "base_z_rmse_mm": 7.7775,
+  "base_roll_rmse_deg": 21.1174,
+  "base_pitch_rmse_deg": 0.9768,
+  "base_yaw_rmse_deg": 21.1913,
+  "translation_rmse_mm": 12.2645,
+  "translation_mean_mm": 11.3904,
+  "translation_max_mm": 21.1959,
+  "rotation_rmse_deg": 1.5843,
+  "rotation_mean_deg": 1.3950,
+  "rotation_max_deg": 4.5721
+},
+
+"optimized_consistency": {
+  "base_x_rmse_mm": 5.2429,
+  "base_y_rmse_mm": 0.9486,
+  "base_z_rmse_mm": 1.0735,
+  "base_roll_rmse_deg": 5.9691,
+  "base_pitch_rmse_deg": 1.2012,
+  "base_yaw_rmse_deg": 5.8492,
+  "translation_rmse_mm": 5.4351,
+  "translation_mean_mm": 4.4060,
+  "translation_max_mm": 16.7386,
+  "rotation_rmse_deg": 1.5986,
+  "rotation_mean_deg": 1.4088,
+  "rotation_max_deg": 4.7329
+}
+
+}
+}

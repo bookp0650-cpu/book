@@ -1,5 +1,6 @@
 python3 Retrieval_integration.py
 
+【ロボシリンダー】
 ros2 run iai_cylinder height_controller
 ros2 topic pub --once /target_mm std_msgs/msg/Float32 "{data: 140.0}"
 
@@ -13,10 +14,12 @@ ros2 topic pub --once /navigation_goal_final std_msgs/msg/Bool "{data: true}"
 
 ros2 topic pub  /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.03, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
 
-
+【ハンド】
 cd ~/pro_book/pro_hand_book_python
 source .pro_hand_book_fixed/bin/activate
-python Retrieval_integration.py
+ハンドの開閉
+python3 -m Dynamixel_win_pro_hand_book.HandBook_Retrieval
+ハンドの初期値調整
 python3 -m Dynamixel_win_pro_hand_book.id_1_gripper_pos_check
 python3 -m Dynamixel_win_pro_hand_book.id_2_sp_rot_pos_check
 python3 -m Dynamixel_win_pro_hand_book.id_3_sp_lin_pos_check

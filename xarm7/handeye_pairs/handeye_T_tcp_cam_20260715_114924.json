@@ -1,0 +1,68 @@
+{
+  "created_at": "2026-07-15T11:49:24",
+  "input_csv": "/home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/charuco_handeye_samples_20260715_112247.csv",
+  "settings": {
+    "method": "DANIILIDIS",
+    "source_T_base_tcp_translation_unit": "mm",
+    "source_T_cam_board_translation_unit": "m",
+    "output_translation_unit": "m",
+    "algorithm": "OpenCV calibrateHandEye",
+    "uses_T_base_board_mm": false,
+    "nonlinear_refinement": false,
+    "json_key_convention": "existing_robot_base_coordinate_compatible",
+    "T_cam_tcp_meaning": "camera_to_tcp",
+    "T_tcp_cam_meaning": "tcp_to_camera"
+  },
+  "T_cam_tcp": [
+    [
+      -0.0019430037660561617,
+      0.012052565392746835,
+      -0.9999254774251023,
+      0.21526112960311894
+    ],
+    [
+      0.9999554418213494,
+      -0.00921384609234666,
+      -0.0020541207502612333,
+      -0.002128717146378495
+    ],
+    [
+      -0.00923791687747827,
+      -0.9998849137313954,
+      -0.012034125814727573,
+      -0.09635205507021477
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "T_tcp_cam": [
+    [
+      -0.0019430037660561617,
+      0.9999554418213497,
+      -0.009237916877478504,
+      0.001656783204411101
+    ],
+    [
+      0.012052565392746835,
+      -0.009213846092346673,
+      -0.9998849137313957,
+      -0.09895502878494336
+    ],
+    [
+      -0.9999254774251023,
+      -0.0020541207502611236,
+      -0.012034125814727577,
+      0.21408120239418119
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

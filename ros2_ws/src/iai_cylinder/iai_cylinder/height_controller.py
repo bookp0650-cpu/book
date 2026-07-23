@@ -11,7 +11,7 @@ from std_msgs.msg import Float32
 # ==== 通信設定 ====
 PORT  = "/dev/ttyIAI"
 SLAVE = 1
-BAUD  = 38400
+BAUD  = 115200
 
 # ==== レジスタ ====
 REG_PNOW_HI = 0x9000   # 現在位置 (32bit, 0.01mm)
@@ -33,14 +33,23 @@ POS_BASE = 0x1000 + 0x10 * POS_NO
 # ===============================
 def make_inst():
     inst = minimalmodbus.Instrument(
-        PORT, SLAVE, mode=minimalmodbus.MODE_RTU
+        PORT,
+        SLAVE,
+        mode=minimalmodbus.MODE_RTU,
     )
-    inst.serial.baudrate = BAUD
+
+    inst.serial.baudrate = 115200
     inst.serial.bytesize = 8
-    inst.serial.parity   = serial.PARITY_NONE
+    inst.serial.parity = serial.PARITY_NONE
     inst.serial.stopbits = 1
-    inst.serial.timeout  = 0.3
+    inst.serial.timeout = 2.0
+
     inst.clear_buffers_before_each_transaction = True
+    inst.close_port_after_each_call = False
+
+    # 原因調査中だけ有効化
+    inst.debug = True
+
     return inst
 
 
@@ -244,8 +253,8 @@ def main():
     inst = make_inst()
 
     print("PNOW =", read_pnow_mm(inst), "mm")
-    print("ALMC =", hex(inst.read_register(REG_ALMC, 0, 3)))
-    print("DSS1 =", hex(inst.read_register(REG_DSS1, 0, 3)))
+    print("ALMC =", hex(int(inst.read_register(REG_ALMC, number_of_decimals=0, functioncode=3))))
+    print("DSS1 =", hex(int(inst.read_register(REG_DSS1, number_of_decimals=0, functioncode=3))))
 
     write_coil(inst, COIL_STP, False)
     time.sleep(0.2)
@@ -253,8 +262,8 @@ def main():
     time.sleep(0.2)
 
     print("[AFTER SON]")
-    print("ALMC =", hex(inst.read_register(REG_ALMC, 0, 3)))
-    print("DSS1 =", hex(inst.read_register(REG_DSS1, 0, 3)))
+    print("ALMC =", hex(int(inst.read_register(REG_ALMC, number_of_decimals=0, functioncode=3))))
+    print("DSS1 =", hex(int(inst.read_register(REG_DSS1, number_of_decimals=0, functioncode=3))))
 
     rclpy.init()
     node = IaiCylinderNode(inst)

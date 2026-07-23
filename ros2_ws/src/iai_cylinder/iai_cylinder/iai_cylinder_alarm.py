@@ -56,11 +56,14 @@ def make_inst():
     inst = minimalmodbus.Instrument(
         PORT, SLAVE, mode=minimalmodbus.MODE_RTU
     )
-    inst.serial.baudrate = BAUD
-    inst.serial.bytesize = 8
-    inst.serial.parity   = serial.PARITY_NONE
-    inst.serial.stopbits = 1
-    inst.serial.timeout  = 0.3
+    ser = inst.serial
+    if ser is None:
+        raise RuntimeError("MinimalModbusのシリアルポートが初期化されていません")
+    ser.baudrate = BAUD
+    ser.bytesize = 8
+    ser.parity = serial.PARITY_NONE
+    ser.stopbits = 1
+    ser.timeout = 0.3
     inst.clear_buffers_before_each_transaction = True
     return inst
 

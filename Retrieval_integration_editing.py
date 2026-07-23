@@ -417,9 +417,11 @@ def main_sequence(
             return 0.0   # ← 次の本へ
 
 
-        except Exception:
-            print("xArm7 error")
-            os.kill(os.getpid(), signal.SIGINT)
+        except Exception as e:
+            print("\n========== RETRIEVAL ERROR ==========")
+            print(f"type    : {type(e).__name__}")
+            print(f"message : {e}")
+            raise
         
         tp.publish_target_mm(config["linear_lift"]["move_to_container"])
         rclpy.spin_once(tp, timeout_sec=0.1)

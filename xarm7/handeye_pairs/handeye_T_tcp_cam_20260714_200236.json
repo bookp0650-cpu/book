@@ -1,0 +1,74 @@
+{
+  "created_at": "2026-07-14T20:02:36",
+  "input_csv": "/home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/charuco_handeye_samples_20260714_194758.csv",
+  "settings": {
+    "method": "NONLINEAR_FIXED_BOARD",
+    "initialization": "Recovered current T_tcp_cam from CSV",
+    "robot_euler_order": "zyx",
+    "robot_angle_unit": "deg",
+    "robot_pos_unit_in_input": "mm",
+    "target_tvec_unit_in_input": "m",
+    "output_translation_unit": "m",
+    "json_key_convention": "existing_robot_base_coordinate_compatible",
+    "T_cam_tcp_meaning": "camera_to_tcp",
+    "T_tcp_cam_meaning": "tcp_to_camera",
+    "loss": "soft_l1",
+    "validation_ratio": 0.2,
+    "translation_scale_mm": 1.0,
+    "rotation_scale_deg": 1.0,
+    "max_translation_update_mm": 50.0,
+    "max_rotation_update_deg": 10.0
+  },
+  "T_cam_tcp": [
+    [
+      -0.009759844876008783,
+      0.001135999311475295,
+      -0.9999517263016053,
+      0.1840227265216301
+    ],
+    [
+      0.9999470284172658,
+      -0.003257978222291861,
+      -0.009763500262862709,
+      0.003485778874088169
+    ],
+    [
+      -0.0032689122772099843,
+      -0.9999940475240178,
+      -0.0011041417737347992,
+      -0.09747082388085744
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "T_tcp_cam": [
+    [
+      -0.009759844876008783,
+      0.9999470284172657,
+      -0.003268912277210016,
+      -0.002008184535206757
+    ],
+    [
+      0.001135999311475295,
+      -0.0032579782222918944,
+      -0.9999940475240177,
+      -0.0976679367870842
+    ],
+    [
+      -0.9999517263016052,
+      -0.009763500262862879,
+      -0.001104141773734797,
+      0.18394025485861845
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

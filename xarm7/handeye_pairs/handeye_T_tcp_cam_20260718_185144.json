@@ -1,0 +1,1094 @@
+{
+  "created_at": "2026-07-18T18:51:44",
+  "input_csv": "/home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/charuco_handeye_samples_20260718_163556.csv",
+  "settings": {
+    "method": "DANIILIDIS",
+    "source_T_base_tcp_translation_unit": "mm",
+    "source_T_cam_board_translation_unit": "m",
+    "output_translation_unit": "m",
+    "algorithm": "iterative MAD outlier rejection + OpenCV calibrateHandEye initial solution + weighted nonlinear least_squares refinement",
+    "uses_T_base_board_mm": false,
+    "nonlinear_refinement": true,
+    "optimized_unknown_count": 12,
+    "objective_position_weights_xyz": [
+      1.0,
+      50.0,
+      30.0
+    ],
+    "objective_rotation_weights_rpy": [
+      30.0,
+      1.0,
+      1.0
+    ],
+    "robust_loss": "soft_l1",
+    "robust_f_scale": 2.0,
+    "outlier_rejection_enabled": true,
+    "outlier_method": "translation/rotation norm MAD + hard base RPY limits + final six-axis XYZ/RPY export guard",
+    "outlier_mad_scale": 3.5,
+    "outlier_max_iterations": 10,
+    "outlier_min_translation_scale_mm": 0.5,
+    "outlier_min_rotation_scale_deg": 0.1,
+    "outlier_hard_rpy_limits_deg": [
+      15.0,
+      20.0,
+      20.0
+    ],
+    "final_export_position_limits_mm": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "final_export_rpy_limits_deg": [
+      20.0,
+      20.0,
+      20.0
+    ],
+    "outlier_min_inlier_ratio": 0.5,
+    "json_key_convention": "existing_robot_base_coordinate_compatible",
+    "T_cam_tcp_meaning": "camera_to_tcp",
+    "T_tcp_cam_meaning": "tcp_to_camera"
+  },
+  "T_cam_tcp": [
+    [
+      0.0028928226945599267,
+      -0.00040870970793622727,
+      -0.9999957322575096,
+      0.1859184841625729
+    ],
+    [
+      0.9999269115896978,
+      -0.011737820508902777,
+      0.0028974209893861754,
+      -0.001415547606653057
+    ],
+    [
+      -0.011738954618993767,
+      -0.9999310258843234,
+      0.00037472440244056985,
+      -0.09981334450948758
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "T_tcp_cam": [
+    [
+      0.0028928226945599267,
+      0.9999269115896978,
+      -0.01173895461899359,
+      -0.0002940893853617569
+    ],
+    [
+      -0.00040870970793622716,
+      -0.0117378205089027,
+      -0.9999310258843235,
+      -0.09974708872668397
+    ],
+    [
+      -0.9999957322575094,
+      0.0028974209893866004,
+      0.0003747244024405706,
+      0.18595919464358218
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "outlier_rejection": {
+    "original_sample_count": 156,
+    "inlier_count": 141,
+    "outlier_count": 15,
+    "minimum_remaining_samples": 78,
+    "inlier_source_csv_rows": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      86,
+      87,
+      88,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      111,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      133,
+      134,
+      135,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      147,
+      149,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157
+    ],
+    "outlier_source_csv_rows": [
+      11,
+      25,
+      34,
+      48,
+      58,
+      75,
+      85,
+      89,
+      110,
+      112,
+      132,
+      136,
+      146,
+      148,
+      150
+    ],
+    "rejected_samples": [
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 9,
+        "source_csv_row": 11,
+        "translation_error_mm": 4.712741379605285,
+        "rotation_error_deg": 2.5924036008477302,
+        "translation_axis_errors_mm": [
+          4.484258695060306,
+          -1.4238477269269967,
+          0.2720531516906127
+        ],
+        "rpy_axis_errors_deg": [
+          -21.725114874860424,
+          -2.3916921111771785,
+          21.95142661817391
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "base_roll",
+          "base_yaw"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 32,
+        "source_csv_row": 34,
+        "translation_error_mm": 13.67204350563366,
+        "rotation_error_deg": 2.7710116641779696,
+        "translation_axis_errors_mm": [
+          -13.441408494221374,
+          1.83497237287511,
+          1.698878365922099
+        ],
+        "rpy_axis_errors_deg": [
+          1.0256517566339767,
+          2.468390894796414,
+          -2.27751323145813
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 56,
+        "source_csv_row": 58,
+        "translation_error_mm": 16.73856756381543,
+        "rotation_error_deg": 4.732901597330672,
+        "translation_axis_errors_mm": [
+          -16.62331849391352,
+          -0.9429439173802567,
+          1.7192391069895951
+        ],
+        "rpy_axis_errors_deg": [
+          6.753429081768587,
+          3.5511315625277575,
+          -3.6610322734406964
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm",
+          "rotation_norm"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 83,
+        "source_csv_row": 85,
+        "translation_error_mm": 7.044964104022587,
+        "rotation_error_deg": 3.6155209415079446,
+        "translation_axis_errors_mm": [
+          6.976317303780122,
+          0.4558700512953262,
+          0.868733906485078
+        ],
+        "rpy_axis_errors_deg": [
+          -60.88517477836103,
+          -2.884466417051499,
+          60.80946754600569
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "base_roll",
+          "base_yaw"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 110,
+        "source_csv_row": 112,
+        "translation_error_mm": 14.762418381227338,
+        "rotation_error_deg": 3.4061426623489086,
+        "translation_axis_errors_mm": [
+          -14.576264202842527,
+          2.325472077914559,
+          -0.231728216171595
+        ],
+        "rpy_axis_errors_deg": [
+          0.8661246094481498,
+          2.9444977674336883,
+          -2.572963917300399
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 130,
+        "source_csv_row": 132,
+        "translation_error_mm": 13.180586470532921,
+        "rotation_error_deg": 2.170328248444692,
+        "translation_axis_errors_mm": [
+          -13.006576012499771,
+          1.9570229453610977,
+          0.8525850864231771
+        ],
+        "rpy_axis_errors_deg": [
+          2.918723535931804,
+          1.5404188711947882,
+          -1.3989719800970875
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 134,
+        "source_csv_row": 136,
+        "translation_error_mm": 15.087204782425452,
+        "rotation_error_deg": 2.872607602686591,
+        "translation_axis_errors_mm": [
+          -15.023242108525793,
+          1.3437991367589164,
+          -0.34662454544499843
+        ],
+        "rpy_axis_errors_deg": [
+          0.7295041020568647,
+          2.870676508001054,
+          -0.8076105077991542
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 1,
+        "sample_index_zero_based": 148,
+        "source_csv_row": 150,
+        "translation_error_mm": 16.498775373003053,
+        "rotation_error_deg": 2.348041395682111,
+        "translation_axis_errors_mm": [
+          -16.41786538745138,
+          1.5633086524983186,
+          -0.4683492130471839
+        ],
+        "rpy_axis_errors_deg": [
+          -0.05400990227570901,
+          2.3480242570869905,
+          0.061393927897711364
+        ],
+        "translation_threshold_mm": 12.004491667915273,
+        "rotation_threshold_deg": 3.9984855730980153,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 2,
+        "sample_index_zero_based": 108,
+        "source_csv_row": 110,
+        "translation_error_mm": 11.628496800026415,
+        "rotation_error_deg": 2.9489413585910844,
+        "translation_axis_errors_mm": [
+          -11.468301510599744,
+          0.7563804988848233,
+          1.7685832836219357
+        ],
+        "rpy_axis_errors_deg": [
+          3.2931308794866823,
+          2.83188996085687,
+          -2.510891077444711
+        ],
+        "translation_threshold_mm": 10.857194567437464,
+        "rotation_threshold_deg": 3.8286430450985547,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 2,
+        "sample_index_zero_based": 146,
+        "source_csv_row": 148,
+        "translation_error_mm": 11.466915486584032,
+        "rotation_error_deg": 2.252578309064379,
+        "translation_axis_errors_mm": [
+          -11.391492777053202,
+          1.306100808191768,
+          0.13469879600887247
+        ],
+        "rpy_axis_errors_deg": [
+          1.6130360247683484,
+          2.248324258994728,
+          -1.6305569416953745
+        ],
+        "translation_threshold_mm": 10.857194567437464,
+        "rotation_threshold_deg": 3.8286430450985547,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 3,
+        "sample_index_zero_based": 73,
+        "source_csv_row": 75,
+        "translation_error_mm": 10.484876244732696,
+        "rotation_error_deg": 2.0169350993366866,
+        "translation_axis_errors_mm": [
+          -10.432785764529108,
+          0.9677836727471356,
+          -0.3911595857995359
+        ],
+        "rpy_axis_errors_deg": [
+          -0.6661527940924827,
+          1.9037629451043188,
+          3.6705466754938243e-06
+        ],
+        "translation_threshold_mm": 10.369945438159874,
+        "rotation_threshold_deg": 3.797987647228997,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 4,
+        "sample_index_zero_based": 87,
+        "source_csv_row": 89,
+        "translation_error_mm": 10.311684481742356,
+        "rotation_error_deg": 2.382527806254723,
+        "translation_axis_errors_mm": [
+          -9.828985926498945,
+          2.649174583926439,
+          -1.644307310562712
+        ],
+        "rpy_axis_errors_deg": [
+          -0.3923808251972787,
+          2.2431446423541104,
+          -0.41133432185296215
+        ],
+        "translation_threshold_mm": 9.852678364087081,
+        "rotation_threshold_deg": 3.7856517668687637,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 4,
+        "sample_index_zero_based": 144,
+        "source_csv_row": 146,
+        "translation_error_mm": 10.234666516718177,
+        "rotation_error_deg": 1.683244546274375,
+        "translation_axis_errors_mm": [
+          -10.174138836770542,
+          1.026707375912761,
+          -0.42564022694745185
+        ],
+        "rpy_axis_errors_deg": [
+          -0.5424620249149257,
+          1.6426234850081016,
+          0.17571167006076394
+        ],
+        "translation_threshold_mm": 9.852678364087081,
+        "rotation_threshold_deg": 3.7856517668687637,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": 5,
+        "sample_index_zero_based": 46,
+        "source_csv_row": 48,
+        "translation_error_mm": 9.624849473549608,
+        "rotation_error_deg": 1.9036286055974714,
+        "translation_axis_errors_mm": [
+          -9.544225878195256,
+          1.2424186505398116,
+          0.04330902061928932
+        ],
+        "rpy_axis_errors_deg": [
+          0.7598156754542629,
+          1.8931108090916098,
+          -0.9474787221467977
+        ],
+        "translation_threshold_mm": 9.609633887303232,
+        "rotation_threshold_deg": 3.7797771913438982,
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "translation_norm"
+        ]
+      },
+      {
+        "iteration": "final_guard_1",
+        "sample_index_zero_based": 23,
+        "source_csv_row": 25,
+        "position_values_mm": [
+          779.0499797902992,
+          -379.8958844751173,
+          -100.03702033690129
+        ],
+        "rpy_values_deg": [
+          169.49536846425238,
+          -84.40265426527498,
+          9.155343775676375
+        ],
+        "reference_position_mm": [
+          789.1196374430674,
+          -380.87514748973285,
+          -100.08434633005974
+        ],
+        "reference_rpy_deg": [
+          170.4573884484796,
+          -86.05317204334453,
+          8.73234907235999
+        ],
+        "robust_center_position_mm": [
+          788.9148489061247,
+          -381.080545894205,
+          -100.49201147846324
+        ],
+        "robust_center_rpy_deg": [
+          169.58387343821335,
+          -86.2984015613543,
+          9.285147326361592
+        ],
+        "position_error_from_reference_mm": [
+          -10.069657652768228,
+          0.9792630146155261,
+          0.047325993158452206
+        ],
+        "rpy_error_from_reference_deg": [
+          -0.9620199842272257,
+          1.6505177780695703,
+          0.422994703316391
+        ],
+        "position_error_from_robust_center_mm": [
+          -9.864869115825513,
+          1.1846614190876608,
+          0.45499114156194764
+        ],
+        "rpy_error_from_robust_center_deg": [
+          -0.08850497396096557,
+          1.8957472960793211,
+          -0.1298035506852102
+        ],
+        "hard_position_limits_mm": [
+          10.0,
+          10.0,
+          10.0
+        ],
+        "hard_rpy_limits_deg": [
+          20.0,
+          20.0,
+          20.0
+        ],
+        "reason": [
+          "final_base_x"
+        ]
+      }
+    ],
+    "iteration_history": [
+      {
+        "iteration": 1,
+        "sample_count_before": 156,
+        "translation_statistics": {
+          "median": 3.609330492798417,
+          "mad": 1.6178453248379983,
+          "robust_sigma": 2.398617478604816,
+          "effective_scale": 2.398617478604816,
+          "threshold": 12.004491667915273
+        },
+        "rotation_statistics": {
+          "median": 1.3215127941776967,
+          "mad": 0.5158838293577535,
+          "robust_sigma": 0.7648493654058053,
+          "effective_scale": 0.7648493654058053,
+          "threshold": 3.9984855730980153
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": [
+          11,
+          34,
+          58,
+          85,
+          112,
+          132,
+          136,
+          150
+        ]
+      },
+      {
+        "iteration": 2,
+        "sample_count_before": 148,
+        "translation_statistics": {
+          "median": 3.170842246541499,
+          "mad": 1.4812496041502312,
+          "robust_sigma": 2.196100663113133,
+          "effective_scale": 2.196100663113133,
+          "threshold": 10.857194567437464
+        },
+        "rotation_statistics": {
+          "median": 1.274772443026502,
+          "mad": 0.49216060628472247,
+          "robust_sigma": 0.7296773148777295,
+          "effective_scale": 0.7296773148777295,
+          "threshold": 3.8286430450985547
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": [
+          110,
+          148
+        ]
+      },
+      {
+        "iteration": 3,
+        "sample_count_before": 146,
+        "translation_statistics": {
+          "median": 3.1089426035335626,
+          "mad": 1.3992798047110893,
+          "robust_sigma": 2.0745722384646608,
+          "effective_scale": 2.0745722384646608,
+          "threshold": 10.369945438159874
+        },
+        "rotation_statistics": {
+          "median": 1.2567528115393967,
+          "mad": 0.4897255469521884,
+          "robust_sigma": 0.7260670959113145,
+          "effective_scale": 0.7260670959113145,
+          "threshold": 3.797987647228997
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": [
+          75
+        ]
+      },
+      {
+        "iteration": 4,
+        "sample_count_before": 145,
+        "translation_statistics": {
+          "median": 3.037125708874637,
+          "mad": 1.3134363676191334,
+          "robust_sigma": 1.9473007586321271,
+          "effective_scale": 1.9473007586321271,
+          "threshold": 9.852678364087081
+        },
+        "rotation_statistics": {
+          "median": 1.235591769036814,
+          "mad": 0.4914262584710162,
+          "robust_sigma": 0.7285885708091285,
+          "effective_scale": 0.7285885708091285,
+          "threshold": 3.7856517668687637
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": [
+          89,
+          146
+        ]
+      },
+      {
+        "iteration": 5,
+        "sample_count_before": 143,
+        "translation_statistics": {
+          "median": 3.0093685271068935,
+          "mad": 1.2719479987273976,
+          "robust_sigma": 1.8857901029132396,
+          "effective_scale": 1.8857901029132396,
+          "threshold": 9.609633887303232
+        },
+        "rotation_statistics": {
+          "median": 1.2477022930147517,
+          "mad": 0.48796032035018533,
+          "robust_sigma": 0.7234499709511847,
+          "effective_scale": 0.7234499709511847,
+          "threshold": 3.7797771913438982
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": [
+          48
+        ]
+      },
+      {
+        "iteration": 6,
+        "sample_count_before": 142,
+        "translation_statistics": {
+          "median": 2.9910943060818886,
+          "mad": 1.2944655590316634,
+          "robust_sigma": 1.919174637820344,
+          "effective_scale": 1.919174637820344,
+          "threshold": 9.708205538453093
+        },
+        "rotation_statistics": {
+          "median": 1.243717244253217,
+          "mad": 0.4790854896065109,
+          "robust_sigma": 0.7102921468906129,
+          "effective_scale": 0.7102921468906129,
+          "threshold": 3.7297397583703624
+        },
+        "hard_rpy_limits_deg": [
+          15.0,
+          20.0,
+          20.0
+        ],
+        "rejected_source_csv_rows": []
+      }
+    ],
+    "final_export_guard_history": [
+      {
+        "iteration": 1,
+        "sample_count_before": 142,
+        "reference_source_csv_row": 2,
+        "reference_position_mm": [
+          789.1196374430674,
+          -380.87514748973285,
+          -100.08434633005974
+        ],
+        "reference_rpy_deg": [
+          170.4573884484796,
+          -86.05317204334453,
+          8.73234907235999
+        ],
+        "robust_center_position_mm": [
+          788.9148489061247,
+          -381.080545894205,
+          -100.49201147846324
+        ],
+        "robust_center_rpy_deg": [
+          169.58387343821335,
+          -86.2984015613543,
+          9.285147326361592
+        ],
+        "limits_position_mm": [
+          10.0,
+          10.0,
+          10.0
+        ],
+        "limits_rpy_deg": [
+          20.0,
+          20.0,
+          20.0
+        ],
+        "reference_was_outlier": false,
+        "rejected_source_csv_rows": [
+          25
+        ]
+      },
+      {
+        "iteration": 2,
+        "sample_count_before": 141,
+        "reference_source_csv_row": 2,
+        "reference_position_mm": [
+          789.2047142882182,
+          -380.7607003274005,
+          -100.16089361938968
+        ],
+        "reference_rpy_deg": [
+          170.53320765037145,
+          -86.05451288087923,
+          8.653288673179668
+        ],
+        "robust_center_position_mm": [
+          789.1447615844753,
+          -380.96131626316,
+          -100.57759680130037
+        ],
+        "robust_center_rpy_deg": [
+          169.64727671929447,
+          -86.3291383667001,
+          9.2533079223482
+        ],
+        "limits_position_mm": [
+          10.0,
+          10.0,
+          10.0
+        ],
+        "limits_rpy_deg": [
+          20.0,
+          20.0,
+          20.0
+        ],
+        "reference_was_outlier": false,
+        "rejected_source_csv_rows": []
+      }
+    ],
+    "inlier_csv": "/home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/charuco_handeye_samples_20260718_163556_inliers_20260718_185144.csv"
+  },
+  "optimization": {
+    "success": true,
+    "status": 2,
+    "message": "`ftol` termination condition is satisfied.",
+    "nfev": 23,
+    "cost": 5712.490270403733,
+    "optimality": 0.06441454383511314,
+    "initial_T_cam_tcp": [
+      [
+        0.013357095333758284,
+        0.025349336895461032,
+        -0.9995894152716933,
+        0.24558875279685816
+      ],
+      [
+        0.9993570205848002,
+        -0.03360432393055749,
+        0.012501792713115911,
+        -0.017742891156167576
+      ],
+      [
+        -0.033273614353064536,
+        -0.9991136874911336,
+        -0.025781893952015217,
+        -0.08405439041969204
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "optimized_T_base_board": [
+      [
+        0.06475390573459783,
+        -0.018173677907439224,
+        0.9977357611729829,
+        0.7887105787027966
+      ],
+      [
+        0.010593950763245924,
+        -0.999765285538488,
+        -0.018898202014257175,
+        -0.3809607175028323
+      ],
+      [
+        0.9978450279975046,
+        0.011793695920380869,
+        -0.06454617600754387,
+        -0.10049297565218611
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "initial_consistency_inliers": {
+      "base_x_rmse_mm": 3.9730412286508323,
+      "base_y_rmse_mm": 6.748807593261094,
+      "base_z_rmse_mm": 7.164501820161788,
+      "base_roll_rmse_deg": 18.16434625423222,
+      "base_pitch_rmse_deg": 0.8669906301667503,
+      "base_yaw_rmse_deg": 18.2697540583506,
+      "translation_rmse_mm": 10.614214378206213,
+      "translation_mean_mm": 9.952094305184799,
+      "translation_max_mm": 17.838867519109698,
+      "rotation_rmse_deg": 1.402633108592721,
+      "rotation_mean_deg": 1.2592068717333267,
+      "rotation_max_deg": 3.161098844500997
+    },
+    "optimized_consistency_inliers": {
+      "base_x_rmse_mm": 3.7950887253534766,
+      "base_y_rmse_mm": 0.9007344529886225,
+      "base_z_rmse_mm": 0.9613479625162785,
+      "base_roll_rmse_deg": 3.122398400493192,
+      "base_pitch_rmse_deg": 0.9812781286077669,
+      "base_yaw_rmse_deg": 2.9372825968017318,
+      "translation_rmse_mm": 4.0172392128351015,
+      "translation_mean_mm": 3.475074697309408,
+      "translation_max_mm": 9.448149287796989,
+      "rotation_rmse_deg": 1.418344889606887,
+      "rotation_mean_deg": 1.2699539180520953,
+      "rotation_max_deg": 3.1447576728864464
+    },
+    "optimized_consistency_all_samples": {
+      "base_x_rmse_mm": 5.206558470615363,
+      "base_y_rmse_mm": 0.9871590954815411,
+      "base_z_rmse_mm": 0.965302169663493,
+      "base_roll_rmse_deg": 6.467408799182354,
+      "base_pitch_rmse_deg": 1.211575693304175,
+      "base_yaw_rmse_deg": 6.368642324826963,
+      "translation_rmse_mm": 5.386514872019344,
+      "translation_mean_mm": 4.271232640378991,
+      "translation_max_mm": 17.29480211366359,
+      "rotation_rmse_deg": 1.6044130278981021,
+      "rotation_mean_deg": 1.4067675845532008,
+      "rotation_max_deg": 4.806061651399226
+    },
+    "initial_consistency": {
+      "base_x_rmse_mm": 3.9730412286508323,
+      "base_y_rmse_mm": 6.748807593261094,
+      "base_z_rmse_mm": 7.164501820161788,
+      "base_roll_rmse_deg": 18.16434625423222,
+      "base_pitch_rmse_deg": 0.8669906301667503,
+      "base_yaw_rmse_deg": 18.2697540583506,
+      "translation_rmse_mm": 10.614214378206213,
+      "translation_mean_mm": 9.952094305184799,
+      "translation_max_mm": 17.838867519109698,
+      "rotation_rmse_deg": 1.402633108592721,
+      "rotation_mean_deg": 1.2592068717333267,
+      "rotation_max_deg": 3.161098844500997
+    },
+    "optimized_consistency": {
+      "base_x_rmse_mm": 3.7950887253534766,
+      "base_y_rmse_mm": 0.9007344529886225,
+      "base_z_rmse_mm": 0.9613479625162785,
+      "base_roll_rmse_deg": 3.122398400493192,
+      "base_pitch_rmse_deg": 0.9812781286077669,
+      "base_yaw_rmse_deg": 2.9372825968017318,
+      "translation_rmse_mm": 4.0172392128351015,
+      "translation_mean_mm": 3.475074697309408,
+      "translation_max_mm": 9.448149287796989,
+      "rotation_rmse_deg": 1.418344889606887,
+      "rotation_mean_deg": 1.2699539180520953,
+      "rotation_max_deg": 3.1447576728864464
+    }
+  }
+}

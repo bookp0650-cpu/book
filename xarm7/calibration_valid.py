@@ -25,17 +25,19 @@ import pyrealsense2 as rs
 from rclpy.executors import MultiThreadedExecutor
 
 from xarm7.control.xarm7 import XArm7
-from xarm7.control.xarm_monitor import XArmMonitor, safe_motion
 from xarm7.control.robot_base_coordinate import (
     cam_mm_to_robot_mm,
     print_camera_debug_info,
 )
+import csv
+from datetime import datetime
 
 
 # =========================================================
 # user settings
 # =========================================================
 
+RESULT_CSV_PATH = "reaching_result_log.csv"
 CONFIG_PATH = "Retrieval_integration.yaml"
 
 ARUCO_DICT_NAME = "DICT_4X4_1000"
@@ -50,7 +52,7 @@ MARKER_LENGTH_M = 0.150
 SIDE = "right"
 
 # roll方向が逆なら -1.0 にする
-ROLL_SIGN = 1.0
+ROLL_SIGN = -1.0
 
 # rollに固定オフセットを足したい場合
 # 例: 90度足すなら np.deg2rad(90.0)
@@ -66,6 +68,63 @@ DEPTH_MAX_M = 2.0
 
 # 移動前確認
 ASK_BEFORE_MOVE = True
+
+
+# =========================================================
+# ID=1 reaching evaluation settings
+# 完璧に合っている状態で5回計測した平均値
+# =========================================================
+
+EVAL_MARKER_ID = 1
+EVAL_MARKER_LENGTH_M = 0.020  # 20 mm
+
+EVAL_REF_U_PX = 349.100000
+EVAL_REF_V_PX = 266.650000
+EVAL_REF_ROLL_DEG = -0.344628
+
+
+
+def append_reaching_result_csv(
+    id0_camera_mm,
+    id0_roll_deg,
+    eval_result,
+    csv_path=RESULT_CSV_PATH,
+):
+    file_exists = os.path.exists(csv_path)
+
+    with open(csv_path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+
+        if not file_exists:
+            writer.writerow([
+                "timestamp",
+                "id0_camera_x_mm",
+                "id0_camera_y_mm",
+                "id0_camera_z_mm",
+                "id0_roll_deg",
+                "id1_du_px",
+                "id1_dv_px",
+                "id1_du_mm",
+                "id1_dv_mm",
+                "id1_d_mm",
+                "id1_droll_deg",
+            ])
+
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            f"{id0_camera_mm[0]:.3f}",
+            f"{id0_camera_mm[1]:.3f}",
+            f"{id0_camera_mm[2]:.3f}",
+            f"{id0_roll_deg:.3f}",
+            f"{eval_result['du_px']:.3f}",
+            f"{eval_result['dv_px']:.3f}",
+            f"{eval_result['du_mm']:.3f}",
+            f"{eval_result['dv_mm']:.3f}",
+            f"{eval_result['d_mm']:.3f}",
+            f"{eval_result['droll_deg']:.3f}",
+        ])
+
+    print(f"[LOG SAVED] {csv_path}")
 
 
 # =========================================================
@@ -530,18 +589,228 @@ def run_capture_and_aruco_center_depth():
         cv2.destroyAllWindows()
 
 
+def run_id1_reaching_evaluation():
+    """
+    リーチング後にID=1マーカーを検出して，
+    完璧位置の基準値との差分を画像座標[px]，mm，roll[deg]で評価する。
+    ロボットは動かさない。
+
+    mm換算はPnPではなくRealSense Depthを使う。
+    """
+
+    global TARGET_MARKER_ID
+    global MARKER_LENGTH_M
+
+    old_target_marker_id = TARGET_MARKER_ID
+    old_marker_length_m = MARKER_LENGTH_M
+
+    TARGET_MARKER_ID = EVAL_MARKER_ID
+    MARKER_LENGTH_M = EVAL_MARKER_LENGTH_M
+
+    detector, aruco_dict = create_aruco_detector()
+
+    pipeline = rs.pipeline()
+    config = rs.config()
+
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+
+    profile = pipeline.start(config)
+    align = rs.align(rs.stream.color)
+
+    color_stream = profile.get_stream(rs.stream.color)
+    intr = color_stream.as_video_stream_profile().get_intrinsics()
+    fx = intr.fx
+    fy = intr.fy
+
+    print("")
+    print("===================================")
+    print("ID=1 REACHING EVALUATION START")
+    print("POSITION SOURCE : RealSense Depth")
+    print("PnP             : NOT USED")
+    print("Target marker ID:", EVAL_MARKER_ID)
+    print("Marker length [m]:", EVAL_MARKER_LENGTH_M)
+    print("-----------------------------------")
+    print("Reference values")
+    print(f"EVAL_REF_U_PX    = {EVAL_REF_U_PX:.6f}")
+    print(f"EVAL_REF_V_PX    = {EVAL_REF_V_PX:.6f}")
+    print(f"EVAL_REF_ROLL_DEG= {EVAL_REF_ROLL_DEG:.6f}")
+    print("-----------------------------------")
+    print("ENTER : evaluate current ID=1 pose")
+    print("ESC/q : cancel")
+    print("===================================")
+
+    last_result = None
+    last_depth_frame = None
+
+    try:
+        while True:
+            frames = pipeline.wait_for_frames()
+            aligned = align.process(frames)
+
+            color_frame = aligned.get_color_frame()
+            depth_frame = aligned.get_depth_frame()
+
+            if not color_frame or not depth_frame:
+                continue
+
+            color = np.asanyarray(color_frame.get_data())
+
+            result, debug = detect_aruco_marker_2d(
+                color=color,
+                detector=detector,
+                aruco_dict=aruco_dict,
+            )
+
+            if result is not None:
+                last_result = result
+                last_depth_frame = depth_frame
+
+                u_now, v_now = result["center_uv"]
+                roll_now_deg = np.degrees(result["d_roll_rad"])
+
+                du_px_live = float(u_now - EVAL_REF_U_PX)
+                dv_px_live = float(v_now - EVAL_REF_V_PX)
+                droll_deg_live = float(roll_now_deg - EVAL_REF_ROLL_DEG)
+
+                target_m_live = pixel_to_camera_depth(
+                    u_now,
+                    v_now,
+                    depth_frame,
+                    intr,
+                    window=DEPTH_WINDOW,
+                )
+
+                cv2.putText(
+                    debug,
+                    f"du={du_px_live:+.2f}px dv={dv_px_live:+.2f}px droll={droll_deg_live:+.2f}deg",
+                    (20, 210),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.65,
+                    (0, 255, 255),
+                    2,
+                )
+
+                if target_m_live is not None:
+                    id1_z_mm_live = float(target_m_live[2] * 1000.0)
+
+                    du_mm_live = du_px_live * id1_z_mm_live / fx
+                    dv_mm_live = dv_px_live * id1_z_mm_live / fy
+                    d_mm_live = np.hypot(du_mm_live, dv_mm_live)
+
+                    cv2.putText(
+                        debug,
+                        f"du_mm={du_mm_live:+.2f} dv_mm={dv_mm_live:+.2f} err={d_mm_live:.2f}mm",
+                        (20, 240),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.65,
+                        (0, 255, 255),
+                        2,
+                    )
+
+                    cv2.putText(
+                        debug,
+                        f"ID1 Z={id1_z_mm_live:.1f} mm",
+                        (20, 270),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.65,
+                        (0, 255, 255),
+                        2,
+                    )
+
+            cv2.imshow("ID=1 reaching evaluation", debug)
+
+            key = cv2.waitKey(1) & 0xFF
+
+            if key in (27, ord("q")):
+                print("ID=1 evaluation canceled")
+                return None
+
+            if key in (10, 13):
+                if last_result is None or last_depth_frame is None:
+                    print("ID=1 ArUcoが検出できていない")
+                    continue
+
+                u_now, v_now = last_result["center_uv"]
+                roll_now_deg = np.degrees(last_result["d_roll_rad"])
+
+                du_px = float(u_now - EVAL_REF_U_PX)
+                dv_px = float(v_now - EVAL_REF_V_PX)
+                droll_deg = float(roll_now_deg - EVAL_REF_ROLL_DEG)
+
+                target_m = pixel_to_camera_depth(
+                    u_now,
+                    v_now,
+                    last_depth_frame,
+                    intr,
+                    window=DEPTH_WINDOW,
+                )
+
+                if target_m is None:
+                    print("ID=1 Depthが取得できない")
+                    continue
+
+                id1_z_mm = float(target_m[2] * 1000.0)
+
+                du_mm = du_px * id1_z_mm / fx
+                dv_mm = dv_px * id1_z_mm / fy
+                d_mm = np.hypot(du_mm, dv_mm)
+
+                print("")
+                print("========== REACHING EVALUATION ==========")
+                print("[reference]")
+                print(f"ref u      = {EVAL_REF_U_PX:.3f} px")
+                print(f"ref v      = {EVAL_REF_V_PX:.3f} px")
+                print(f"ref roll   = {EVAL_REF_ROLL_DEG:.3f} deg")
+                print("-----------------------------------------")
+                print("[current]")
+                print(f"now u      = {u_now:.3f} px")
+                print(f"now v      = {v_now:.3f} px")
+                print(f"now roll   = {roll_now_deg:.3f} deg")
+                print(f"du_mm      = {du_mm:+.3f} mm")
+                print(f"dv_mm      = {dv_mm:+.3f} mm")
+                print(f"2D error   = {d_mm:.3f} mm")
+                print(f"id1_z_mm   = {id1_z_mm:.3f} mm")
+                print("-----------------------------------------")
+                print("[error]")
+                print(f"du         = {du_px:+.3f} px")
+                print(f"dv         = {dv_px:+.3f} px")
+                print(f"droll      = {droll_deg:+.3f} deg")
+                print("=========================================")
+                print("")
+
+                return {
+                    "u_now": float(u_now),
+                    "v_now": float(v_now),
+                    "roll_now_deg": float(roll_now_deg),
+                    "du_px": du_px,
+                    "dv_px": dv_px,
+                    "droll_deg": droll_deg,
+                    "du_mm": du_mm,
+                    "dv_mm": dv_mm,
+                    "d_mm": d_mm,
+                }
+
+    finally:
+        pipeline.stop()
+        cv2.destroyAllWindows()
+
+        TARGET_MARKER_ID = old_target_marker_id
+        MARKER_LENGTH_M = old_marker_length_m
+
+
 # =========================================================
 # reaching like box
 # =========================================================
 
 RETURN_JOINT_DEG = [
-    106.8,
-    -28.0,
-    149.7,
-    52.4,
-    32.2,
-    28.8,
-    51.6,
+    85.5,
+    -55.1,
+    174.1,
+    64.7,
+    39.7,
+    8.8,
+    43.6
 ]
 def moveJ_to_return_pose_direct(
     arm,
@@ -592,7 +861,7 @@ def moveJ_to_return_pose_direct(
     print("[return pose ret] =", ret)
     return ret
 
-def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
+def reach_aruco_center_like_box_depth(arm: XArm7, side: str = "right"):
     """
     リーチング箱と同じ処理:
       target_m
@@ -606,6 +875,10 @@ def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
         raise RuntimeError("ArUco recognition canceled or failed")
 
     target_mm = 1000.0 * target_m
+
+    # ログ保存用
+    id0_camera_mm = target_mm.copy()
+    id0_roll_deg = float(np.degrees(d_roll_rad))
 
     print("========== CAMERA DEBUG ==========")
     print_camera_debug_info(
@@ -652,7 +925,21 @@ def reach_aruco_center_like_box(arm: XArm7, side: str = "right"):
     print("move_to_target_xyz_and_roll returned:", ret)
     print("aruco center reaching done")
 
-    input("Enterで退避姿勢に戻る / Ctrl+Cで終了: ")
+    input("EnterでID=1評価を開始 / Ctrl+Cで終了: ")
+
+    eval_result = run_id1_reaching_evaluation()
+
+    if eval_result is not None:
+        print("ID=1 reaching evaluation finished")
+
+        append_reaching_result_csv(
+            id0_camera_mm=id0_camera_mm,
+            id0_roll_deg=id0_roll_deg,
+            eval_result=eval_result,
+        )
+    else:
+        print("ID=1 reaching evaluation skipped or canceled")
+
 
     ret2 = moveJ_to_return_pose_direct(
         arm,
@@ -692,7 +979,7 @@ def main():
 
         recover_xarm_if_possible(arm)
 
-        reach_aruco_center_like_box(
+        reach_aruco_center_like_box_depth(
             arm=arm,
             side=SIDE,
         )

@@ -15,7 +15,6 @@ import math
 import time
 import os
 
-from std_msgs.msg import Bool
 from xarm7.control.xarm7 import XArm7
 
 
@@ -24,6 +23,7 @@ from xarm7.control.xarm7 import XArm7
 # ==========================
 # XARM_HOST = "192.168.1.208" # AC controller
 XARM_HOST = "192.168.2.197" # DC controller
+
 BASE_DIR = os.path.expanduser(
     "~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
 )
@@ -32,16 +32,15 @@ YAML_NAME = "init_to_capture_v2_integration_right.yaml"
 
 DEFAULT_SPEED = 0.5     # rad/s
 DEFAULT_ACCEL = 1.0     # rad/s^2
-INIT_Q_DEG = [
 
+INIT_Q_DEG = [
     0.0,
-  -4.3,
-  95.7,
+   -4.3,
+   95.7,
   164.6,
   263.1,
-  96.7,
+   96.7,
   210.0
-
 ]
 
 
@@ -57,32 +56,31 @@ class WaypointPlayer(Node):
         self.played = False
 
         # -------------------------
-        # xArm 接続（先）
+        # xArm 接続
         # -------------------------
         self.get_logger().info("Connecting to xArm...")
-        self.node = rclpy.create_node("xarm_capture_to_init")
+
         self.arm = XArm7(
-            node=self.node,
+            node=self,
             host=XARM_HOST
         )
 
-        time.sleep(1.5)  # enable 安定待ち
+        time.sleep(1.5)
 
         # -------------------------
-        # init 姿勢へ移動（後）
+        # init 姿勢へ移動
         # -------------------------
         self.get_logger().info("Auto move to init pose")
         self.move_to_init_pose()
 
         # -------------------------
-        # Subscriber
+        # Enter待ち
         # -------------------------
-        self.create_subscription(
-            Bool,
-            "/navigation_goal",
-            self.goal_cb,
-            10
-        )
+        input("\nEnter を押すと撮影姿勢へ移動します...")
+
+        self.get_logger().info("Enter pressed, start playback")
+        self.played = True
+        self.play()
 
     def move_to_init_pose(self):
         q_rad = deg2rad_list(INIT_Q_DEG)
@@ -94,7 +92,7 @@ class WaypointPlayer(Node):
             speed=DEFAULT_SPEED,
             mvacc=DEFAULT_ACCEL,
             is_radian=True,
-            wait=True     # ★ 必ず到達させる
+            wait=True
         )
 
         if ret != 0:
@@ -105,23 +103,6 @@ class WaypointPlayer(Node):
             self.get_logger().info(
                 "Init pose reached and holding"
             )
-
-
-    # ------------------------
-    # navigation goal callback
-    # ------------------------
-    def goal_cb(self, msg: Bool):
-        if not msg.data:
-            return
-
-        if self.played:
-            self.get_logger().info("Trajectory already played, ignore")
-            return
-
-        self.played = True
-        self.get_logger().info("Navigation goal received, start playback")
-
-        self.play()
 
     # ------------------------
     # 再生本体
@@ -147,7 +128,7 @@ class WaypointPlayer(Node):
                 speed=DEFAULT_SPEED,
                 mvacc=DEFAULT_ACCEL,
                 is_radian=True,
-                wait=False   # ★ 非同期
+                wait=False
             )
 
             if ret == 0:
@@ -178,6 +159,7 @@ class WaypointPlayer(Node):
         except Exception:
             pass
 
+
 # ==========================
 # main
 # ==========================
@@ -187,7 +169,6 @@ def main():
 
     try:
         node = WaypointPlayer()
-        rclpy.spin_once(node)
 
     except KeyboardInterrupt:
         pass

@@ -1,109 +1,143 @@
 [
+  
   {
   "book_name": "簡単実践ロボットシミュレーション",
   "ISBN_number": "9784627846913",
-  "bookshelf_ID": "1-1-1-1"
+  "bookshelf_ID": "1-1-1-1",
+  "book_width": "14.8"
   },
   {
-    "book_name": "ScanSnap",
+    "book_name": "よくわかる有限要素法",
     "ISBN_number": "9784297118846",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "23.9"
   },
 
   {
-  "book_name": "ロボットの力学と制御",
+    "book_name": "コンピューターがネットと出会ったら",
+    "ISBN_number": "9784046538949",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "18.0"
+  },
+
+  {
+  "book_name": "新版ロボットの力学と制御",
   "ISBN_number": "9784254209457",
-  "bookshelf_ID": "1-1-1-1"
+  "bookshelf_ID": "1-1-1-1",
+  "book_width": "15.8"
   },
   
   {
     "book_name": "入門ベイズ統計",
     "ISBN_number": "9784489020360",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "12.5"
   },
 
   {
     "book_name": "電気推進ロケット入門",
     "ISBN_number": "9784130628051",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "17.8"
   },
 
   {
     "book_name": "よくわかる最新プラスチックの仕組みとはたらき",
     "ISBN_number": "9784798068299",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "23.2"
   },
 
   {
     "book_name": "演習機械振動学",
     "ISBN_number": "9784781908137",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "11.5"
   },
+
   {
     "book_name": "英語論文のミス100",
     "ISBN_number": "9784789016278",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "18.1"
+
   },
+
   {
     "book_name": "人工知能概論",
     "ISBN_number": "9784065218846",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "22.3"
   },
+
   {
   "book_name": "なぜあなたは論文が書けないのか",
   "ISBN_number": "9784779217241",
-  "bookshelf_ID": "1-1-1-1"
+  "bookshelf_ID": "1-1-1-1",
+  "book_width": "10.7"
   },
+
   {
     "book_name": "キーポイント線形代数",
     "ISBN_number": "9784000078627",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "12.9"
   },
+
   {
     "book_name": "機械学習入門",
     "ISBN_number": "9784274219986",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "12.0"
   },
+
   {
     "book_name": "現代制御入門",
     "ISBN_number": "9784627920415",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14.9"
   },
-  {
-    "book_name": "コンピューターがネットと出会ったら",
-    "ISBN_number": "9784046538949",
-    "bookshelf_ID": "1-1-1-1"
-  },
+
   {
     "book_name": "ここから始める光学光の教科書",
     "ISBN_number": "9784902312546",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "18.0"
   },
+
   {
     "book_name": "これで使える3DLiDAR技術",
     "ISBN_number": "9784910558479",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14.3"
   },
+
   {
     "book_name": "システム制御のための数学(1)",
     "ISBN_number": "9784339033076",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "13.7"
   },
+
   {
     "book_name": "ネットワーク最適化とアルゴリズム",
     "ISBN_number": "9784254117899",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "12.7"
   },
 
   {
     "book_name": "2|CFD最前線",
     "ISBN_number": "9784320081666",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "16.2"
   },
+  
   {
     "book_name": "工業力学第４版",
     "ISBN_number": "9784627610255",
-    "bookshelf_ID": "1-1-1-1"
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "10.9"
   }
 
 ]
