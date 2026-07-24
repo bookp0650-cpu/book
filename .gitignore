@@ -155,3 +155,32 @@ __pycache__/
 *.bak_path
 *_bak_*/
 *_broken_*/
+
+# Captures and experiment outputs
+/captures/
+/captures_depth_space/
+/captures_compare_storage/
+/barcode_test_captures/
+
+# Large models
+/models/
+
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pro_hand_book_fixed/
+detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/
+
+# ROS generated files
+build/
+install/
+log/
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Local editor/cache
+.vscode/
+.pytest_cache/
