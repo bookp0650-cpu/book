@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "session_id": "20251220_155737_399",
+    "created_at": "2025-12-20T15:57:37",
+    "marker_len_m": 0.05,
+    "aruco_dict": "DICT_4X4_50",
+    "marker_id_target": 0,
+    "realsense": {
+      "width": 1280,
+      "height": 720,
+      "fx": 908.1617431640625,
+      "fy": 906.4829711914062,
+      "ppx": 637.79833984375,
+      "ppy": 371.0213928222656,
+      "model": "distortion.inverse_brown_conrady",
+      "coeffs": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "K": [
+        [
+          908.1617431640625,
+          0.0,
+          637.79833984375
+        ],
+        [
+          0.0,
+          906.4829711914062,
+          371.0213928222656
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "dist5": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "xarm": {
+      "host": "192.168.1.208",
+      "is_radian": false,
+      "pos_unit": "mm",
+      "angle_unit": "deg",
+      "pose_order": [
+        "x",
+        "y",
+        "z",
+        "roll",
+        "pitch",
+        "yaw"
+      ]
+    },
+    "note": "Each sample has (tcp_pose in base frame) and (marker pose target->camera: rvec,tvec)."
+  },
+  "samples": [
+    {
+      "sample_id": "20251220_155740_525",
+      "marker": {
+        "id": 0,
+        "rvec_target2cam": [
+          0.0027350686372198682,
+          3.121278027000314,
+          -0.12574864345994613
+        ],
+        "tvec_target2cam_m": [
+          -0.016842970843771485,
+          0.08526930459707376,
+          0.3580688738730327
+        ]
+      },
+      "robot": {
+        "tcp_pose_base": [
+          324.41217,
+          -172.840958,
+          503.248474,
+          -89.638502,
+          0.298167,
+          179.878381
+        ]
+      },
+      "rgb_path": null
+    }
+  ]
+}

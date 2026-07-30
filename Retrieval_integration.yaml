@@ -11,18 +11,17 @@ linear_lift:
 
 paths:
   waypoint:
-    init_to_capture: /home/book/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration.yaml
+    init_to_capture: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration.yaml
 
     capture_to_init:
-      right: /home/book/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/capture_to_init_v2_integration.yaml
-      left: /home/book/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/capture_to_init_v2_integration-left.yaml
+      right: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/capture_to_init_v2_integration.yaml
+      left: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/capture_to_init_v2_integration-left.yaml
 
   capture:
-    bookshelf_barcode: /home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode
+    bookshelf_barcode: /home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode
     
   log:
-    retrieval: /home/book/pro_book/pro_hand_book_python/logfile/retrieval_log.csv
-
+    retrieval: /home/book/pro_book_SAM3/pro_hand_book_python/captures/retrieval_log.ods
 # ---------------- 通信設定 ----------------
 target_ip: "172.20.10.2"  #"192.168.0.200"
 

@@ -119,12 +119,48 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import json
 import os
 import sys
 import time
 
-os.environ.setdefault("DISABLE_MODEL_SOURCE_CHECK", "True")
+# PaddleX 3.3.12 reads these flags while its modules are imported.  Keep them
+# local to this OCR process and set them before importing PaddleOCR.
+OCR_DETECTION_MODEL_DIR = Path(
+    "/home/book/.paddlex/official_models/PP-OCRv5_server_det"
+)
+OCR_RECOGNITION_MODEL_DIR = Path(
+    "/home/book/.paddlex/official_models/PP-OCRv5_server_rec"
+)
+OCR_VISUALIZATION_FONT = Path("/home/book/.paddlex/fonts/simfang.ttf")
+OCR_REQUIRED_MODEL_FILES = (
+    "inference.json",
+    "inference.pdiparams",
+    "inference.yml",
+)
+
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+os.environ["PADDLE_PDX_LOCAL_FONT_FILE_PATH"] = str(OCR_VISUALIZATION_FONT)
+
+
+def _deny_python_network(event: str, args) -> None:
+    """Fail before a Python networking API can issue a network syscall."""
+    if event in {
+        "socket.connect",
+        "socket.connect_ex",
+        "socket.getaddrinfo",
+        "socket.gethostbyaddr",
+        "socket.gethostbyname",
+        "socket.gethostbyname_ex",
+    }:
+        raise RuntimeError(
+            "Offline OCR network access is disabled. "
+            f"Blocked Python audit event: {event}"
+        )
+
+
+sys.addaudithook(_deny_python_network)
 
 import cv2
 import numpy as np
@@ -144,6 +180,112 @@ SAVE_ROTATED_OCR_INPUT_DEBUG = False
 def save_json(path: Path, obj) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _asset_file_info(path: Path) -> dict:
+    digest = hashlib.sha256()
+    with path.open("rb") as src:
+        for chunk in iter(lambda: src.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {
+        "path": str(path),
+        "size_bytes": int(path.stat().st_size),
+        "sha256": digest.hexdigest(),
+    }
+
+
+def validate_offline_ocr_assets(*, include_sha256: bool = False) -> dict:
+    """Validate every local asset before PaddleOCR model construction."""
+    model_dirs = {
+        "text_detection": OCR_DETECTION_MODEL_DIR,
+        "text_recognition": OCR_RECOGNITION_MODEL_DIR,
+    }
+    manifest = {"models": {}, "visualization_font": None}
+
+    for model_type, model_dir in model_dirs.items():
+        if not model_dir.is_dir():
+            raise FileNotFoundError(
+                "Offline OCR model asset is missing. "
+                "Network fallback is disabled. "
+                f"Missing path: {model_dir}"
+            )
+        if not os.access(model_dir, os.R_OK):
+            raise PermissionError(
+                "Offline OCR model asset is not readable. "
+                "Network fallback is disabled. "
+                f"Unreadable path: {model_dir}"
+            )
+
+        files = []
+        for filename in OCR_REQUIRED_MODEL_FILES:
+            path = model_dir / filename
+            if not path.is_file() or path.stat().st_size <= 0:
+                raise FileNotFoundError(
+                    "Offline OCR model asset is missing or empty. "
+                    "Network fallback is disabled. "
+                    f"Missing path: {path}"
+                )
+            if not os.access(path, os.R_OK):
+                raise PermissionError(
+                    "Offline OCR model asset is not readable. "
+                    "Network fallback is disabled. "
+                    f"Unreadable path: {path}"
+                )
+            info = {
+                "path": str(path),
+                "size_bytes": int(path.stat().st_size),
+            }
+            if include_sha256:
+                info = _asset_file_info(path)
+            files.append(info)
+
+        manifest["models"][model_type] = {
+            "path": str(model_dir),
+            "files": files,
+        }
+
+    recognition_config = OCR_RECOGNITION_MODEL_DIR / "config.json"
+    try:
+        config = json.loads(recognition_config.read_text(encoding="utf-8"))
+        character_dict = config["PostProcess"]["character_dict"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise RuntimeError(
+            "Offline OCR recognition dictionary/config is invalid. "
+            "Network fallback is disabled. "
+            f"Invalid path: {recognition_config}"
+        ) from exc
+    if not isinstance(character_dict, list) or not character_dict:
+        raise RuntimeError(
+            "Offline OCR recognition dictionary is empty. "
+            "Network fallback is disabled. "
+            f"Invalid path: {recognition_config}"
+        )
+    manifest["recognition_dictionary"] = {
+        "path": str(recognition_config),
+        "format": "embedded PostProcess.character_dict",
+        "entries": len(character_dict),
+    }
+
+    if not OCR_VISUALIZATION_FONT.is_file() or OCR_VISUALIZATION_FONT.stat().st_size <= 0:
+        raise FileNotFoundError(
+            "Offline OCR visualization font is missing or empty. "
+            "Network fallback is disabled. "
+            f"Missing path: {OCR_VISUALIZATION_FONT}"
+        )
+    if not os.access(OCR_VISUALIZATION_FONT, os.R_OK):
+        raise PermissionError(
+            "Offline OCR visualization font is not readable. "
+            "Network fallback is disabled. "
+            f"Unreadable path: {OCR_VISUALIZATION_FONT}"
+        )
+    font_info = {
+        "path": str(OCR_VISUALIZATION_FONT),
+        "size_bytes": int(OCR_VISUALIZATION_FONT.stat().st_size),
+    }
+    if include_sha256:
+        font_info = _asset_file_info(OCR_VISUALIZATION_FONT)
+    manifest["visualization_font"] = font_info
+    return manifest
 
 
 def draw_ocr_results(img_bgr, out, *, font_scale=0.7, thickness=2):
@@ -228,12 +370,13 @@ def _configure_paddle_device_once() -> None:
 
 
 def create_ocr_model() -> PaddleOCR:
-    """現行OCR設定をそのまま使って，PaddleOCRモデルを1回だけ作る．"""
+    """検証済みローカル資材だけで現行PP-OCRv5モデルを作る．"""
+    validate_offline_ocr_assets()
     _configure_paddle_device_once()
 
     return PaddleOCR(
-        ocr_version="PP-OCRv5",
-        lang="japan",
+        text_detection_model_dir=str(OCR_DETECTION_MODEL_DIR),
+        text_recognition_model_dir=str(OCR_RECOGNITION_MODEL_DIR),
         use_doc_orientation_classify=False,  # 勝手に回さない
         use_doc_unwarping=False,
         use_textline_orientation=False,
@@ -300,6 +443,17 @@ def _run_ocr_with_model(shot_dir: str | Path, ocr: PaddleOCR):
             "json_path": str(json_path),
             "overlay_path": str(vis_path),
             "save_rotated_input_debug": bool(SAVE_ROTATED_OCR_INPUT_DEBUG),
+            "offline": True,
+            "network_fallback_disabled": True,
+            "offline_environment": {
+                "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK": os.environ.get(
+                    "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"
+                ),
+                "PADDLE_PDX_LOCAL_FONT_FILE_PATH": os.environ.get(
+                    "PADDLE_PDX_LOCAL_FONT_FILE_PATH"
+                ),
+            },
+            "offline_assets": validate_offline_ocr_assets(),
         },
     )
     return res0
@@ -322,6 +476,15 @@ def OCR_main(shot_dir: str | Path):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 2 and sys.argv[1] == "--check-offline-assets":
+        print(
+            json.dumps(
+                validate_offline_ocr_assets(include_sha256=True),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        raise SystemExit(0)
     if len(sys.argv) < 2:
         raise SystemExit("usage: python paddle_ocr_test.py <shot_dir>")
     shot_dir = Path(sys.argv[1]).expanduser().resolve()

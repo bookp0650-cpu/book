@@ -5,13 +5,16 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    master_path = LaunchConfiguration("master_path")
+    config_path = LaunchConfiguration("config_path")
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            "master_path",
-            default_value="/home/book/pro_book/pro_hand_book_python/master_20260216.json",
-            description="Path to retrieval master json"
+            "config_path",
+            default_value=(
+                "/home/book/pro_book_SAM3/pro_hand_book_python/"
+                "Retrieval_integration.yaml"
+            ),
+            description="Path to Retrieval_integration.yaml",
         ),
 
         # 外部ノード：出庫リストを順番に送る
@@ -22,7 +25,7 @@ def generate_launch_description():
             output="screen",
             parameters=[
                 {
-                    "master_path": master_path,
+                    "config_path": config_path,
                     "initial_wait_sec": 2.0,
                     "after_shelf_id_wait_sec": 0.5,
                     "after_navigation_goal_wait_sec": 0.5,
@@ -39,3 +42,4 @@ def generate_launch_description():
             output="screen",
         ),
     ])
+

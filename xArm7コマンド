@@ -1,4 +1,4 @@
-python3 Retrieval_integration.py
+python3 Retrieval_integration_input_SAM3_editing.py
 
 【ロボシリンダー】
 ros2 run iai_cylinder height_controller

@@ -91,9 +91,9 @@ class WaypointPlayerNode(Node):
         side = self.shelf_manager.get_side()    
         height = self.shelf_manager.get_height()
         if side == "right":
-            yaml_file = "~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_right.yaml"
+            yaml_file = "~/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_right.yaml"
         elif side == "left":
-            yaml_file = "~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_left.yaml"
+            yaml_file = "~/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_left.yaml"
         else:
             self.get_logger().error("Invalid side")
             return

@@ -1,0 +1,72 @@
+--- Retrieval_integration_editing2.py	2026-07-14 18:15:32.594933299 +0900
++++ Retrieval_integration_editing2_SAM3.py	2026-07-23 18:19:25.995562549 +0900
+@@ -1,9 +1,32 @@
++# SAM3 variant based on Retrieval_integration_editing2.py.
++#
++# The robot-control flow, including the Height Controller,
++# is retained exactly as in Retrieval_integration_editing2.py.
++#
++# Only the book-recognition backend is replaced with
++# run_capture_and_pca_no_mask_merge_no_side_filter().
++#
++# SAM3 and PaddleOCR are executed in parallel.
++# Legacy mask merge/cleanup and side-surface-triggered
++# residual filtering are not used.
++#
++# SAM3 service readiness and ownership are managed through
++# integration_service_manager.py.
++#
++# Retrieval_integration_editing2.py remains unchanged
++# as the rollback version.
++
+ from xarm7.control.xarm7 import XArm7
+ from rs_d435i.get_book_position import GetBookSpinePosition
+ import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval 
+ import Dynamixel_win_pro_hand_book.HandBook_Storage as HandBook_storage
+ from pathlib import Path
+-from detection.pro_handbook.sam_py_demo.get_book_points import run_capture_and_pca
++from detection.pro_handbook.sam3_runtime.integration_service_manager import (
++    Sam3ServiceSession,
++)
++from detection.pro_handbook.sam_py_demo.get_book_points_no_mask_merge_no_side_filter import (
++    run_capture_and_pca_no_mask_merge_no_side_filter,
++)
+ from xarm7.control.move_to_container_test import Move_to_Container
+ from xarm7.control.shelf_id_manager import ShelfIDManager
+ from detection.pro_handbook.sam_py_demo.bar_code.book_barcode import book_barcode_sequence
+@@ -71,6 +94,12 @@
+             arm.emergency_stop()
+     except Exception:
+         pass
++    service_session = globals().get("_sam3_service_session")
++    if service_session is not None:
++        try:
++            service_session.stop_if_owned()
++        except Exception as e:
++            print(f"[SAM3] owned service cleanup failed: {e}")
+     os._exit(1)
+ 
+ signal.signal(signal.SIGINT, sigint_handler)
+@@ -261,7 +290,12 @@
+         print("認識開始")
+         start = time.perf_counter()
+         try:
+-            roll, p_xmax, book_width, shot_dir = run_capture_and_pca(query=book_name)
++            roll, p_xmax, book_width, shot_dir = (
++                run_capture_and_pca_no_mask_merge_no_side_filter(
++                    query=book_name,
++                    sam_device="gpu",
++                )
++            )
+             print(f"""
+             ===== PCA RESULT =====
+             roll        : {roll}
+@@ -587,5 +621,6 @@
+ 
+ 
+ if __name__ == '__main__':
+-
+-    main()
++    _sam3_service_session = Sam3ServiceSession()
++    with _sam3_service_session:
++        main()

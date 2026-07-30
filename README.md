@@ -109,6 +109,146 @@ AMRが書架前に到達した後，本リポジトリのプログラムによ�
 
 ---
 
+## GitHubを使った別PCへの環境移行
+
+### 前提環境
+
+動作確認に使用している主な環境は以下です。
+
+- Ubuntu 22.04
+- ROS 2 Humble
+- Python 3.10
+- NVIDIA GPU / CUDA（SAM3をGPUで実行する場合）
+- Intel RealSense SDK 2.x
+
+仮想環境、CUDAインストーラ、学習済みモデル、撮影データ、ROS 2の
+`build/`、`install/`、`log/` はGitHubには保存しません。別PC側で再作成、
+または別のストレージからコピーしてください。
+
+### 1. リポジトリを取得
+
+SSH鍵をGitHubへ登録済みの場合:
+
+```bash
+cd ~
+git clone git@github.com:bookp0650-cpu/book.git pro_book_SAM3
+cd ~/pro_book_SAM3
+```
+
+HTTPSを使用する場合:
+
+```bash
+cd ~
+git clone https://github.com/bookp0650-cpu/book.git pro_book_SAM3
+cd ~/pro_book_SAM3
+```
+
+### 2. ROS 2 Humbleを準備
+
+ROS 2 Humbleを公式手順でインストールした後、シェルへ読み込みます。
+
+```bash
+source /opt/ros/humble/setup.bash
+```
+
+ROS依存パッケージを解決し、ワークスペースをbuildします。
+
+```bash
+cd ~/pro_book_SAM3
+sudo rosdep init  # 初回のみ。既に初期化済みなら不要
+rosdep update
+rosdep install --from-paths ros2_ws/src --ignore-src -r -y
+cd ros2_ws
+colcon build --symlink-install
+source install/setup.bash
+```
+
+毎回読み込む場合は、次の2行を `~/.bashrc` に追加します。
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/pro_book_SAM3/ros2_ws/install/setup.bash
+```
+
+### 3. Python仮想環境を作成
+
+仮想環境そのものはPC間でコピーせず、移行先で作り直します。
+
+```bash
+cd ~/pro_book_SAM3
+python3 -m venv .pro_hand_book_fixed --system-site-packages
+source .pro_hand_book_fixed/bin/activate
+python -m pip install --upgrade pip
+```
+
+SAM3推論環境の固定依存関係は次のファイルにあります。
+
+```bash
+python -m pip install -r \
+  detection/pro_handbook/sam3_runtime/configs/requirements-inference-direct.txt
+python -m pip install -e detection/pro_handbook/sam3_runtime/sam3_source
+```
+
+RealSense、xArm、Dynamixel、OCRなど、実機構成に応じたPythonパッケージも
+必要です。現在使用中の環境一覧は `env_info.txt` を参照してください。
+`env_info.txt` にはROS 2側のパッケージも含まれるため、ファイル全体を
+そのまま `pip install -r` する用途ではありません。
+
+### 4. GitHubに含まれないファイルを配置
+
+次のファイルは容量が大きいため、GitHub以外のストレージで移行します。
+
+- `models/` 以下のSAM/SAM3モデル
+- CUDAおよび各種ドライバのインストーラ
+- `captures/`、`barcode_test_captures/` などの撮影・実験データ
+- PC固有のキャリブレーション結果やログ
+
+モデルをコピーした後、YAMLやPythonコードで指定しているモデルパスが
+移行先の配置と一致することを確認してください。
+
+### 5. 実機固有設定を確認
+
+実行前に以下を移行先PCの構成へ合わせます。
+
+- xArm7、AMR、IAI機器のIPアドレス
+- RealSenseの接続とデバイス権限
+- Dynamixelのシリアルポート名と権限
+- ハンドアイキャリブレーション行列
+- `Retrieval_integration.yaml` 内のパス、棚、動作パラメータ
+- CUDA、PyTorch、GPUドライバの互換性
+
+### 6. 起動前の確認
+
+```bash
+cd ~/pro_book_SAM3
+source /opt/ros/humble/setup.bash
+source ros2_ws/install/setup.bash
+source .pro_hand_book_fixed/bin/activate
+python3 -m py_compile Retrieval_integration_SAM3.py
+python3 -c "import rclpy; import Retrieval_integration_SAM3; print('IMPORT_OK')"
+```
+
+`ModuleNotFoundError: No module named 'rclpy'` が出た場合は、ROS 2 Humbleの
+setupと仮想環境が同じターミナルで有効になっているか確認してください。
+
+### GitHubへ更新を送る手順
+
+大容量ファイルや秘密情報が含まれていないことを確認してから送信します。
+
+```bash
+cd ~/pro_book_SAM3
+git status
+git diff --stat
+git add README.md .gitignore
+git commit -m "docs: add setup and PC migration guide"
+git push origin main
+```
+
+プロジェクト全体を送る場合も、最初から `git add .` を実行せず、
+`git status` で対象を確認してから必要なファイルを追加してください。
+
+---
+
 ## My Role
 
 本リポジトリでは，主に以下の実装を担当しました。
@@ -155,9 +295,9 @@ RealSense D435iによる深度情報には，距離，照明条件，書籍の�
 代表的な実行ファイルは以下の通りです。
 
 ```text
-pro_hand_book_python/
-├── Retrieval_integration.py
-├── Retrieval_integration_comntinuous.py
+pro_book_SAM3/
+├── Retrieval_integration_SAM3.py
+├── Retrieval_integration_input_SAM3.py
 ├── xarm7/
 ├── Dynamixel_win_pro_hand_book/
 ├── ros2_ws/
@@ -169,13 +309,13 @@ pro_hand_book_python/
 書籍の取り出し動作を行うメインプログラムです。
 
 ```bash
-python3 Retrieval_integration.py
+python3 Retrieval_integration_SAM3.py
 ```
 
-連続動作用の取り出しプログラムです。
+入力確認を含む取り出しプログラムです。
 
 ```bash
-python3 Retrieval_integration_comntinuous.py
+python3 Retrieval_integration_input_SAM3.py
 ```
 
 ROS2 launchによる20冊用自動取り出しプログラムです。上記とセットで使います。
@@ -228,7 +368,7 @@ sudo ip addr del 172.20.10.2/28 dev wlp132s0f0
 Pythonスクリプトを実行する前に，仮想環境を有効化します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 source .pro_hand_book_fixed/bin/activate
 ```
 
@@ -239,11 +379,9 @@ source .pro_hand_book_fixed/bin/activate
 書籍取り出し動作用のプログラムを実行します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 
-python3 Retrieval_integration.py
-python3 Retrieval_integration_editing.py
-python3 Retrieval_integration_comntinuous.py
+python3 Retrieval_integration_SAM3.py
 ```
 
 ROS 2 launchファイルを用いた自動取り出し動作は以下のコマンドで実行します。
@@ -259,8 +397,8 @@ ros2 launch retrieval_manager retrieval_auto.launch.py
 書籍収納動作を実行します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
-python3 Storage_integration.py
+cd ~/pro_book_SAM3
+python3 Storage_by_Detection2.py
 ```
 
 ---
@@ -273,7 +411,7 @@ python3 Storage_integration.py
 IAI直動シリンダーをROS 2ノードとして起動します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python/ros2_ws
+cd ~/pro_book_SAM3/ros2_ws
 ros2 run iai_cylinder height_controller
 ```
 
@@ -326,7 +464,7 @@ ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.03, y: 0.0, z: 0
 Dynamixelを用いたロボットハンドの各アクチュエータ位置を確認・調整します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 source .pro_hand_book_fixed/bin/activate
 ```
 
@@ -357,21 +495,21 @@ xArm7を初期姿勢と撮影姿勢の間で移動させます。
 初期姿勢から撮影姿勢へ移動します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 python3 -m xarm7.control.xarm_init_to_capture
 ```
 
 左側撮影姿勢へ移動します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 python3 -m xarm7.control.xarm_init_to_capture_left
 ```
 
 撮影姿勢から初期姿勢へ戻します。
 
 ```bash
-cd ~/pro_book/pro_hand_book_python
+cd ~/pro_book_SAM3
 python3 -m xarm7.control.xarm_capture_to_init
 ```
 

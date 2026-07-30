@@ -123,6 +123,43 @@ def _bbox(mask: np.ndarray) -> list[int]:
     return [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())]
 
 
+def _save_final_png_with_target(
+    output_path: str | Path,
+    color_np: np.ndarray,
+    mask01: np.ndarray,
+    target_point: np.ndarray,
+    points_for_pca: np.ndarray,
+    uv_for_pca: np.ndarray,
+) -> tuple[int, int]:
+    """Save the final green region and the existing 3D target as a red pixel."""
+    color_np = np.asarray(color_np)
+    mask = np.asarray(mask01) > 0
+    points = np.asarray(points_for_pca, dtype=np.float64).reshape(-1, 3)
+    uv = np.asarray(uv_for_pca).reshape(-1, 2)
+    target = np.asarray(target_point, dtype=np.float64).reshape(3)
+    if mask.shape != color_np.shape[:2]:
+        raise ValueError(f"final mask/image shape mismatch: {mask.shape}/{color_np.shape}")
+    if points.shape[0] == 0 or points.shape[0] != uv.shape[0]:
+        raise ValueError(f"invalid PCA point/uv arrays: {points.shape}/{uv.shape}")
+
+    # find_target_point() selects one point from points_for_pca. Reuse the
+    # corresponding retained source pixel instead of inventing a new 2D point.
+    target_index = int(np.argmin(np.linalg.norm(points - target, axis=1)))
+    u, v = (int(uv[target_index, 0]), int(uv[target_index, 1]))
+    h, w = color_np.shape[:2]
+    if not (0 <= u < w and 0 <= v < h):
+        raise ValueError(f"target pixel is outside image: {(u, v)} / {(w, h)}")
+
+    green = color_np.copy()
+    green[mask] = (0, 255, 0)
+    final_img = cv2.addWeighted(color_np, 0.65, green, 0.35, 0)
+    cv2.circle(final_img, (u, v), 8, (255, 255, 255), thickness=-1)
+    cv2.circle(final_img, (u, v), 6, (0, 0, 255), thickness=-1)
+    if not cv2.imwrite(str(Path(output_path)), final_img):
+        raise RuntimeError(f"failed to save final visualization: {output_path}")
+    return u, v
+
+
 def _font(size: int):
     for path in (
         Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
@@ -368,6 +405,14 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     if target is None:
         raise RuntimeError(f"target point estimation failed: {target_info}")
     timings["pca_width_target_seconds"] = time.perf_counter() - pca_start
+    _save_final_png_with_target(
+        shot_dir / "final.png",
+        color_np,
+        final_mask,
+        target,
+        points_for_pca,
+        uv_ransac,
+    )
 
     pca_json = {
         "variant": VARIANT,

@@ -1,0 +1,4501 @@
+{
+  "evaluation_type": "saved_selected_mask_rgbd_replay",
+  "sam3_inference_rerun": false,
+  "sam3_inference_rerun_reason": "SAM3 service model load failed twice with CUDA CUBLAS_STATUS_NOT_INITIALIZED; existing saved selections were used.",
+  "clean_case_count": 12,
+  "noisy_case_count": 8,
+  "modes": [
+    "baseline",
+    "refine_only",
+    "median_flatten_only",
+    "refine_and_median_flatten"
+  ],
+  "cases": [
+    {
+      "case": "20260723_165044_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_165044_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        14115
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロツトシミレション",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.6196706225151858,
+          "pred_book_width_mm": 15.401709824800491,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6017098248004906,
+          "point_3d": [
+            0.11529614759887767,
+            -0.04013159459275365,
+            0.44900002132635564
+          ],
+          "point_counts": null,
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_165044_no_mask_merge_no_side_filter/pca_result_offline.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_165044_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6196706295013428,
+          "pred_book_width_mm": 15.401709824800491,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6017098248004906,
+          "point_3d": [
+            0.11529614759887767,
+            -0.04013159459275365,
+            0.44900002132635564
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 13249,
+            "sent_to_pca": 13249
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 13249,
+            "valid_depth_ratio": 0.9386468296138859,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 13249,
+            "pca_input_point_count": 13249,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 13249,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.029174779596422357,
+                0.0330287139974925,
+                0.9990284962338021,
+                -0.453601696910199
+              ],
+              "inlier_count": 13249,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.1878497179995975,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_165044_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_165044_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6056339740753174,
+          "pred_book_width_mm": 15.357422642409801,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5574226424098008,
+          "point_3d": [
+            0.11580971618506421,
+            -0.04031035447958106,
+            0.45100002142135054
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14115,
+            "sent_to_pca": 14115
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13038,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 451.0,
+            "median_depth_m": 0.45100002142135054,
+            "mad": 2.0,
+            "p10": 448.0,
+            "p90": 456.0,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": 14115,
+            "pointcloud_point_count": 14115,
+            "pca_input_point_count": 14115,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2233281339995301,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_165044_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_165044_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6056339740753174,
+          "pred_book_width_mm": 15.357422642409801,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5574226424098008,
+          "point_3d": [
+            0.11580971618506421,
+            -0.04031035447958106,
+            0.45100002142135054
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14115,
+            "sent_to_pca": 14115
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13038,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 451.0,
+            "median_depth_m": 0.45100002142135054,
+            "mad": 2.0,
+            "p10": 448.0,
+            "p90": 456.0,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": 14115,
+            "pointcloud_point_count": 14115,
+            "pca_input_point_count": 14115,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19656013299936603,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_165044_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260723_170222_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170222_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        14115
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロツトシミレション",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.6196706225151858,
+          "pred_book_width_mm": 15.401709824800491,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6017098248004906,
+          "point_3d": [
+            0.11529614759887767,
+            -0.04013159459275365,
+            0.44900002132635564
+          ],
+          "point_counts": null,
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170222_no_mask_merge_no_side_filter/pca_result_offline.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170222_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6196706295013428,
+          "pred_book_width_mm": 15.401709824800491,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6017098248004906,
+          "point_3d": [
+            0.11529614759887767,
+            -0.04013159459275365,
+            0.44900002132635564
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 13249,
+            "sent_to_pca": 13249
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 13249,
+            "valid_depth_ratio": 0.9386468296138859,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 13249,
+            "pca_input_point_count": 13249,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 13249,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.029174779596422357,
+                0.0330287139974925,
+                0.9990284962338021,
+                -0.453601696910199
+              ],
+              "inlier_count": 13249,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.16984649400001217,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170222_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170222_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6056339740753174,
+          "pred_book_width_mm": 15.357422642409801,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5574226424098008,
+          "point_3d": [
+            0.11580971618506421,
+            -0.04031035447958106,
+            0.45100002142135054
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14115,
+            "sent_to_pca": 14115
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13038,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 451.0,
+            "median_depth_m": 0.45100002142135054,
+            "mad": 2.0,
+            "p10": 448.0,
+            "p90": 456.0,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": 14115,
+            "pointcloud_point_count": 14115,
+            "pca_input_point_count": 14115,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.22023378099947877,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170222_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170222_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14115,
+          "refined_mask_area_px": 14115,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "refined_mask_sha256": "bd23d680e3d7e6c7f3ae01e90aef33df39b345bed0553372c90c39d6894ee3fd",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6056339740753174,
+          "pred_book_width_mm": 15.357422642409801,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5574226424098008,
+          "point_3d": [
+            0.11580971618506421,
+            -0.04031035447958106,
+            0.45100002142135054
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14115,
+            "sent_to_pca": 14115
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13038,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 451.0,
+            "median_depth_m": 0.45100002142135054,
+            "mad": 2.0,
+            "p10": 448.0,
+            "p90": 456.0,
+            "raw_mask_area_px": 14115,
+            "final_mask_area_px": 14115,
+            "flattened_pixel_count": 14115,
+            "pointcloud_point_count": 14115,
+            "pca_input_point_count": 14115,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.1913835610002934,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170222_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260723_170323_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170323_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        4610
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ットワク最通とルゴズ",
+      "ocr_overlap": 0.9448946515397083,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.67594188162946,
+          "pred_book_width_mm": 11.768331751227379,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 3.031668248772622,
+          "point_3d": [
+            -0.19350235922285305,
+            -0.042337473298391444,
+            0.7150000339606777
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 4610,
+            "after_median_depth_filter": 4255,
+            "before_normal_ransac": 4255,
+            "after_normal_ransac": 4218,
+            "sent_to_pca": 4218
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170323_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170323_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 4610,
+          "refined_mask_area_px": 4610,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "refined_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.675036907196045,
+          "pred_book_width_mm": 11.801552958786488,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.998447041213513,
+          "point_3d": [
+            -0.18328323357285567,
+            -0.04103253874225045,
+            0.7150000339606777
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 4255,
+            "sent_to_pca": 4254
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 4255,
+            "valid_depth_ratio": 0.9229934924078091,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 4610,
+            "final_mask_area_px": 4610,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 4255,
+            "pca_input_point_count": 4254,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 4255,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.2162433198303767,
+                0.03112633359106457,
+                0.9758432138340233,
+                -0.6571600617690502
+              ],
+              "inlier_count": 4254,
+              "inlier_ratio": 0.9997649823736781
+            }
+          },
+          "processing_seconds": 0.15187863199935236,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170323_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170323_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 4610,
+          "refined_mask_area_px": 4610,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "refined_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6788302659988403,
+          "pred_book_width_mm": 12.709738686680794,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.090261313319207,
+          "point_3d": [
+            -0.18224068978377733,
+            -0.055153023761754856,
+            0.7140000339131802
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 4610,
+            "sent_to_pca": 4610
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 3983,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 714.0,
+            "median_depth_m": 0.7140000339131802,
+            "mad": 1.0,
+            "p10": 709.0,
+            "p90": 717.0,
+            "raw_mask_area_px": 4610,
+            "final_mask_area_px": 4610,
+            "flattened_pixel_count": 4610,
+            "pointcloud_point_count": 4610,
+            "pca_input_point_count": 4610,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.18451537300006748,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170323_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_170323_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 4610,
+          "refined_mask_area_px": 4610,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "refined_mask_sha256": "adfe9491d06ad9313b9d9290eb4c97a422909c4f324c7286ee6c067be19466a9",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6788302659988403,
+          "pred_book_width_mm": 12.709738686680794,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.090261313319207,
+          "point_3d": [
+            -0.18224068978377733,
+            -0.055153023761754856,
+            0.7140000339131802
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 4610,
+            "sent_to_pca": 4610
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 3983,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 714.0,
+            "median_depth_m": 0.7140000339131802,
+            "mad": 1.0,
+            "p10": 709.0,
+            "p90": 717.0,
+            "raw_mask_area_px": 4610,
+            "final_mask_area_px": 4610,
+            "flattened_pixel_count": 4610,
+            "pointcloud_point_count": 4610,
+            "pca_input_point_count": 4610,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.15956254499997158,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_170323_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_101803_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_101803_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        15523
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロボツトシミユレション",
+      "ocr_overlap": 0.9912079510703364,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.5962064797386202,
+          "pred_book_width_mm": 13.855572789907455,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.9444272100925453,
+          "point_3d": [
+            -0.054256594911269135,
+            -0.07121582941628155,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 15523,
+            "after_median_depth_filter": 15523,
+            "before_normal_ransac": 15523,
+            "after_normal_ransac": 15523,
+            "sent_to_pca": 15523
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_101803_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_101803_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15523,
+          "refined_mask_area_px": 15523,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "refined_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5971975326538086,
+          "pred_book_width_mm": 13.957754708826542,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.8422452911734588,
+          "point_3d": [
+            -0.04819199705865108,
+            -0.07077539299916097,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15523,
+            "sent_to_pca": 15523
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 15523,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 15523,
+            "final_mask_area_px": 15523,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 15523,
+            "pca_input_point_count": 15523,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 15523,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.18169969580522088,
+                0.05999517047205409,
+                0.9815221852124991,
+                -0.40194740306564675
+              ],
+              "inlier_count": 15523,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17383472399978928,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_101803_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_101803_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15523,
+          "refined_mask_area_px": 15523,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "refined_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6041620969772339,
+          "pred_book_width_mm": 13.83132953196764,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.9686704680323608,
+          "point_3d": [
+            -0.04819199705865108,
+            -0.06898385346808582,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15523,
+            "sent_to_pca": 15523
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14444,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 406.0,
+            "median_depth_m": 0.40600001928396523,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 411.0,
+            "raw_mask_area_px": 15523,
+            "final_mask_area_px": 15523,
+            "flattened_pixel_count": 15523,
+            "pointcloud_point_count": 15523,
+            "pca_input_point_count": 15523,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2156505319999269,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_101803_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_101803_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15523,
+          "refined_mask_area_px": 15523,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "refined_mask_sha256": "e5cb43f279b54cf0eca49f553726ae2acfce0a747278d704ce6f6ce9a9860f3a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6041620969772339,
+          "pred_book_width_mm": 13.83132953196764,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.9686704680323608,
+          "point_3d": [
+            -0.04819199705865108,
+            -0.06898385346808582,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15523,
+            "sent_to_pca": 15523
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14444,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 406.0,
+            "median_depth_m": 0.40600001928396523,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 411.0,
+            "raw_mask_area_px": 15523,
+            "final_mask_area_px": 15523,
+            "flattened_pixel_count": 15523,
+            "pointcloud_point_count": 15523,
+            "pca_input_point_count": 15523,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19417035799961013,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_101803_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_103142_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_103142_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        16376
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロツトシミユレション",
+      "ocr_overlap": 0.999482936918304,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.5749313840464831,
+          "pred_book_width_mm": 14.743330888450146,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.05666911154985499,
+          "point_3d": [
+            -0.05479114264438509,
+            -0.06787255491435684,
+            0.41000001947395504
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16376,
+            "after_median_depth_filter": 16376,
+            "before_normal_ransac": 16376,
+            "after_normal_ransac": 16353,
+            "sent_to_pca": 16353
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_103142_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_103142_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16376,
+          "refined_mask_area_px": 16376,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "refined_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5762474536895752,
+          "pred_book_width_mm": 14.928920194506645,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.1289201945066445,
+          "point_3d": [
+            -0.048548095559084466,
+            -0.07174955826036766,
+            0.4090000194264576
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16376,
+            "sent_to_pca": 16376
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16376,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16376,
+            "final_mask_area_px": 16376,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16376,
+            "pca_input_point_count": 16376,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16376,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.15587550102278963,
+                0.07273590434027583,
+                0.985095079878433,
+                -0.4031481210217138
+              ],
+              "inlier_count": 16376,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.1746158590003688,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_103142_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_103142_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16376,
+          "refined_mask_area_px": 16376,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "refined_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5837477445602417,
+          "pred_book_width_mm": 14.808453619480133,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.008453619480132346,
+          "point_3d": [
+            -0.048429396058940005,
+            -0.0697737666185928,
+            0.40800001937896013
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16376,
+            "sent_to_pca": 16376
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15292,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 408.0,
+            "median_depth_m": 0.40800001937896013,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 413.0,
+            "raw_mask_area_px": 16376,
+            "final_mask_area_px": 16376,
+            "flattened_pixel_count": 16376,
+            "pointcloud_point_count": 16376,
+            "pca_input_point_count": 16376,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.24904722500014032,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_103142_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_103142_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16376,
+          "refined_mask_area_px": 16376,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "refined_mask_sha256": "077d851ee0441b8d6b73930eb3b8036c11b41f8f85712cbc261db24a3e446cb4",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5837477445602417,
+          "pred_book_width_mm": 14.808453619480133,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.008453619480132346,
+          "point_3d": [
+            -0.048429396058940005,
+            -0.0697737666185928,
+            0.40800001937896013
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16376,
+            "sent_to_pca": 16376
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15292,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 408.0,
+            "median_depth_m": 0.40800001937896013,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 413.0,
+            "raw_mask_area_px": 16376,
+            "final_mask_area_px": 16376,
+            "flattened_pixel_count": 16376,
+            "pointcloud_point_count": 16376,
+            "pca_input_point_count": 16376,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19473117600045953,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_103142_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104121_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104121_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        16017
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロボツトシミユレション",
+      "ocr_overlap": 0.9654734704239655,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.590990040120429,
+          "pred_book_width_mm": 14.262689277529716,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5373107224702842,
+          "point_3d": [
+            -0.057531482819620394,
+            -0.06953644101946058,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16017,
+            "after_median_depth_filter": 16017,
+            "before_normal_ransac": 16017,
+            "after_normal_ransac": 16017,
+            "sent_to_pca": 16017
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104121_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104121_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16017,
+          "refined_mask_area_px": 16017,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "refined_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5916999578475952,
+          "pred_book_width_mm": 14.325874857604504,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.4741251423954971,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.0690897100831164,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16017,
+            "sent_to_pca": 15992
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16017,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16017,
+            "final_mask_area_px": 16017,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16017,
+            "pca_input_point_count": 15992,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16017,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.13364578963207452,
+                0.06133869595583547,
+                0.9891290953622065,
+                -0.40223356213694855
+              ],
+              "inlier_count": 15992,
+              "inlier_ratio": 0.9984391583942062
+            }
+          },
+          "processing_seconds": 0.17713586100035172,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104121_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104121_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16017,
+          "refined_mask_area_px": 16017,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "refined_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.599326729774475,
+          "pred_book_width_mm": 14.229558408260345,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5704415917396553,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.06329588889025514,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16017,
+            "sent_to_pca": 16017
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14934,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 16017,
+            "final_mask_area_px": 16017,
+            "flattened_pixel_count": 16017,
+            "pointcloud_point_count": 16017,
+            "pca_input_point_count": 16017,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.22592663600062224,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104121_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104121_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16017,
+          "refined_mask_area_px": 16017,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "refined_mask_sha256": "6999fff2c120681fe66988caa1a419cdad16dd3fd8a0c29ffb3021f77d002a63",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.599326729774475,
+          "pred_book_width_mm": 14.229558408260345,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5704415917396553,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.06329588889025514,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16017,
+            "sent_to_pca": 16017
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14934,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 16017,
+            "final_mask_area_px": 16017,
+            "flattened_pixel_count": 16017,
+            "pointcloud_point_count": 16017,
+            "pca_input_point_count": 16017,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19617668699993374,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104121_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104335_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104335_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        15890
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロボツトシミユレション",
+      "ocr_overlap": 0.9725818735719726,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.5916906333400518,
+          "pred_book_width_mm": 14.256447553634644,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5435524463653572,
+          "point_3d": [
+            -0.057531482819620394,
+            -0.07042215535489038,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 15890,
+            "after_median_depth_filter": 15890,
+            "before_normal_ransac": 15890,
+            "after_normal_ransac": 15890,
+            "sent_to_pca": 15890
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104335_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104335_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15890,
+          "refined_mask_area_px": 15890,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "refined_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.592671275138855,
+          "pred_book_width_mm": 14.33451659977436,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.46548340022564005,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.06998106718971045,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15890,
+            "sent_to_pca": 15890
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 15890,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 15890,
+            "final_mask_area_px": 15890,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 15890,
+            "pca_input_point_count": 15890,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 15890,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.13137050991545493,
+                0.06129022021879944,
+                0.9894368590415885,
+                -0.4022087224934715
+              ],
+              "inlier_count": 15890,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17849861400009104,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104335_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104335_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15890,
+          "refined_mask_area_px": 15890,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "refined_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6000685691833496,
+          "pred_book_width_mm": 14.242814853787422,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5571851462125785,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.06819835297652237,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15890,
+            "sent_to_pca": 15890
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14807,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 15890,
+            "final_mask_area_px": 15890,
+            "flattened_pixel_count": 15890,
+            "pointcloud_point_count": 15890,
+            "pca_input_point_count": 15890,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.22245223399932001,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104335_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104335_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15890,
+          "refined_mask_area_px": 15890,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "refined_mask_sha256": "e2cffbcd7b360727eb8083fc3e10448555dbff2c33b88a9716a7eb44a626be8b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6000685691833496,
+          "pred_book_width_mm": 14.242814853787422,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5571851462125785,
+          "point_3d": [
+            -0.051513435652920346,
+            -0.06819835297652237,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15890,
+            "sent_to_pca": 15890
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14807,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 15890,
+            "final_mask_area_px": 15890,
+            "flattened_pixel_count": 15890,
+            "pointcloud_point_count": 15890,
+            "pca_input_point_count": 15890,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.1949979870005336,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104335_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104438_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104438_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        14221
+      ],
+      "query": "よくわかる有限要素法",
+      "ocr_text": "基本からわかる有限要素法",
+      "ocr_overlap": 0.9809915232468533,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5848753756524607,
+          "pred_book_width_mm": 12.293465435504913,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.5065345644950874,
+          "point_3d": [
+            -0.09073924945939453,
+            -0.06776501234860094,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 14221,
+            "after_median_depth_filter": 14221,
+            "before_normal_ransac": 14221,
+            "after_normal_ransac": 14221,
+            "sent_to_pca": 14221
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104438_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "よくわかる有限要素法",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104438_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14221,
+          "refined_mask_area_px": 14221,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "refined_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.583789587020874,
+          "pred_book_width_mm": 12.441391125321388,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.3586088746786125,
+          "point_3d": [
+            -0.08487753810190335,
+            -0.07131810284960151,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14221,
+            "sent_to_pca": 14221
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 14221,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 14221,
+            "final_mask_area_px": 14221,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 14221,
+            "pca_input_point_count": 14221,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 14221,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.10450207466274294,
+                0.06901777569692172,
+                0.9921269389695211,
+                -0.40553743633789374
+              ],
+              "inlier_count": 14221,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.18028416200013453,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104438_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "よくわかる有限要素法",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104438_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14221,
+          "refined_mask_area_px": 14221,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "refined_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5709898471832275,
+          "pred_book_width_mm": 12.456022202968597,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.3439777970314033,
+          "point_3d": [
+            -0.08487753810190335,
+            -0.06730699586992833,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14221,
+            "sent_to_pca": 14221
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13119,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 14221,
+            "final_mask_area_px": 14221,
+            "flattened_pixel_count": 14221,
+            "pointcloud_point_count": 14221,
+            "pca_input_point_count": 14221,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2160107119998429,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104438_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "よくわかる有限要素法",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104438_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14221,
+          "refined_mask_area_px": 14221,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "refined_mask_sha256": "a3e8588e6c9afb7e5550eadd7ffad8edcc0646130ecef6d4aed98f46b037f66b",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5709898471832275,
+          "pred_book_width_mm": 12.456022202968597,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.3439777970314033,
+          "point_3d": [
+            -0.08487753810190335,
+            -0.06730699586992833,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14221,
+            "sent_to_pca": 14221
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13119,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 399.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 14221,
+            "final_mask_area_px": 14221,
+            "flattened_pixel_count": 14221,
+            "pointcloud_point_count": 14221,
+            "pca_input_point_count": 14221,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19084115999976348,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104438_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104541_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104541_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        16726
+      ],
+      "query": "コンピューターがネットと出会ったら",
+      "ocr_text": "コンピユーがネツトと出会たら",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5716793511250051,
+          "pred_book_width_mm": 15.505116432905197,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.7051164329051964,
+          "point_3d": [
+            0.032991483549764965,
+            -0.07046177363098814,
+            0.41200001956894994
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16726,
+            "after_median_depth_filter": 16726,
+            "before_normal_ransac": 16726,
+            "after_normal_ransac": 16726,
+            "sent_to_pca": 16726
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104541_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "コンピューターがネットと出会ったら",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104541_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16726,
+          "refined_mask_area_px": 16726,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "refined_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5711840391159058,
+          "pred_book_width_mm": 15.617487020790577,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.8174870207905762,
+          "point_3d": [
+            0.03956022807748859,
+            -0.0704578231540692,
+            0.41200001956894994
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16726,
+            "sent_to_pca": 16726
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16726,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16726,
+            "final_mask_area_px": 16726,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16726,
+            "pca_input_point_count": 16726,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16726,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.08976141103827197,
+                0.03149904148483575,
+                0.9954650669279936,
+                -0.40096715211924094
+              ],
+              "inlier_count": 16726,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17874107399984496,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104541_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "コンピューターがネットと出会ったら",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104541_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16726,
+          "refined_mask_area_px": 16726,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "refined_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5750248432159424,
+          "pred_book_width_mm": 15.31325839459896,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5132583945989602,
+          "point_3d": [
+            0.03927216816430299,
+            -0.07039597512943835,
+            0.4090000194264576
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16726,
+            "sent_to_pca": 16726
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15637,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 409.0,
+            "median_depth_m": 0.4090000194264576,
+            "mad": 2.0,
+            "p10": 406.0,
+            "p90": 412.0,
+            "raw_mask_area_px": 16726,
+            "final_mask_area_px": 16726,
+            "flattened_pixel_count": 16726,
+            "pointcloud_point_count": 16726,
+            "pca_input_point_count": 16726,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2273979279998457,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104541_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "コンピューターがネットと出会ったら",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104541_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16726,
+          "refined_mask_area_px": 16726,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "refined_mask_sha256": "745c181cf19e32b04b56095e0aff9eadf8cf389e266b1d522dfa597b36a6389d",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5750248432159424,
+          "pred_book_width_mm": 15.31325839459896,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5132583945989602,
+          "point_3d": [
+            0.03927216816430299,
+            -0.07039597512943835,
+            0.4090000194264576
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16726,
+            "sent_to_pca": 16726
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15637,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 409.0,
+            "median_depth_m": 0.4090000194264576,
+            "mad": 2.0,
+            "p10": 406.0,
+            "p90": 412.0,
+            "raw_mask_area_px": 16726,
+            "final_mask_area_px": 16726,
+            "flattened_pixel_count": 16726,
+            "pointcloud_point_count": 16726,
+            "pca_input_point_count": 16726,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19689813700006198,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104541_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104645_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104645_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        16436
+      ],
+      "query": "新版ロボットの力学と制御",
+      "ocr_text": "新版ロボツトのカ学と制御",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.629643860130098,
+          "pred_book_width_mm": 15.212738886475563,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.41273888647556234,
+          "point_3d": [
+            -0.07847737030028923,
+            -0.0718373835741592,
+            0.4070000193314627
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16436,
+            "after_median_depth_filter": 16340,
+            "before_normal_ransac": 16340,
+            "after_normal_ransac": 16340,
+            "sent_to_pca": 16340
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104645_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "新版ロボットの力学と制御",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104645_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16436,
+          "refined_mask_area_px": 16436,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "refined_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6304857730865479,
+          "pred_book_width_mm": 15.44441282749176,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6444128274917595,
+          "point_3d": [
+            -0.07251123265198857,
+            -0.07229668076975174,
+            0.4070000193314627
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16340,
+            "sent_to_pca": 16340
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16340,
+            "valid_depth_ratio": 0.9941591628133366,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16436,
+            "final_mask_area_px": 16436,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16340,
+            "pca_input_point_count": 16340,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16340,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.04119248342427159,
+                0.06196171170846949,
+                0.9972281211395403,
+                -0.39749343465709713
+              ],
+              "inlier_count": 16340,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17967439499989268,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104645_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "新版ロボットの力学と制御",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104645_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16436,
+          "refined_mask_area_px": 16436,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "refined_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6400638818740845,
+          "pred_book_width_mm": 15.319444239139557,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5194442391395562,
+          "point_3d": [
+            -0.0724216065209497,
+            -0.06507860310344322,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16436,
+            "sent_to_pca": 16436
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15321,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 400.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 16436,
+            "final_mask_area_px": 16436,
+            "flattened_pixel_count": 16436,
+            "pointcloud_point_count": 16436,
+            "pca_input_point_count": 16436,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.22462909899968508,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104645_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "新版ロボットの力学と制御",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104645_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16436,
+          "refined_mask_area_px": 16436,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "refined_mask_sha256": "9d4fd17d12fddafb3d51e12cde63952ebfed8a9a9374c6340d41216ef42a0f53",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6400638818740845,
+          "pred_book_width_mm": 15.319444239139557,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5194442391395562,
+          "point_3d": [
+            -0.0724216065209497,
+            -0.06507860310344322,
+            0.4040000191889703
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16436,
+            "sent_to_pca": 16436
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15321,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 404.0,
+            "median_depth_m": 0.4040000191889703,
+            "mad": 4.0,
+            "p10": 400.0,
+            "p90": 410.0,
+            "raw_mask_area_px": 16436,
+            "final_mask_area_px": 16436,
+            "flattened_pixel_count": 16436,
+            "pointcloud_point_count": 16436,
+            "pca_input_point_count": 16436,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19700305500009563,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104645_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104756_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104756_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        12628
+      ],
+      "query": "入門ベイズ統計",
+      "ocr_text": "人門ベイズ統計",
+      "ocr_overlap": 0.9582790091264668,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.7589868973691678,
+          "pred_book_width_mm": 11.830678209662437,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.9693217903375633,
+          "point_3d": [
+            -0.06182095152340514,
+            -0.06810048270676233,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 12628,
+            "after_median_depth_filter": 12577,
+            "before_normal_ransac": 12577,
+            "after_normal_ransac": 12577,
+            "sent_to_pca": 12577
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104756_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "入門ベイズ統計",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104756_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 12628,
+          "refined_mask_area_px": 12628,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "refined_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.7593601942062378,
+          "pred_book_width_mm": 11.833473108708858,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.966526891291142,
+          "point_3d": [
+            -0.05579196521386167,
+            -0.06764019881977945,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 12577,
+            "sent_to_pca": 12577
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 12577,
+            "valid_depth_ratio": 0.9959613557174533,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 12628,
+            "final_mask_area_px": 12628,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 12577,
+            "pca_input_point_count": 12577,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 12577,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.10315726690735919,
+                0.06322052018623076,
+                0.9926538893852107,
+                -0.39502208511050274
+              ],
+              "inlier_count": 12577,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17101335400002426,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104756_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "入門ベイズ統計",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104756_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 12628,
+          "refined_mask_area_px": 12628,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "refined_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.765897274017334,
+          "pred_book_width_mm": 11.583976447582245,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 3.216023552417756,
+          "point_3d": [
+            -0.056239022164168165,
+            -0.06495288952316673,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 12628,
+            "sent_to_pca": 12628
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 11499,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 406.0,
+            "median_depth_m": 0.40600001928396523,
+            "mad": 2.0,
+            "p10": 404.0,
+            "p90": 412.0,
+            "raw_mask_area_px": 12628,
+            "final_mask_area_px": 12628,
+            "flattened_pixel_count": 12628,
+            "pointcloud_point_count": 12628,
+            "pca_input_point_count": 12628,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.20918841299953783,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104756_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "入門ベイズ統計",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104756_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 12628,
+          "refined_mask_area_px": 12628,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "refined_mask_sha256": "d4677d51a0f666cc4f9204ac888f945ec50d53dd9ed67e6fa500ba2a7eb3f78a",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.765897274017334,
+          "pred_book_width_mm": 11.583976447582245,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 3.216023552417756,
+          "point_3d": [
+            -0.056239022164168165,
+            -0.06495288952316673,
+            0.40600001928396523
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 12628,
+            "sent_to_pca": 12628
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 11499,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 406.0,
+            "median_depth_m": 0.40600001928396523,
+            "mad": 2.0,
+            "p10": 404.0,
+            "p90": 412.0,
+            "raw_mask_area_px": 12628,
+            "final_mask_area_px": 12628,
+            "flattened_pixel_count": 12628,
+            "pointcloud_point_count": 12628,
+            "pca_input_point_count": 12628,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.1854292190000706,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104756_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_104906_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104906_live_no_mask_merge_no_side_filter",
+      "category": "clean",
+      "component_count": 1,
+      "component_areas": [
+        16329
+      ],
+      "query": "電気推進ロケット入門",
+      "ocr_text": "電気推進ロケツト入門",
+      "ocr_overlap": 0.9992029755579172,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5933667922655168,
+          "pred_book_width_mm": 14.993987046182156,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.1939870461821549,
+          "point_3d": [
+            0.10173088996418171,
+            -0.0678222863395818,
+            0.41800001985393465
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16329,
+            "after_median_depth_filter": 16321,
+            "before_normal_ransac": 16321,
+            "after_normal_ransac": 16321,
+            "sent_to_pca": 16321
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104906_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104906_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16329,
+          "refined_mask_area_px": 16329,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "refined_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5933512449264526,
+          "pred_book_width_mm": 15.009083785116673,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.2090837851166718,
+          "point_3d": [
+            0.10871664588166703,
+            -0.06825604794008806,
+            0.41800001985393465
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16321,
+            "sent_to_pca": 16321
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16321,
+            "valid_depth_ratio": 0.9995100741012922,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16329,
+            "final_mask_area_px": 16329,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16321,
+            "pca_input_point_count": 16321,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16321,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.08209347276428182,
+                -0.0033344686204922805,
+                0.9966190561335455,
+                -0.4237764996937156
+              ],
+              "inlier_count": 16321,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.17889736100005393,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104906_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104906_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16329,
+          "refined_mask_area_px": 16329,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "refined_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5929242372512817,
+          "pred_book_width_mm": 15.098104253411293,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.2981042534112923,
+          "point_3d": [
+            0.10793638287294693,
+            -0.06822398536332606,
+            0.4150000197114423
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16329,
+            "sent_to_pca": 16329
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15197,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 415.0,
+            "median_depth_m": 0.4150000197114423,
+            "mad": 1.0,
+            "p10": 414.0,
+            "p90": 417.0,
+            "raw_mask_area_px": 16329,
+            "final_mask_area_px": 16329,
+            "flattened_pixel_count": 16329,
+            "pointcloud_point_count": 16329,
+            "pca_input_point_count": 16329,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2176044970001385,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104906_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_104906_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 1,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16329,
+          "refined_mask_area_px": 16329,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "refined_mask_sha256": "1eb1f130fd6296d4d64ab5632c8699e32c26bf7e2f12337eb57e900fcc66ee99",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5929242372512817,
+          "pred_book_width_mm": 15.098104253411293,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.2981042534112923,
+          "point_3d": [
+            0.10793638287294693,
+            -0.06822398536332606,
+            0.4150000197114423
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16329,
+            "sent_to_pca": 16329
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15197,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 415.0,
+            "median_depth_m": 0.4150000197114423,
+            "mad": 1.0,
+            "p10": 414.0,
+            "p90": 417.0,
+            "raw_mask_area_px": 16329,
+            "final_mask_area_px": 16329,
+            "flattened_pixel_count": 16329,
+            "pointcloud_point_count": 16329,
+            "pca_input_point_count": 16329,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19455954400018527,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_104906_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_124349_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_124349_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 7,
+      "component_areas": [
+        15543,
+        9,
+        25,
+        3,
+        165,
+        478,
+        325
+      ],
+      "query": "電気推進ロケット入門",
+      "ocr_text": "電気推進ロケツト入門",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.5783640564435444,
+          "pred_book_width_mm": 15.143982134759426,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.3439821347594254,
+          "point_3d": [
+            -0.053031337415819814,
+            -0.0752314328585167,
+            0.421000019996427
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16548,
+            "after_median_depth_filter": 16548,
+            "before_normal_ransac": 16548,
+            "after_normal_ransac": 16548,
+            "sent_to_pca": 16548
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_124349_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_124349_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 7,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16548,
+          "refined_mask_area_px": 16548,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "refined_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.5794094800949097,
+          "pred_book_width_mm": 15.400543808937073,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.600543808937072,
+          "point_3d": [
+            -0.04672747273186905,
+            -0.07664127389696154,
+            0.421000019996427
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16548,
+            "sent_to_pca": 16548
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16548,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16548,
+            "final_mask_area_px": 16548,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16548,
+            "pca_input_point_count": 16548,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16548,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.05945415473621627,
+                0.06659335259703951,
+                0.9960072935849859,
+                -0.4178128698165661
+              ],
+              "inlier_count": 16548,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.22296657500010042,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_124349_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_124349_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 7,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16548,
+          "refined_mask_area_px": 16548,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "refined_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.585906982421875,
+          "pred_book_width_mm": 15.288332477211952,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.4883324772119515,
+          "point_3d": [
+            -0.04672747273186905,
+            -0.07431911212792632,
+            0.421000019996427
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16548,
+            "sent_to_pca": 16548
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14432,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 421.0,
+            "median_depth_m": 0.421000019996427,
+            "mad": 4.0,
+            "p10": 415.0,
+            "p90": 428.0,
+            "raw_mask_area_px": 16548,
+            "final_mask_area_px": 16548,
+            "flattened_pixel_count": 16548,
+            "pointcloud_point_count": 16548,
+            "pca_input_point_count": 16548,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2598921530006919,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_124349_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_124349_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 7,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16548,
+          "refined_mask_area_px": 16548,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "refined_mask_sha256": "b6b17e6837f31c607f219f685da0d01fbdbc58a0f83392c42f95207e2d49dee2",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.585906982421875,
+          "pred_book_width_mm": 15.288332477211952,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.4883324772119515,
+          "point_3d": [
+            -0.04672747273186905,
+            -0.07431911212792632,
+            0.421000019996427
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16548,
+            "sent_to_pca": 16548
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14432,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 421.0,
+            "median_depth_m": 0.421000019996427,
+            "mad": 4.0,
+            "p10": 415.0,
+            "p90": 428.0,
+            "raw_mask_area_px": 16548,
+            "final_mask_area_px": 16548,
+            "flattened_pixel_count": 16548,
+            "pointcloud_point_count": 16548,
+            "pca_input_point_count": 16548,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.23644911799965485,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_124349_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_144704_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_144704_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 6,
+      "component_areas": [
+        16638,
+        132,
+        1214,
+        22,
+        13,
+        12
+      ],
+      "query": "電気推進ロケット入門",
+      "ocr_text": "電気推進ロケツト入門",
+      "ocr_overlap": 0.9421637802009836,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -2.0927553492932534,
+          "pred_book_width_mm": 17.259325832128525,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.459325832128524,
+          "point_3d": [
+            0.06585413036844061,
+            -0.0714881301301983,
+            0.4290000203764066
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 18031,
+            "after_median_depth_filter": 18031,
+            "before_normal_ransac": 18031,
+            "after_normal_ransac": 18031,
+            "sent_to_pca": 18031
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_144704_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_144704_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 18031,
+          "refined_mask_area_px": 18031,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "refined_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -2.090640068054199,
+          "pred_book_width_mm": 17.257122322916985,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.457122322916984,
+          "point_3d": [
+            0.07236983480469887,
+            -0.07147203274306746,
+            0.4290000203764066
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 18031,
+            "sent_to_pca": 18031
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 18031,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 18031,
+            "final_mask_area_px": 18031,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 18031,
+            "pca_input_point_count": 18031,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 18031,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.30559784629498515,
+                -0.057330706730599264,
+                0.9504331362098213,
+                -0.43152124075012804
+              ],
+              "inlier_count": 18031,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.21801253699959489,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_144704_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_144704_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 18031,
+          "refined_mask_area_px": 18031,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "refined_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -2.1165711879730225,
+          "pred_book_width_mm": 17.610622569918633,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.810622569918632,
+          "point_3d": [
+            0.072754997534036,
+            -0.0676725917938412,
+            0.4230000200914219
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 18031,
+            "sent_to_pca": 18031
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15258,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 423.0,
+            "median_depth_m": 0.4230000200914219,
+            "mad": 5.0,
+            "p10": 413.0,
+            "p90": 431.0,
+            "raw_mask_area_px": 18031,
+            "final_mask_area_px": 18031,
+            "flattened_pixel_count": 18031,
+            "pointcloud_point_count": 18031,
+            "pca_input_point_count": 18031,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2607696160002888,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_144704_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_144704_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 18031,
+          "refined_mask_area_px": 18031,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "refined_mask_sha256": "32ae6a3e283501f803cda374be2ebde61b76a0a162764dec953d7bf3c5042075",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -2.1165711879730225,
+          "pred_book_width_mm": 17.610622569918633,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.810622569918632,
+          "point_3d": [
+            0.072754997534036,
+            -0.0676725917938412,
+            0.4230000200914219
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 18031,
+            "sent_to_pca": 18031
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15258,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 423.0,
+            "median_depth_m": 0.4230000200914219,
+            "mad": 5.0,
+            "p10": 413.0,
+            "p90": 431.0,
+            "raw_mask_area_px": 18031,
+            "final_mask_area_px": 18031,
+            "flattened_pixel_count": 18031,
+            "pointcloud_point_count": 18031,
+            "pca_input_point_count": 18031,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.23953871500089008,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_144704_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_155742_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_155742_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 6,
+      "component_areas": [
+        16875,
+        10,
+        4,
+        18,
+        2,
+        10
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロポツトシミユレション",
+      "ocr_overlap": 0.9852190974493132,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5986933887914336,
+          "pred_book_width_mm": 15.378812327980995,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5788123279809945,
+          "point_3d": [
+            0.12625800708607607,
+            -0.06802631231238505,
+            0.4250000201864168
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 16919,
+            "after_median_depth_filter": 16919,
+            "before_normal_ransac": 16919,
+            "after_normal_ransac": 16919,
+            "sent_to_pca": 16919
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_155742_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_155742_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16919,
+          "refined_mask_area_px": 16919,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "refined_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5980398654937744,
+          "pred_book_width_mm": 15.429127961397171,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6291279613971703,
+          "point_3d": [
+            0.1334681979680229,
+            -0.06752371175411115,
+            0.4250000201864168
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16919,
+            "sent_to_pca": 16919
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 16919,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 16919,
+            "final_mask_area_px": 16919,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 16919,
+            "pca_input_point_count": 16919,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 16919,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.21511379503966993,
+                0.031925389075621056,
+                0.9760670185576403,
+                -0.4396928407524776
+              ],
+              "inlier_count": 16919,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.21510066100017866,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_155742_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_155742_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16919,
+          "refined_mask_area_px": 16919,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "refined_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.6108733415603638,
+          "pred_book_width_mm": 16.168346628546715,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 1.368346628546714,
+          "point_3d": [
+            0.13189798387428145,
+            -0.06858263190152389,
+            0.42000001994892955
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16919,
+            "sent_to_pca": 16919
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15742,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 420.0,
+            "median_depth_m": 0.42000001994892955,
+            "mad": 2.0,
+            "p10": 418.0,
+            "p90": 426.0,
+            "raw_mask_area_px": 16919,
+            "final_mask_area_px": 16919,
+            "flattened_pixel_count": 16919,
+            "pointcloud_point_count": 16919,
+            "pca_input_point_count": 16919,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2550676740002018,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_155742_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_155742_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 6,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 16919,
+          "refined_mask_area_px": 16919,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "refined_mask_sha256": "6b141f3b78b1b511d097680ea0fc0bd71ce360085076710574a1c0ff1098021c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.6108733415603638,
+          "pred_book_width_mm": 16.168346628546715,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 1.368346628546714,
+          "point_3d": [
+            0.13189798387428145,
+            -0.06858263190152389,
+            0.42000001994892955
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 16919,
+            "sent_to_pca": 16919
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 15742,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 420.0,
+            "median_depth_m": 0.42000001994892955,
+            "mad": 2.0,
+            "p10": 418.0,
+            "p90": 426.0,
+            "raw_mask_area_px": 16919,
+            "final_mask_area_px": 16919,
+            "flattened_pixel_count": 16919,
+            "pointcloud_point_count": 16919,
+            "pca_input_point_count": 16919,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.23497470100028295,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_155742_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_130935_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_130935_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 4,
+      "component_areas": [
+        20789,
+        1,
+        3,
+        9
+      ],
+      "query": "電気推進ロケット入門",
+      "ocr_text": "電気推進ロケツト入門",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.9138199975942634,
+          "pred_book_width_mm": 18.86798068881035,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 4.067980688810348,
+          "point_3d": [
+            0.05538100936311452,
+            -0.0713214911322258,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 20802,
+            "after_median_depth_filter": 19497,
+            "before_normal_ransac": 19497,
+            "after_normal_ransac": 18999,
+            "sent_to_pca": 18999
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_130935_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_130935_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 20802,
+          "refined_mask_area_px": 20802,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "refined_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.910847783088684,
+          "pred_book_width_mm": 18.666066229343414,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 3.8660662293434136,
+          "point_3d": [
+            0.06230422461670328,
+            -0.07083327676118366,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 19501,
+            "sent_to_pca": 18644
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 19501,
+            "valid_depth_ratio": 0.9374579367368522,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 20802,
+            "final_mask_area_px": 20802,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 19501,
+            "pca_input_point_count": 18644,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 19501,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.44137304118725457,
+                -0.07558921759473171,
+                0.8941342788958101,
+                -0.41495840011662155
+              ],
+              "inlier_count": 18644,
+              "inlier_ratio": 0.9560535357161172
+            }
+          },
+          "processing_seconds": 0.2046335570003066,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_130935_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_130935_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 20802,
+          "refined_mask_area_px": 20802,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "refined_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.9389984607696533,
+          "pred_book_width_mm": 20.658116787672043,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 5.858116787672042,
+          "point_3d": [
+            0.06143080090712332,
+            -0.06984028690004557,
+            0.42200002004392445
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 20802,
+            "sent_to_pca": 20802
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 19487,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 422.0,
+            "median_depth_m": 0.42200002004392445,
+            "mad": 4.0,
+            "p10": 414.0,
+            "p90": 441.0,
+            "raw_mask_area_px": 20802,
+            "final_mask_area_px": 20802,
+            "flattened_pixel_count": 20802,
+            "pointcloud_point_count": 20802,
+            "pca_input_point_count": 20802,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.25335626499963837,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_130935_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "電気推進ロケット入門",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_130935_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 20802,
+          "refined_mask_area_px": 20802,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "refined_mask_sha256": "a765a1c9130d6870e6c7daf3364d69faa0601fb7b2f00b76ed9df6101b3c6331",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.9389984607696533,
+          "pred_book_width_mm": 20.658116787672043,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 5.858116787672042,
+          "point_3d": [
+            0.06143080090712332,
+            -0.06984028690004557,
+            0.42200002004392445
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 20802,
+            "sent_to_pca": 20802
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 19487,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 422.0,
+            "median_depth_m": 0.42200002004392445,
+            "mad": 4.0,
+            "p10": 414.0,
+            "p90": 441.0,
+            "raw_mask_area_px": 20802,
+            "final_mask_area_px": 20802,
+            "flattened_pixel_count": 20802,
+            "pointcloud_point_count": 20802,
+            "pca_input_point_count": 20802,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2271597330000077,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_130935_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_142735_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_142735_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 4,
+      "component_areas": [
+        15341,
+        6,
+        49,
+        5
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロボツトシミレーション",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5776780886636128,
+          "pred_book_width_mm": 14.249914325773716,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5500856742262847,
+          "point_3d": [
+            0.027964610140217054,
+            -0.07340869784034972,
+            0.43200002051889896
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 15401,
+            "after_median_depth_filter": 14267,
+            "before_normal_ransac": 14267,
+            "after_normal_ransac": 13832,
+            "sent_to_pca": 13832
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_142735_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_142735_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            3
+          ],
+          "removed_component_ids": [
+            2,
+            4
+          ],
+          "raw_mask_area_px": 15401,
+          "refined_mask_area_px": 15390,
+          "raw_and_refined_mask_equal": false,
+          "raw_mask_sha256": "d83acab4bac41c8214771b649e86718ca39660fe4ecac692c31c82d9b2b658c9",
+          "refined_mask_sha256": "0c431747b551ee84ab50b6413cbfd919044d2be9e5040e775f882902b2914e6a",
+          "mask_sha256_equal": false,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5730234384536743,
+          "pred_book_width_mm": 13.305876404047012,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 1.4941235959529884,
+          "point_3d": [
+            0.03352084992113114,
+            -0.0749707345159257,
+            0.45300002151634544
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14301,
+            "sent_to_pca": 13925
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 14301,
+            "valid_depth_ratio": 0.9292397660818713,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 15401,
+            "final_mask_area_px": 15390,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 14301,
+            "pca_input_point_count": 13925,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 14301,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.9194113397921013,
+                0.019955185196009594,
+                0.3927907570774628,
+                -0.2062625627440513
+              ],
+              "inlier_count": 13925,
+              "inlier_ratio": 0.9737081322984407
+            }
+          },
+          "processing_seconds": 0.19445204899966484,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_142735_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_142735_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15401,
+          "refined_mask_area_px": 15401,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "d83acab4bac41c8214771b649e86718ca39660fe4ecac692c31c82d9b2b658c9",
+          "refined_mask_sha256": "d83acab4bac41c8214771b649e86718ca39660fe4ecac692c31c82d9b2b658c9",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5890198945999146,
+          "pred_book_width_mm": 15.191307291388512,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.39130729138851095,
+          "point_3d": [
+            0.03141832068721039,
+            -0.07418255569874799,
+            0.4310000204714015
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15401,
+            "sent_to_pca": 15401
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14262,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 431.0,
+            "median_depth_m": 0.4310000204714015,
+            "mad": 3.0,
+            "p10": 427.0,
+            "p90": 441.0,
+            "raw_mask_area_px": 15401,
+            "final_mask_area_px": 15401,
+            "flattened_pixel_count": 15401,
+            "pointcloud_point_count": 15401,
+            "pca_input_point_count": 15401,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.24085549500068737,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_142735_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_142735_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 4,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            3
+          ],
+          "removed_component_ids": [
+            2,
+            4
+          ],
+          "raw_mask_area_px": 15401,
+          "refined_mask_area_px": 15390,
+          "raw_and_refined_mask_equal": false,
+          "raw_mask_sha256": "d83acab4bac41c8214771b649e86718ca39660fe4ecac692c31c82d9b2b658c9",
+          "refined_mask_sha256": "0c431747b551ee84ab50b6413cbfd919044d2be9e5040e775f882902b2914e6a",
+          "mask_sha256_equal": false,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5887327194213867,
+          "pred_book_width_mm": 15.191273763775826,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.3912737637758248,
+          "point_3d": [
+            0.03141832068721039,
+            -0.07418255569874799,
+            0.4310000204714015
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15390,
+            "sent_to_pca": 15390
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14262,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 431.0,
+            "median_depth_m": 0.4310000204714015,
+            "mad": 3.0,
+            "p10": 427.0,
+            "p90": 441.0,
+            "raw_mask_area_px": 15401,
+            "final_mask_area_px": 15390,
+            "flattened_pixel_count": 15390,
+            "pointcloud_point_count": 15390,
+            "pca_input_point_count": 15390,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.21606723900004,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_142735_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260723_182607_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_182607_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 2,
+      "component_areas": [
+        14236,
+        6
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロポボツトシミレション",
+      "ocr_overlap": 0.9996991576413959,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": 1.5957755081009317,
+          "pred_book_width_mm": 14.017419889569283,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.7825801104307182,
+          "point_3d": [
+            -0.03531441055782507,
+            -0.06411304310371894,
+            0.43000002042390406
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 14242,
+            "after_median_depth_filter": 14242,
+            "before_normal_ransac": 14242,
+            "after_normal_ransac": 14242,
+            "sent_to_pca": 14242
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_182607_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_182607_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14242,
+          "refined_mask_area_px": 14242,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "refined_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.59697687625885,
+          "pred_book_width_mm": 14.154816046357155,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6451839536428459,
+          "point_3d": [
+            -0.02878703884119581,
+            -0.06357449999868307,
+            0.43000002042390406
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14242,
+            "sent_to_pca": 14242
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 14242,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 14242,
+            "final_mask_area_px": 14242,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 14242,
+            "pca_input_point_count": 14242,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 14242,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                -0.16215694383231,
+                0.07384241904872779,
+                0.9839981822727099,
+                -0.42273018982735966
+              ],
+              "inlier_count": 14242,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.18223236999983783,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_182607_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_182607_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14242,
+          "refined_mask_area_px": 14242,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "refined_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6012829542160034,
+          "pred_book_width_mm": 14.125661924481392,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6743380755186088,
+          "point_3d": [
+            -0.028720092239239537,
+            -0.06342665232426754,
+            0.4290000203764066
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14242,
+            "sent_to_pca": 14242
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13171,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 429.0,
+            "median_depth_m": 0.4290000203764066,
+            "mad": 4.0,
+            "p10": 423.0,
+            "p90": 438.0,
+            "raw_mask_area_px": 14242,
+            "final_mask_area_px": 14242,
+            "flattened_pixel_count": 14242,
+            "pointcloud_point_count": 14242,
+            "pca_input_point_count": 14242,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2235777189998771,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_182607_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260723_182607_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 14242,
+          "refined_mask_area_px": 14242,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "refined_mask_sha256": "1fc9d761b0b1f06876edac0e0a83a947f926436950206b6ba26153259c0f5d3c",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": 1.6012829542160034,
+          "pred_book_width_mm": 14.125661924481392,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.6743380755186088,
+          "point_3d": [
+            -0.028720092239239537,
+            -0.06342665232426754,
+            0.4290000203764066
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 14242,
+            "sent_to_pca": 14242
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 13171,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 429.0,
+            "median_depth_m": 0.4290000203764066,
+            "mad": 4.0,
+            "p10": 423.0,
+            "p90": 438.0,
+            "raw_mask_area_px": 14242,
+            "final_mask_area_px": 14242,
+            "flattened_pixel_count": 14242,
+            "pointcloud_point_count": 14242,
+            "pca_input_point_count": 14242,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.1989393049998398,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260723_182607_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_143545_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_143545_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 2,
+      "component_areas": [
+        15395,
+        13
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロボツトシミユレション",
+      "ocr_overlap": 1.0,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5795736664192443,
+          "pred_book_width_mm": 15.37221483886242,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5722148388624184,
+          "point_3d": [
+            0.025240180735494937,
+            -0.07470003812486606,
+            0.43400002061389387
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 15408,
+            "after_median_depth_filter": 15123,
+            "before_normal_ransac": 15123,
+            "after_normal_ransac": 15100,
+            "sent_to_pca": 15100
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_143545_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_143545_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [
+            2
+          ],
+          "raw_mask_area_px": 15408,
+          "refined_mask_area_px": 15395,
+          "raw_and_refined_mask_equal": false,
+          "raw_mask_sha256": "90777f64efb97ef56b9a999c2d3a2435995bf26c0169b59bd8ae631ae264bdb5",
+          "refined_mask_sha256": "565bedf681de677c5e3f29db0e0657c003733fd5d0654bc48dea36370dd2ecad",
+          "mask_sha256_equal": false,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5784554481506348,
+          "pred_book_width_mm": 15.316256321966648,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.5162563219666474,
+          "point_3d": [
+            0.03211489815843469,
+            -0.07469890759456294,
+            0.43400002061389387
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15110,
+            "sent_to_pca": 15100
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 15110,
+            "valid_depth_ratio": 0.9814874959402403,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 15408,
+            "final_mask_area_px": 15395,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 15110,
+            "pca_input_point_count": 15100,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 15110,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.2757233902776932,
+                0.06531742045442827,
+                0.9590152483870913,
+                -0.41677644907116496
+              ],
+              "inlier_count": 15100,
+              "inlier_ratio": 0.99933818663137
+            }
+          },
+          "processing_seconds": 0.183746949000124,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_143545_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_143545_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 15408,
+          "refined_mask_area_px": 15408,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "90777f64efb97ef56b9a999c2d3a2435995bf26c0169b59bd8ae631ae264bdb5",
+          "refined_mask_sha256": "90777f64efb97ef56b9a999c2d3a2435995bf26c0169b59bd8ae631ae264bdb5",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5875036716461182,
+          "pred_book_width_mm": 15.054380521178246,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.25438052117824483,
+          "point_3d": [
+            0.03159691593007284,
+            -0.0730230351621057,
+            0.4270000202814117
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15408,
+            "sent_to_pca": 15408
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14323,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 427.0,
+            "median_depth_m": 0.4270000202814117,
+            "mad": 4.0,
+            "p10": 421.0,
+            "p90": 434.0,
+            "raw_mask_area_px": 15408,
+            "final_mask_area_px": 15408,
+            "flattened_pixel_count": 15408,
+            "pointcloud_point_count": 15408,
+            "pca_input_point_count": 15408,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2252172230000724,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_143545_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_143545_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1
+          ],
+          "removed_component_ids": [
+            2
+          ],
+          "raw_mask_area_px": 15408,
+          "refined_mask_area_px": 15395,
+          "raw_and_refined_mask_equal": false,
+          "raw_mask_sha256": "90777f64efb97ef56b9a999c2d3a2435995bf26c0169b59bd8ae631ae264bdb5",
+          "refined_mask_sha256": "565bedf681de677c5e3f29db0e0657c003733fd5d0654bc48dea36370dd2ecad",
+          "mask_sha256_equal": false,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5871344804763794,
+          "pred_book_width_mm": 15.054235234856606,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 0.2542352348566048,
+          "point_3d": [
+            0.03159691593007284,
+            -0.0730230351621057,
+            0.4270000202814117
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 15395,
+            "sent_to_pca": 15395
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 14323,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 427.0,
+            "median_depth_m": 0.4270000202814117,
+            "mad": 4.0,
+            "p10": 421.0,
+            "p90": 434.0,
+            "raw_mask_area_px": 15408,
+            "final_mask_area_px": 15395,
+            "flattened_pixel_count": 15395,
+            "pointcloud_point_count": 15395,
+            "pca_input_point_count": 15395,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.19950873299967498,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_143545_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    },
+    {
+      "case": "20260724_154852_live_no_mask_merge_no_side_filter",
+      "source_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_154852_live_no_mask_merge_no_side_filter",
+      "category": "noisy",
+      "component_count": 2,
+      "component_areas": [
+        17414,
+        33
+      ],
+      "query": "簡単実践ロボットシミュレーション",
+      "ocr_text": "ロツトシミレション",
+      "ocr_overlap": 0.9841101694915254,
+      "modes": {
+        "baseline": {
+          "mode": "baseline",
+          "success": true,
+          "roll_rad": -1.5838110356970254,
+          "pred_book_width_mm": 16.509953886270523,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 1.7099538862705224,
+          "point_3d": [
+            0.12339665285038785,
+            -0.07038316010360215,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "before_median_depth_filter": 17447,
+            "after_median_depth_filter": 17447,
+            "before_normal_ransac": 17447,
+            "after_normal_ransac": 17447,
+            "sent_to_pca": 17447
+          },
+          "processing_seconds": null,
+          "source": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_154852_live_no_mask_merge_no_side_filter/live_core_result.json"
+        },
+        "refine_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_154852_live_no_mask_merge_no_side_filter",
+          "mode": "refine_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 17447,
+          "refined_mask_area_px": 17447,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "refined_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5835508108139038,
+          "pred_book_width_mm": 16.57688617706299,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 1.7768861770629876,
+          "point_3d": [
+            0.13064007273498332,
+            -0.07036112225422543,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 17447,
+            "sent_to_pca": 17447
+          },
+          "depth_flattening": {
+            "enabled": false,
+            "median_source": "selected_mask_fallback",
+            "valid_depth_count": 17447,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": null,
+            "median_depth_m": null,
+            "mad": null,
+            "p10": null,
+            "p90": null,
+            "raw_mask_area_px": 17447,
+            "final_mask_area_px": 17447,
+            "flattened_pixel_count": null,
+            "pointcloud_point_count": 17447,
+            "pca_input_point_count": 17447,
+            "all_final_mask_pixels_assigned_median": false,
+            "pointcloud_equals_pca_input": false,
+            "fallback": false,
+            "fallback_reason": null,
+            "normal_ransac": {
+              "used": true,
+              "reason": "ok",
+              "point_count": 17447,
+              "distance_threshold_m": 0.008,
+              "ransac_n": 3,
+              "num_iterations": 1200,
+              "plane_model": [
+                0.10577843576564627,
+                0.013695980132804115,
+                0.994295400097564,
+                -0.4390734656624554
+              ],
+              "inlier_count": 17447,
+              "inlier_ratio": 1.0
+            }
+          },
+          "processing_seconds": 0.18980354999985138,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_154852_live_no_mask_merge_no_side_filter/refine_only"
+        },
+        "median_flatten_only": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_154852_live_no_mask_merge_no_side_filter",
+          "mode": "median_flatten_only",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 17447,
+          "refined_mask_area_px": 17447,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "refined_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5882606506347656,
+          "pred_book_width_mm": 16.96552522480488,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.1655252248048775,
+          "point_3d": [
+            0.13064007273498332,
+            -0.07177758577510011,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 17447,
+            "sent_to_pca": 17447
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 16289,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 428.0,
+            "median_depth_m": 0.42800002032890916,
+            "mad": 1.0,
+            "p10": 425.0,
+            "p90": 430.0,
+            "raw_mask_area_px": 17447,
+            "final_mask_area_px": 17447,
+            "flattened_pixel_count": 17447,
+            "pointcloud_point_count": 17447,
+            "pca_input_point_count": 17447,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2334790229997452,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_154852_live_no_mask_merge_no_side_filter/median_flatten_only"
+        },
+        "refine_and_median_flatten": {
+          "success": true,
+          "query": "簡単実践ロボットシミュレーション",
+          "source_case": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260724_154852_live_no_mask_merge_no_side_filter",
+          "mode": "refine_and_median_flatten",
+          "raw_component_count": 2,
+          "anchor_component_id": 1,
+          "kept_component_ids": [
+            1,
+            2
+          ],
+          "removed_component_ids": [],
+          "raw_mask_area_px": 17447,
+          "refined_mask_area_px": 17447,
+          "raw_and_refined_mask_equal": true,
+          "raw_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "refined_mask_sha256": "f4c0df52e2ad90cb3e955544794109512b258574cf58162caa178a78c24e23fa",
+          "mask_sha256_equal": true,
+          "fallback": false,
+          "fallback_reason": null,
+          "roll_rad": -1.5882606506347656,
+          "pred_book_width_mm": 16.96552522480488,
+          "gt_book_width_mm": 14.8,
+          "abs_width_error_mm": 2.1655252248048775,
+          "point_3d": [
+            0.13064007273498332,
+            -0.07177758577510011,
+            0.42800002032890916
+          ],
+          "point_counts": {
+            "pointcloud_from_mask": 17447,
+            "sent_to_pca": 17447
+          },
+          "depth_flattening": {
+            "enabled": true,
+            "median_source": "anchor_eroded_3x3",
+            "valid_depth_count": 16289,
+            "valid_depth_ratio": 1.0,
+            "median_depth_raw": 428.0,
+            "median_depth_m": 0.42800002032890916,
+            "mad": 1.0,
+            "p10": 425.0,
+            "p90": 430.0,
+            "raw_mask_area_px": 17447,
+            "final_mask_area_px": 17447,
+            "flattened_pixel_count": 17447,
+            "pointcloud_point_count": 17447,
+            "pca_input_point_count": 17447,
+            "all_final_mask_pixels_assigned_median": true,
+            "pointcloud_equals_pca_input": true,
+            "pointcloud_ply_equals_pca_ply": true,
+            "fallback": false,
+            "fallback_reason": null
+          },
+          "processing_seconds": 0.2078448849997585,
+          "output_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam3_runtime/tests/outputs/refined_median_depth_saved_cases/20260724_154852_live_no_mask_merge_no_side_filter/refine_and_median_flatten"
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "clean_evaluated": 12,
+    "noisy_evaluated": 8,
+    "clean_refinement_no_op": 12,
+    "clean_new_failures": 0,
+    "noisy_components_removed_cases": 2,
+    "mode_success_counts": {
+      "baseline": 20,
+      "refine_only": 20,
+      "median_flatten_only": 20,
+      "refine_and_median_flatten": 20
+    }
+  }
+}

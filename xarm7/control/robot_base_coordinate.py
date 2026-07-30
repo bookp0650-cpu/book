@@ -82,7 +82,7 @@ def cam_mm_to_robot_mm(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
     dy_adj_mm: float = 0.0,
 ) -> np.ndarray:
     """
@@ -115,7 +115,7 @@ def get_camera_debug_info(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260604_204926 copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
     dy_adj_mm: float = 0.0,
 ):
     """
@@ -173,7 +173,7 @@ def print_camera_debug_info(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260604_204926 copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
     dy_adj_mm: float = 0.0,
 ) -> np.ndarray:
     """
@@ -223,15 +223,6 @@ def print_camera_debug_info(
         f"Z={p_robot_mm[2]:.2f} mm"
     )
 
-    print("\n[現在のTCP位置・姿勢]")
-    print(
-        f"X={tcp_pose[0]:.2f} mm, "
-        f"Y={tcp_pose[1]:.2f} mm, "
-        f"Z={tcp_pose[2]:.2f} mm, "
-        f"roll={tcp_pose[3]:.4f} rad, "
-        f"pitch={tcp_pose[4]:.4f} rad, "
-        f"yaw={tcp_pose[5]:.4f} rad"
-    )
 
     print("=============================================\n")
 

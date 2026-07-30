@@ -66,6 +66,7 @@ ros2_ws/log/
 
 # backups
 *.bak_path
+*.bak_*
 *_bak_*/
 
 .pro_hand_book_fixed/
@@ -164,6 +165,7 @@ __pycache__/
 
 # Large models
 /models/
+detection/pro_handbook/sam3_runtime/models/
 
 # Python cache and virtual environments
 __pycache__/
@@ -172,6 +174,15 @@ __pycache__/
 venv/
 .pro_hand_book_fixed/
 detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/
+detection/pro_handbook/sam3_runtime/.venv/
+detection/pro_handbook/sam3_runtime/.venv.*/
+
+# SAM3 generated test artifacts and bundled local vendor caches
+detection/pro_handbook/sam3_runtime/tests/outputs/
+detection/pro_handbook/sam3_runtime/vendor/bin/
+detection/pro_handbook/sam3_runtime/vendor/owner_repo/
+detection/pro_handbook/sam3_runtime/vendor/*.zip
+detection/pro_handbook/sam3_runtime/vendor/*.tar.bz2
 
 # ROS generated files
 build/
@@ -184,3 +195,26 @@ ros2_ws/log/
 # Local editor/cache
 .vscode/
 .pytest_cache/
+
+# OS/editor temporary files
+.DS_Store
+Thumbs.db
+.~lock.*
+*.swp
+
+# Local logs and experiment outputs
+xarm_current_logs/
+xarm7/xarm_current_logs/
+*.log
+
+# Local installers and archives
+*.deb
+*.run
+*.iso
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key

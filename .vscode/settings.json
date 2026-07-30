@@ -1,23 +1,7 @@
 {
     "python.defaultInterpreterPath": "/home/book/pro_book/pro_hand_book_python/.pro_hand_book_fixed/bin/python",
+
     "python.analysis.extraPaths": [
-        "/home/book/pro_book/pro_hand_book_python",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/src",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/xarm7_moveit_msgs/local/lib/python3.10/dist-packages",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/udp_bridge_manip/lib/python3.10/site-packages",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/retrieval_manager/lib/python3.10/site-packages",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/build/iai_cylinder",
-        "/home/book/pro_book/pro_hand_book_python/ros2_ws/install/iai_cylinder/lib/python3.10/site-packages",
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages",
-        "/home/book/pro_book/pro_hand_book_python/.pro_hand_book_fixed/lib/python3.10/site-packages",
-        "/home/book/.local/lib/python3.10/site-packages"
-    ],
-    "python.analysis.autoSearchPaths": true,
-    "python.analysis.indexing": true,
-    "python.analysis.useLibraryCodeForTypes": true,
-    "python.analysis.typeCheckingMode": "basic",
-    "python.terminal.activateEnvironment": true
+        "/home/book/pro_book/pro_hand_book_python/.pro_hand_book_fixed/lib/python3.10/site-packages"
+    ]
 }

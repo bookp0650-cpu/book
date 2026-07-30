@@ -387,14 +387,20 @@ def _resolve_ocr_subprocess_paths():
     return str(ocr_py), str(ocr_script)
 
 
-def run_ocr_subprocess(shot_dir: Path):
-    OCR_PY, OCR_SCRIPT = _resolve_ocr_subprocess_paths()
-
+def _build_offline_ocr_env():
+    """OCR subprocessだけにPaddleX 3.3.12の確認済みoffline設定を適用する．"""
     env = os.environ.copy()
     # PaddleOCR側が親プロセスのCUDA/cuBLASを拾って不安定になるのを避ける．
     env.pop("LD_LIBRARY_PATH", None)
-    env["DISABLE_MODEL_SOURCE_CHECK"] = "True"
+    env["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+    env["PADDLE_PDX_LOCAL_FONT_FILE_PATH"] = "/home/book/.paddlex/fonts/simfang.ttf"
     env["CUDA_VISIBLE_DEVICES"] = "0"
+    return env
+
+
+def run_ocr_subprocess(shot_dir: Path):
+    OCR_PY, OCR_SCRIPT = _resolve_ocr_subprocess_paths()
+    env = _build_offline_ocr_env()
 
     subprocess.run([OCR_PY, OCR_SCRIPT, str(shot_dir)], check=True, env=env)
     print(f"✔ OCR done: {shot_dir / 'ocr_result.json'}")
@@ -406,12 +412,7 @@ def start_ocr_subprocess(shot_dir: Path):
     後で communicate() / wait() して終了を待つ．
     """
     OCR_PY, OCR_SCRIPT = _resolve_ocr_subprocess_paths()
-
-    env = os.environ.copy()
-    # PaddleOCR側が親プロセスのCUDA/cuBLASを拾って不安定になるのを避ける．
-    env.pop("LD_LIBRARY_PATH", None)
-    env["DISABLE_MODEL_SOURCE_CHECK"] = "True"
-    env["CUDA_VISIBLE_DEVICES"] = "0"
+    env = _build_offline_ocr_env()
 
     proc = subprocess.Popen(
         [OCR_PY, OCR_SCRIPT, str(shot_dir)],
@@ -5221,6 +5222,24 @@ def _get_sam_runner_compat(
     sam_target_len: int = 768,
     use_cache: bool = True,
 ):
+    backend = os.getenv("BOOK_SEGMENTATION_BACKEND", "sam3").strip().lower()
+    if backend != "sam3":
+        raise RuntimeError(
+            "BOOK_SEGMENTATION_BACKEND must be 'sam3'; automatic SAM2 fallback is disabled"
+        )
+    from detection.pro_handbook.sam3_runtime.service.client import Sam3BatchInfer
+
+    key = ("sam3-service", os.getenv("SAM3_ENDPOINT", "http://127.0.0.1:8765"))
+    if use_cache and key in _SAM_RUNNER_CACHE:
+        print("[SAM3 CACHE] reuse SAM3 service client")
+        return _SAM_RUNNER_CACHE[key]
+    runner = Sam3BatchInfer()
+    if use_cache:
+        _SAM_RUNNER_CACHE[key] = runner
+    return runner
+
+    # Legacy SAM2 construction is intentionally unreachable and retained only
+    # as a short-lived migration reference until fixed-image parity is signed off.
     key = (
         str(Path(encoder_path).expanduser()),
         str(Path(decoder_path).expanduser()),

@@ -7,7 +7,7 @@ id:
 
 pos:
   gripper:
-    close: 3816
+    close: 3860
     range: 8190 # 4095*2, open: close + range
     release: 400
     theta_zero: 0.252680 # radian

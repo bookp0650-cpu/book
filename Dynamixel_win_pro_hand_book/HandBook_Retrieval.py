@@ -172,7 +172,7 @@ if __name__ == '__main__':
     try:        
         dxl = init_dynamixels()
         # test
-        open_until_width(dxl, 25.0)
+        open_until_width(dxl, 15.0)
         input()
         grasp(dxl)
         time.sleep(3.0)
