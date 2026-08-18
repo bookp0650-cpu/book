@@ -1,0 +1,114 @@
+{
+  "sam3": {
+    "prompt": "book spine",
+    "prefer_saved_masks": true
+  },
+  "book_dimensions_mm": {
+    "book_width_mm": 18.0,
+    "book_height_mm": 210.0,
+    "book_depth_mm": 150.0
+  },
+  "target_shelf_roi": {
+    "mode": "common_fixed_rectangle",
+    "image_width": 1280,
+    "image_height": 720,
+    "x1": 134,
+    "y1": 0,
+    "x2": 1120,
+    "y2": 720
+  },
+  "fallback_shelf_roi": [134, 0, 1120, 720],
+  "mask_filter": {
+    "min_mask_area_px": 800,
+    "min_roi_intersection_ratio": 0.35,
+    "max_pair_iou": 0.82,
+    "max_bbox_outside_image_ratio": 0.05,
+    "image_edge_margin_px": 2
+  },
+  "shelf_roi_detection": {
+    "roi_margin_left_px": 25,
+    "roi_margin_right_px": 25,
+    "bottom_mad_multiplier": 3.5,
+    "maximum_height_percentile": 90.0,
+    "min_valid_instances": 4,
+    "min_horizontal_occupancy_ratio": 0.45,
+    "min_roi_width_px": 300,
+    "min_roi_height_px": 180,
+    "max_bottom_mad_px": 35.0,
+    "max_outside_image_ratio": 0.12,
+    "max_edge_touch_instance_ratio": 0.60,
+    "min_instances_with_valid_depth_ratio": 0.50,
+    "min_instance_valid_depth_ratio": 0.40
+  },
+  "occupied_mask_refinement": {
+    "hole_closing_kernel_px": 5,
+    "horizontal_closing_kernel_px": 5,
+    "horizontal_safety_margin_px": 3
+  },
+  "gap_detection": {
+    "required_height_px": null,
+    "minimum_clearance_height_px_without_book_size": 440,
+    "minimum_candidate_width_px": 8,
+    "left_clearance_px": 3,
+    "right_clearance_px": 3,
+    "boundary_search_max_distance_px": 80,
+    "bottom_contact_band_px": 8,
+    "minimum_shape_support_height_ratio": 0.50
+  },
+  "candidate_width": {
+    "safe_percentile": 5.0
+  },
+  "candidate_depth_regions": {
+    "boundary_band_px": 10,
+    "candidate_depth_erode_px": 2,
+    "fallback_when_eroded_empty": true,
+    "minimum_core_area_px": 20,
+    "minimum_core_deep_ratio": 0.15
+  },
+  "book_front_plane": {
+    "front_region_erode_px": 5
+  },
+  "core_obstacle": {
+    "minimum_component_area_px": 120,
+    "minimum_component_area_ratio": 0.02,
+    "required_height_crossing_ratio": 0.70
+  },
+  "depth_validation": {
+    "min_depth_m": 0.15,
+    "max_depth_m": 3.0,
+    "sensor_abnormal_max_raw": 65535,
+    "min_valid_depth_ratio": 0.60,
+    "max_abnormal_max_ratio": 0.05,
+    "min_gap_behind_front_m": 0.018,
+    "same_front_tolerance_m": 0.012,
+    "max_same_front_fraction": 0.45,
+    "closer_obstacle_margin_m": 0.015,
+    "max_closer_obstacle_fraction": 0.08
+  },
+  "front_plane": {
+    "point_sample_stride_px": 3,
+    "depth_median_tolerance_m": 0.04,
+    "ransac_distance_threshold_m": 0.006,
+    "ransac_max_iterations": 400,
+    "ransac_min_inliers": 80,
+    "ransac_random_seed": 0,
+    "fallback_front_depth_m": 0.45
+  },
+  "target": {
+    "target_inset_px": 6,
+    "target_height_ratio": 0.50,
+    "boundary_fit_min_points": 20,
+    "shelf_side_strip_width_px": 18,
+    "surface_clearance_m": 0.0,
+    "max_boundary_disagreement_px": 18.0,
+    "reject_boundary_disagreement_px": 45.0,
+    "max_safe_target_adjustment_px": 20.0,
+    "reject_safe_target_adjustment_px": 50.0
+  },
+  "candidate_selection": {
+    "strategy": "highest_confidence"
+  },
+  "output": {
+    "root_dir": "captures/strage/100test_offline"
+  }
+}

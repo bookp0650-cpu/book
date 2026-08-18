@@ -19,7 +19,9 @@ from xarm7.control.xarm7 import XArm7
 BOOK_BARCODE_1 = [52.4, -82, 178, 78, 204, 4.6, -61.2]
 BOOK_BARCODE_2 = [-36.9, -75.2, 159.3, 80.5, 83.8, 18.8, -34.9]
 
-CONFIG_DIR = "/home/book/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
+CONFIG_DIR = "/home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
+
+HandMotors = HandBook.init_dynamixels()
 
 def decoded_to_dict_safe(d) -> dict:
     raw_data = getattr(d, "data", None)
@@ -56,18 +58,17 @@ def rightside_container_to_init_move(arm: XArm7):
     右側収納後に初期姿勢へ戻る動作
     """
     waypoints = [
-        [-62.5, -43.3, 164.2, 108.0, 49.6, -18.4, -25.5],
-        [0, -4.3, 95.7, 164.6, 263.1, 96.7, 210],
+        [-62.5, -43.3, 164.2, 108.0, 49.6, -18.4, -25.5]
+        #,[0, -4.3, 95.7, 164.6, 263.1, 96.7, 210],
     ]
     for i, q_deg in enumerate(waypoints):
         q_rad = [math.radians(d) for d in q_deg]
         arm.arm.set_servo_angle(
-            angle=q_rad, speed=1.0, mvacc=1.0, is_radian=True, wait=True
+            angle=q_rad, speed=1.0, mvacc=0.5, is_radian=True, wait=True
         )
         print(f"waypoint {i} 完了")
     print("rightside_container_to_init_move 完了")
 
-HandMotors = HandBook.init_dynamixels()
 def move_to_container_rightside(offset: float, arm: XArm7, waypoint_node, HandMotors, side: str = "left"):
     """
     コンテナ収納動作
@@ -79,7 +80,16 @@ def move_to_container_rightside(offset: float, arm: XArm7, waypoint_node, HandMo
     
     print(f"[move_to_container_rightside] offset: {offset}, side: {side}")
     input("続行するにはEnterキーを押してください")
-    arm.moveL_relative([0, 650.0, 0.0, 0.0, 0.0, 0.0])
+    arm.moveL_relative([-20, 670.0, 0.0, 0.0, 0.0, 0.0])
+
+    waypoint_node.reset()
+
+    waypoint_node.play_direct(f"{CONFIG_DIR}/container_right.yaml")
+    while not waypoint_node.is_finished():
+        time.sleep(0.1)
+
+    waypoint_node.reset()
+
 
     # offsetに応じてyamlファイルを選択
     if offset < 30.0:
@@ -134,7 +144,7 @@ def move_to_container_rightside(offset: float, arm: XArm7, waypoint_node, HandMo
     waypoint_node.reset()
 
     # Z方向の収納動作
-    BOOK_CAPTURE = -210.0
+    BOOK_CAPTURE = -80.0
     CONTAINER_TILT_DEG = 13.0
     theta = math.radians(CONTAINER_TILT_DEG)
     z_drop = BOOK_CAPTURE + offset * math.tan(theta)
@@ -233,7 +243,7 @@ def main():
     node = DummyNode()
     arm = XArm7(node)
 
-   # HandMotors = HandBook.init_dynamixels()
+    HandMotors = HandBook.init_dynamixels()
 
     from xarm7.control.xarm_init_to_capture_integration import WaypointPlayerNode
     from xarm7.control.xarm_monitor import XArmMonitor
@@ -270,8 +280,9 @@ def main():
         print("no_barcode → 右面動作へ")
 
         # -y方向に引く
-        arm.moveL_relative([79.2, -874.6, 30.0, 0.0, 0.0, 0.0])#z=112.0
-
+        #arm.moveL_relative([79.2, -874.6, 30.0, 0.0, 0.0, 0.0])#z=112.0
+        
+        arm.moveL_relative([79.2, -500, -30.0, 0.0, 0.0, 0.0])
         yaml_path = f"{CONFIG_DIR}/leftside_to_rightside_v1.yaml"
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
@@ -291,7 +302,7 @@ def main():
                 break
             
         
-        arm.moveL_relative([-20, 90.0, 0.0, 0.0, 0.0, 0.0])
+        #arm.moveL_relative([-20, 50.0, -60.0, 0.0, 0.0, 0.0])
         
         
 
@@ -313,7 +324,8 @@ def main():
                 offset=offset,
                 arm=arm,
                 waypoint_node=waypoint_node,
-                HandMotors=HandMotors,
+                HandMotors=
+                HandMotors,
                 side="right"
             )
 

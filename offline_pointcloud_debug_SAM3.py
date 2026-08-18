@@ -4,6 +4,10 @@
 from detection.pro_handbook.sam_py_demo.get_book_points_sam3_refined_sam2_width import (
     run_capture_and_pca_offline_sam3_refined_sam2_width,
 )
+from detection.pro_handbook.sam_py_demo.modules.sam2_compatible_geometry import (
+    DEFAULT_MASK_PCA_WIDTH_MODE,
+    MASK_PCA_WIDTH_MODES,
+)
 from detection.pro_handbook.sam3_runtime.integration_service_manager import (
     Sam3ServiceSession,
 )
@@ -30,6 +34,7 @@ TEST_BASE_DIR = BASE_DIR / "captures" / "100test"
 
 # offline実行結果の保存先
 OFFLINE_BASE_DIR = BASE_DIR / "captures" / "100test_offline"
+THREE_WAY_BASE_DIR = BASE_DIR / "captures" / "100test_mask_pca_3way_compare"
 
 MASTER_JSON = BASE_DIR / "master_20260216.json"
 
@@ -202,6 +207,28 @@ def parse_args():
         action="store_true",
         help="require an already-ready service; do not start one",
     )
+    parser.add_argument(
+        "--mask-width-mode",
+        choices=MASK_PCA_WIDTH_MODES,
+        default=DEFAULT_MASK_PCA_WIDTH_MODE,
+        help="mask-PCA width aggregation (default: slice_minmax_median)",
+    )
+    parser.add_argument(
+        "--three-way-compare",
+        action="store_true",
+        help="compare all width modes once from each saved refined mask",
+    )
+    parser.add_argument(
+        "--reuse-artifacts-dir",
+        type=Path,
+        help="saved 100-case artifact root used by --three-way-compare",
+    )
+    parser.add_argument(
+        "--comparison-output-base",
+        type=Path,
+        default=THREE_WAY_BASE_DIR,
+        help="new parent directory for three-way comparison outputs",
+    )
     return parser.parse_args()
 
 
@@ -219,12 +246,38 @@ def selected_range(args):
 def main():
     args = parse_args()
     start_index, end_index = selected_range(args)
+    if args.three_way_compare:
+        if args.reuse_artifacts_dir is None:
+            raise ValueError(
+                "--three-way-compare requires --reuse-artifacts-dir so all "
+                "three methods use the same saved mask"
+            )
+        if args.external_service:
+            raise ValueError("--external-service is not used with saved three-way comparison")
+        from evaluate_mask_pca_width_3way import run_three_way_comparison
+
+        run_three_way_comparison(
+            args.reuse_artifacts_dir,
+            MASTER_JSON,
+            args.comparison_output_base,
+            start_case=start_index,
+            end_case=end_index,
+            known_case_dir=(
+                BASE_DIR
+                / "captures"
+                / "20260806_111513_live_sam3_refined_sam2_width"
+            ),
+        )
+        return
+    if args.reuse_artifacts_dir is not None:
+        raise ValueError("--reuse-artifacts-dir is only valid with --three-way-compare")
     print("\n===== BOOK WIDTH OFFLINE EVAL START =====")
     print(f"source test dir : {TEST_BASE_DIR}")
     print(f"offline base dir: {OFFLINE_BASE_DIR}")
     print(f"master json     : {MASTER_JSON}")
     print(f"sam_device      : {SAM_DEVICE}")
     print(f"test range      : {start_index} to {end_index}")
+    print(f"mask width mode : {args.mask_width_mode}")
     print("=========================================\n")
 
     master_books = load_master(MASTER_JSON)
@@ -252,6 +305,7 @@ def main():
         "input_files": INPUT_FILES,
         "output_structure": "captures/<timestamp>/<test_index>/",
         "recognition_api": "run_capture_and_pca_offline_sam3_refined_sam2_width",
+        "mask_width_mode": args.mask_width_mode,
         "service_policy": "external only" if args.external_service else "reuse ready service, otherwise start and stop owned service",
     }
     save_json(run_config_json, run_config)
@@ -355,6 +409,7 @@ def main():
                         query=book_name,
                         shot_dir=run_shot_dir.resolve(),
                         sam_device=SAM_DEVICE,
+                        mask_width_mode=args.mask_width_mode,
                     )
                     theta_rad = float(recognition["roll_rad"])
                     p_min = recognition["point_3d"]

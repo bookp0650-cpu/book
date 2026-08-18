@@ -3,7 +3,7 @@
 # xarm7 モジュールのパスを明示的に追加（最重要）
 # ==========================
 import sys
-sys.path.append("/home/book/pro_book/pro_hand_book_python")
+sys.path.append("/home/book/pro_book_SAM3/pro_hand_book_python")
 
 # ==========================
 # 通常import
@@ -24,7 +24,7 @@ from xarm7.control.xarm7 import XArm7
 XARM_HOST = "192.168.2.197"
 
 BASE_DIR = os.path.expanduser(
-    "~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
+    "~/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
 )
 
 DEFAULT_SPEED = 0.5     # rad/s
@@ -91,6 +91,175 @@ class WaypointPlayer(Node):
                     f"Fatal motion error at {name}, code={ret}"
                 )
                 break
+
+
+    # ------------------------
+    # 既存のarmを使ってWaypoint再生
+    # ------------------------
+    @staticmethod
+    def play_with_arm(
+        arm,
+        yaml_path,
+        start_name=None,
+        end_name=None,
+        skip_names=None,
+        speed=DEFAULT_SPEED,
+        accel=DEFAULT_ACCEL,
+        wait=True,
+        pause_sec=0.0,
+    ):
+        """
+        既に接続済みのXArm7を使ってWaypointを再生する。
+
+        WaypointPlayer自体は生成しないため、
+        新しいROS NodeやxArm接続は作られない。
+        """
+        skip_names = set(skip_names or [])
+
+        yaml_path = os.path.expanduser(str(yaml_path))
+
+        if not os.path.exists(yaml_path):
+            raise FileNotFoundError(
+                f"Waypoint YAMLが見つかりません: {yaml_path}"
+            )
+
+        with open(
+            yaml_path,
+            "r",
+            encoding="utf-8",
+        ) as f:
+            data = yaml.safe_load(f)
+
+        if not data:
+            raise RuntimeError(
+                f"YAMLが空です: {yaml_path}"
+            )
+
+        waypoints = data.get("waypoints")
+
+        if not isinstance(waypoints, list):
+            raise RuntimeError(
+                f"waypointsがありません: {yaml_path}"
+            )
+
+        print(
+            f"[WaypointPlayer] Loaded "
+            f"{len(waypoints)} waypoints from:"
+            f"\n  {yaml_path}"
+        )
+
+        started = start_name is None
+        start_found = start_name is None
+        end_found = end_name is None
+
+        executed_names = []
+
+        for wp in waypoints:
+            name = wp.get("name", "")
+
+            if not name:
+                raise RuntimeError(
+                    f"nameがないWaypointがあります: {wp}"
+                )
+
+            # start_nameが来るまでは実行しない
+            if not started:
+                if name != start_name:
+                    continue
+
+                started = True
+                start_found = True
+
+            # 指定Waypointをスキップ
+            if name in skip_names:
+                print(
+                    f"[WaypointPlayer] Skip {name}"
+                )
+                continue
+
+            q_deg = wp.get("q")
+
+            if q_deg is None:
+                raise RuntimeError(
+                    f"{name}にqがありません"
+                )
+
+            if len(q_deg) != 7:
+                raise RuntimeError(
+                    f"{name}の関節数が不正です: "
+                    f"{len(q_deg)}"
+                )
+
+            q_rad = deg2rad_list(q_deg)
+
+            print(
+                f"[WaypointPlayer] Move to {name}"
+            )
+
+            ret = arm.arm.set_servo_angle(
+                angle=q_rad,
+                speed=speed,
+                mvacc=accel,
+                is_radian=True,
+                wait=wait,
+            )
+
+            # SDKによってint以外の場合にも対応
+            if isinstance(ret, (list, tuple)):
+                ret_code = ret[0] if ret else None
+            else:
+                ret_code = ret
+
+            print(
+                f"[WaypointPlayer] "
+                f"{name} completed: ret={ret}"
+            )
+
+            if ret_code == 3:
+                print(
+                    f"[WaypointPlayer] "
+                    f"Motion warning at {name}, code=3"
+                )
+
+            elif isinstance(ret_code, int) and ret_code != 0:
+                raise RuntimeError(
+                    f"Fatal motion error at "
+                    f"{name}, code={ret_code}"
+                )
+
+            executed_names.append(name)
+
+            if pause_sec > 0.0:
+                time.sleep(pause_sec)
+
+            if end_name is not None and name == end_name:
+                end_found = True
+                break
+
+        if not start_found:
+            raise RuntimeError(
+                f"開始Waypointが見つかりません: "
+                f"{start_name}"
+            )
+
+        if not end_found:
+            raise RuntimeError(
+                f"終了Waypointが見つかりません: "
+                f"{end_name}"
+            )
+
+        if not executed_names:
+            raise RuntimeError(
+                "実行されたWaypointがありません"
+            )
+
+        print(
+            "[WaypointPlayer] completed: "
+            + " -> ".join(executed_names)
+        )
+
+        return executed_names
+
 
 
     # ------------------------

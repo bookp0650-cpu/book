@@ -1,0 +1,340 @@
+[
+  {
+    "candidate_id": 0,
+    "bbox": [
+      115,
+      1,
+      137,
+      470
+    ],
+    "x_range_raw": [
+      115,
+      137
+    ],
+    "x_range_safe": [
+      118,
+      134
+    ],
+    "pixel_width_raw": 22,
+    "pixel_width_safe": 16,
+    "estimated_width_mm": 5.7595496564481845,
+    "minimum_bottom_clearance_px": 469,
+    "maximum_bottom_clearance_px": 469,
+    "estimated_height_mm": 190.7344166465983,
+    "left_boundary_type": "shelf_side",
+    "right_boundary_type": "book",
+    "left_instance_id": null,
+    "right_instance_id": 28,
+    "right_boundary_x_at_target": 141.95845725884237,
+    "right_boundary_method": "right_book_left_contour_svd",
+    "right_boundary_line": {
+      "point": [
+        143.01253918495297,
+        180.0
+      ],
+      "direction": [
+        -0.016467796704086175,
+        0.9998643966417211
+      ],
+      "point_count": 319
+    },
+    "target_y_rule": "shelf_bottom_minus_required_height_ratio",
+    "target_pixel": [
+      133,
+      244
+    ],
+    "target_point_camera_m": [
+      -0.21054976044611246,
+      -0.05235718757952652,
+      0.37020690590922917
+    ],
+    "target_plane_source": "right_book",
+    "target_3d_method": "ransac_plane",
+    "left_front_plane": {
+      "ransac_ok": false,
+      "point_count": 0,
+      "inlier_count": 0,
+      "median_depth_m": null
+    },
+    "right_front_plane": {
+      "ransac_ok": true,
+      "point_count": 3489,
+      "inlier_count": 3489,
+      "median_depth_m": 0.37100001762155443
+    },
+    "width_3d_method": "ransac_plane+ransac_plane",
+    "width_fit": false,
+    "height_fit": false,
+    "status": "rejected",
+    "rejection_reasons": [
+      "required_book_width_not_met",
+      "required_book_height_not_met",
+      "gap_not_deeper_than_neighbor_front",
+      "same_front_depth_region_detected"
+    ],
+    "depth_status": "rejected",
+    "valid_depth_ratio": 1.0,
+    "depth_zero_ratio": 0.0,
+    "depth_abnormal_max_ratio": 0.0,
+    "gap_depth_median_mm": 371.00001762155443,
+    "neighbor_front_depth_mm": 371.00001762155443,
+    "gap_behind_front_mm": 0.0,
+    "same_front_depth_fraction": 0.9699331848552338,
+    "closer_obstacle_fraction": 0.0,
+    "depth_reasons": [
+      "gap_not_deeper_than_neighbor_front",
+      "same_front_depth_region_detected"
+    ],
+    "depth_confidence": 0.030066815144766168
+  },
+  {
+    "candidate_id": 1,
+    "bbox": [
+      182,
+      1,
+      204,
+      470
+    ],
+    "x_range_raw": [
+      182,
+      204
+    ],
+    "x_range_safe": [
+      185,
+      201
+    ],
+    "pixel_width_raw": 22,
+    "pixel_width_safe": 16,
+    "estimated_width_mm": 6.645914995433425,
+    "minimum_bottom_clearance_px": 469,
+    "maximum_bottom_clearance_px": 469,
+    "estimated_height_mm": 190.47736217672417,
+    "left_boundary_type": "book",
+    "right_boundary_type": "book",
+    "left_instance_id": 28,
+    "right_instance_id": 27,
+    "right_boundary_x_at_target": 210.12317895243004,
+    "right_boundary_method": "right_book_left_contour_svd",
+    "right_boundary_line": {
+      "point": [
+        212.05732484076432,
+        177.5
+      ],
+      "direction": [
+        0.02907260645995473,
+        -0.9995773024401987
+      ],
+      "point_count": 314
+    },
+    "target_y_rule": "shelf_bottom_minus_required_height_ratio",
+    "target_pixel": [
+      200,
+      244
+    ],
+    "target_point_camera_m": [
+      -0.1843535427319328,
+      -0.052639286643575985,
+      0.372201570376319
+    ],
+    "target_plane_source": "right_book",
+    "target_3d_method": "ransac_plane",
+    "left_front_plane": {
+      "ransac_ok": true,
+      "point_count": 3489,
+      "inlier_count": 3489,
+      "median_depth_m": 0.37100001762155443
+    },
+    "right_front_plane": {
+      "ransac_ok": true,
+      "point_count": 5728,
+      "inlier_count": 5728,
+      "median_depth_m": 0.370000017574057
+    },
+    "width_3d_method": "ransac_plane+ransac_plane",
+    "width_fit": false,
+    "height_fit": false,
+    "status": "rejected",
+    "rejection_reasons": [
+      "required_book_width_not_met",
+      "required_book_height_not_met",
+      "gap_not_deeper_than_neighbor_front",
+      "same_front_depth_region_detected"
+    ],
+    "depth_status": "rejected",
+    "valid_depth_ratio": 1.0,
+    "depth_zero_ratio": 0.0,
+    "depth_abnormal_max_ratio": 0.0,
+    "gap_depth_median_mm": 373.00001771654934,
+    "neighbor_front_depth_mm": 370.5000175978057,
+    "gap_behind_front_mm": 2.5000001187436283,
+    "same_front_depth_fraction": 0.7307906458797327,
+    "closer_obstacle_fraction": 0.0,
+    "depth_reasons": [
+      "gap_not_deeper_than_neighbor_front",
+      "same_front_depth_region_detected"
+    ],
+    "depth_confidence": 0.26920935412026725
+  },
+  {
+    "candidate_id": 2,
+    "bbox": [
+      274,
+      9,
+      320,
+      470
+    ],
+    "x_range_raw": [
+      274,
+      320
+    ],
+    "x_range_safe": [
+      277,
+      317
+    ],
+    "pixel_width_raw": 46,
+    "pixel_width_safe": 40,
+    "estimated_width_mm": 17.924625837691078,
+    "minimum_bottom_clearance_px": 461,
+    "maximum_bottom_clearance_px": 469,
+    "estimated_height_mm": 201.37778711671677,
+    "left_boundary_type": "book",
+    "right_boundary_type": "book",
+    "left_instance_id": 27,
+    "right_instance_id": 4,
+    "right_boundary_x_at_target": 328.59203498231886,
+    "right_boundary_method": "right_book_left_contour_svd",
+    "right_boundary_line": {
+      "point": [
+        328.46590909090907,
+        249.5
+      ],
+      "direction": [
+        0.022925952947634696,
+        -0.9997371657998129
+      ],
+      "point_count": 440
+    },
+    "target_y_rule": "shelf_bottom_minus_required_height_ratio",
+    "target_pixel": [
+      316,
+      244
+    ],
+    "target_point_camera_m": [
+      -0.1569622793034049,
+      -0.060294045725927524,
+      0.4263267976157223
+    ],
+    "target_plane_source": "right_book",
+    "target_3d_method": "ransac_plane",
+    "left_front_plane": {
+      "ransac_ok": true,
+      "point_count": 5728,
+      "inlier_count": 5728,
+      "median_depth_m": 0.370000017574057
+    },
+    "right_front_plane": {
+      "ransac_ok": true,
+      "point_count": 7296,
+      "inlier_count": 7295,
+      "median_depth_m": 0.4270000202814117
+    },
+    "width_3d_method": "ransac_plane+ransac_plane",
+    "width_fit": false,
+    "height_fit": false,
+    "status": "rejected",
+    "rejection_reasons": [
+      "required_book_width_not_met",
+      "required_book_height_not_met"
+    ],
+    "depth_status": "accepted",
+    "valid_depth_ratio": 1.0,
+    "depth_zero_ratio": 0.0,
+    "depth_abnormal_max_ratio": 0.0,
+    "gap_depth_median_mm": 557.0000264560804,
+    "neighbor_front_depth_mm": 398.50001892773435,
+    "gap_behind_front_mm": 158.50000752834603,
+    "same_front_depth_fraction": 0.09910913140311804,
+    "closer_obstacle_fraction": 0.060634743875278396,
+    "depth_reasons": [],
+    "depth_confidence": 0.9008908685968819
+  },
+  {
+    "candidate_id": 3,
+    "bbox": [
+      1278,
+      1,
+      1280,
+      470
+    ],
+    "x_range_raw": [
+      1278,
+      1280
+    ],
+    "x_range_safe": [
+      1281,
+      1277
+    ],
+    "pixel_width_raw": 2,
+    "pixel_width_safe": 0,
+    "estimated_width_mm": 0.0,
+    "minimum_bottom_clearance_px": 469,
+    "maximum_bottom_clearance_px": 469,
+    "estimated_height_mm": 217.46808151350695,
+    "left_boundary_type": "book",
+    "right_boundary_type": "shelf_side",
+    "left_instance_id": 25,
+    "right_instance_id": null,
+    "right_boundary_x_at_target": 1279.0,
+    "right_boundary_method": "adopted_shelf_roi_right_side",
+    "right_boundary_line": null,
+    "target_y_rule": "shelf_bottom_minus_required_height_ratio",
+    "target_pixel": [
+      1281,
+      244
+    ],
+    "target_point_camera_m": [
+      0.29140376741543256,
+      -0.05977706990686814,
+      0.42267136791730386
+    ],
+    "target_plane_source": "left_book",
+    "target_3d_method": "ransac_plane",
+    "left_front_plane": {
+      "ransac_ok": true,
+      "point_count": 3797,
+      "inlier_count": 3797,
+      "median_depth_m": 0.4230000200914219
+    },
+    "right_front_plane": {
+      "ransac_ok": false,
+      "point_count": 0,
+      "inlier_count": 0,
+      "median_depth_m": null
+    },
+    "width_3d_method": "ransac_plane+ransac_plane",
+    "width_fit": false,
+    "height_fit": true,
+    "status": "rejected",
+    "rejection_reasons": [
+      "clearance_margins_consume_candidate",
+      "pixel_width_below_minimum",
+      "required_book_width_not_met",
+      "depth_valid_ratio_too_low",
+      "no_valid_depth_in_candidate"
+    ],
+    "depth_status": "uncertain",
+    "valid_depth_ratio": 0.0,
+    "depth_zero_ratio": 0.0,
+    "depth_abnormal_max_ratio": 0.0,
+    "gap_depth_median_mm": null,
+    "neighbor_front_depth_mm": 423.0000200914219,
+    "gap_behind_front_mm": null,
+    "same_front_depth_fraction": null,
+    "closer_obstacle_fraction": null,
+    "depth_reasons": [
+      "depth_valid_ratio_too_low",
+      "no_valid_depth_in_candidate"
+    ],
+    "depth_confidence": 0.0
+  }
+]

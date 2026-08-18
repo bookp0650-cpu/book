@@ -41,6 +41,13 @@ from detection.pro_handbook.sam_py_demo.bar_code.code_1_pic_ros2_editing import 
     BoolPulseWatcher,
     BoolLatchWatcher
 )
+from rclpy.qos import (
+    QoSProfile,
+    ReliabilityPolicy,
+    DurabilityPolicy,
+)
+from std_msgs.msg import Bool
+
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -391,6 +398,7 @@ def main_sequence(
         # ==============================
         node.get_logger().info("Waiting for /shelf_id ...")
 
+
         while rclpy.ok() and not shelf_manager.is_received():
             executor.spin_once(timeout_sec=0.1)
 
@@ -738,8 +746,8 @@ def main_sequence(
                 )
 
                 # ================== 挿入・取り出し ==================
-                #input("insert: Enter / ""return to capture: Ctrl+D / ""exit: Ctrl+C")
-                time.sleep(3.0)
+                input("insert: Enter / ""return to capture: Ctrl+D / ""exit: Ctrl+C")
+                #time.sleep(3.0)
                 if side == "right":
                     # この関数内で通常と同じmoveL挿入を開始し、
                     # 挿入中だけJ1電流を監視する。
@@ -1091,9 +1099,39 @@ def main():
     # ==============================
     rclpy.init()
 
-    # メイン制御ノード（publish / log / trigger 用）
+    # ==============================
+    # メイン制御ノード
+    # ==============================
     node = rclpy.create_node("book_retrieval_main")
-    done_pub = node.create_publisher(Bool, "/retrieval_done", 10)
+
+    # /retrieval_done
+    done_pub = node.create_publisher(
+        Bool,
+        "/retrieval_done",
+        10,
+    )
+
+    # ==============================
+    # /retrieval_system_ready
+    # ==============================
+    ready_qos = QoSProfile(
+        depth=1,
+    )
+
+    ready_qos.reliability = (
+        ReliabilityPolicy.RELIABLE
+    )
+
+    ready_qos.durability = (
+        DurabilityPolicy.TRANSIENT_LOCAL
+    )
+
+    system_ready_pub = node.create_publisher(
+        Bool,
+        "/retrieval_system_ready",
+        ready_qos,
+    )
+
     XARM_HOST = config["robot"]["xarm"]["host"]
 
     arm = XArm7(
@@ -1124,6 +1162,32 @@ def main():
     )
 
     executor.add_node(waypoint_node)
+
+    # ==============================
+    # 出庫システム READY
+    # ==============================
+    ready_msg = Bool()
+    ready_msg.data = True
+
+    system_ready_pub.publish(
+        ready_msg
+    )
+
+    node.get_logger().info(
+        "========================================"
+    )
+
+    node.get_logger().info(
+        "/retrieval_system_ready = true"
+    )
+
+    node.get_logger().info(
+        "Ready to receive /shelf_id"
+    )
+
+    node.get_logger().info(
+        "========================================"
+    )
 
     # ==============================
     # メインループ

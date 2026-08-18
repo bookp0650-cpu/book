@@ -1,11 +1,18 @@
-[
+[ 
   {
-    "book_name": "基本からわかる有限要素法",
-    "ISBN_number": "9784297118846",
-    "bookshelf_ID": "1-1-1-1",
-    "book_width": "13.2"
+  "book_name": "簡単実践ロボットシミュレーション",
+  "ISBN_number": "9784627846913",
+  "bookshelf_ID": "1-1-1-1",
+  "book_width": "14.8"
   },
 
+  {
+    "book_name": "ScanSnap",
+    "ISBN_number": "9784297118846",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "23.9"
+  },
+  
   {
     "book_name": "コンピューターがネットと出会ったら",
     "ISBN_number": "9784046538949",
@@ -66,7 +73,7 @@
   {
   "book_name": "なぜあなたは論文が書けないのか",
   "ISBN_number": "9784779217241",
-  "bookshelf_ID": "1-1-1-1",
+  "bookshelf_ID": "1-1-2-1",
   "book_width": "10.7"
   },
 
@@ -131,11 +138,5 @@
     "ISBN_number": "9784627610255",
     "bookshelf_ID": "1-1-2-1",
     "book_width": "10.9"
-  },
-  {
-  "book_name": "簡単実践ロボットシミュレーション",
-  "ISBN_number": "9784627846913",
-  "bookshelf_ID": "1-1-2-1",
-  "book_width": "14.8"
   }
 ]

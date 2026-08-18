@@ -3,7 +3,7 @@ robot:
     host: 192.168.2.197
 
 books:
-  master_file: master_20260216.json  #master_20260225_tohan.json
+  master_file: master_20260216_30.json  #master_20260225_tohan.json
 
 linear_lift:
   home_mm: 140.0

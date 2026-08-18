@@ -167,8 +167,8 @@ PLACING_FOR_TEST_Q = [
 DISTANCE_BOOKSHELF = np.radians(60.0)
 INSERT_CONTAINER = -330
 
-TCP_VEL_1 = 200
-TCP_ACC_1 = 200
+TCP_VEL_1 = 180
+TCP_ACC_1 = 180
 
 TCP_VEL_2 = 40
 TCP_ACC_2 = 40
@@ -494,11 +494,11 @@ class XArm7:
         x_offset_mm = -8
 
         if side == "right":
-            roll_micro_calib_mm = 1.0 * max(0.0,1.0 - abs(d_roll_rad) / np.deg2rad(60))
-            roll_calib_right = -2.0272 * d_roll_rad**2 - 2.3037 * d_roll_rad + 0.3896 + roll_micro_calib_mm
-            target_position_calib_right = 3e-5*y**2 + 0.0288*y + 7.764
-            calib_rad_roll = -0.01*d_roll_rad**2 + 0.0048*d_roll_rad+0.009
-            calib_rad_y = -4e-5*y - 0.0155 
+            roll_micro_calib_mm = 1.5 * max(0.7, abs(d_roll_rad) / np.deg2rad(60))
+            roll_calib_right = -2.6618 * d_roll_rad**2 + 8.2786 * d_roll_rad + 3.7139 - roll_micro_calib_mm
+            target_position_calib_right = 0
+            calib_rad_roll = 0.0016*d_roll_rad**2 + 0.0036*d_roll_rad - 0.0294  #先こっちやる
+            calib_rad_y = 0#-9e-8 *y**2 - 0.0001 *y - 0.0367 #先こっちやる
 
 
             x_offset_mm *= right
@@ -517,7 +517,7 @@ class XArm7:
 
         target_pose = [
             float(p_robot_mm[0] + x_offset_mm),
-            float(p_robot_mm[1] + y_offset_mm ),
+            float(p_robot_mm[1] + y_offset_mm  ),
             float(p_robot_mm[2]),
             float(curr[3] + d_roll_rad + calib_rad ),
             float(curr[4]),
@@ -720,64 +720,176 @@ class XArm7:
 
     def moveL_to_insert_right_with_current_monitor(
         self,
+        side: str,
+        retry_capture_pose,
+        retry_capture_y_mm: float,
         velocity: float = TCP_VEL_1,
         acceleration: float = TCP_ACC_2,
-        j1_threshold: float = 2.7,
+        j1_threshold: float = 2.8,
         required_count: int = 1,
         sample_interval: float = 0.02,
         timeout: float = 10.0,
-        return_joint_angles=None,
-        return_speed: float = 10.0,
-        return_acceleration: float = 50.0,
+        retry_y_offset_mm: float = 0.0,
+        retry_move_speed: float = 120.0,
+        retry_move_acceleration: float = 80.0,
     ):
         """
-        右挿入中にJ1電流を監視する。
+        左右の書架への挿入中にJ1電流を監視する。
+
+        電流閾値を検知した場合:
+            1. 挿入動作を停止
+            2. X方向だけ撮影姿勢のX位置まで退避
+            3. 撮影姿勢のX/Z/Roll/Pitch/Yawを維持
+            4. Yだけを1回目の認識で得たロボット座標Yへ変更
+            5. 再認識位置へ移動
+
+        Parameters
+        ----------
+        side:
+            "right" または "left"
+
+        retry_capture_pose:
+            1回目の認識前に保存した撮影姿勢。
+            [x, y, z, roll, pitch, yaw]
+            位置はmm、角度はrad。
+
+        retry_capture_y_mm:
+            1回目の認識で得たp_robot_mm[1]。
+            ロボット座標系のY座標[mm]。
+
+        retry_y_offset_mm:
+            認識結果のY座標へ追加する補正値[mm]。
+            最初は0.0でよい。
 
         Returns
         -------
         dict
             正常完了:
-                {"ok": True, "reason": "completed"}
+                {
+                    "ok": True,
+                    "reason": "completed",
+                    "max_j1_current_abs": 最大J1絶対電流
+                }
 
             電流閾値超過:
-                {"ok": False, "reason": "current_threshold"}
+                {
+                    "ok": False,
+                    "reason": "current_threshold",
+                    "j1_current": 電流値,
+                    "j1_current_abs": 電流絶対値,
+                    "max_j1_current_abs": 最大J1絶対電流,
+                    "retry_target_pose": 再撮影姿勢
+                }
 
             タイムアウト:
-                {"ok": False, "reason": "timeout"}
+                {
+                    "ok": False,
+                    "reason": "timeout",
+                    "max_j1_current_abs": 最大J1絶対電流
+                }
         """
         import math
         import time
 
         arm = self.arm
 
+        # ==================================================
+        # 入力値確認
+        # ==================================================
+        if side not in ("right", "left"):
+            raise ValueError(
+                f"sideは'right'または'left'にしてください: side={side}"
+            )
+
         if arm is None or not arm.connected:
             raise RuntimeError("xArmに接続されていません")
 
         if required_count < 1:
-            raise ValueError("required_countは1以上にしてください")
+            raise ValueError(
+                "required_countは1以上にしてください"
+            )
 
+        if retry_capture_pose is None:
+            raise ValueError(
+                "retry_capture_poseが設定されていません"
+            )
+
+        if len(retry_capture_pose) != 6:
+            raise ValueError(
+                "retry_capture_poseは"
+                "[x, y, z, roll, pitch, yaw]の"
+                "6要素にしてください"
+            )
+
+        capture_pose = [
+            float(value)
+            for value in retry_capture_pose
+        ]
+
+        if not all(
+            math.isfinite(value)
+            for value in capture_pose
+        ):
+            raise ValueError(
+                f"retry_capture_poseに不正な値があります: "
+                f"{retry_capture_pose}"
+            )
+
+        retry_capture_y_mm = float(
+            retry_capture_y_mm
+        )
+
+        retry_y_offset_mm = float(
+            retry_y_offset_mm
+        )
+
+        if not math.isfinite(retry_capture_y_mm):
+            raise ValueError(
+                "retry_capture_y_mmが不正です: "
+                f"{retry_capture_y_mm}"
+            )
+
+        if not math.isfinite(retry_y_offset_mm):
+            raise ValueError(
+                "retry_y_offset_mmが不正です: "
+                f"{retry_y_offset_mm}"
+            )
+
+        # ==================================================
+        # xArm SDK戻り値確認
+        # ==================================================
         def check_result(label, result):
             if result is None:
                 return
 
             if isinstance(result, int):
                 code = result
+
             elif isinstance(result, (tuple, list)):
-                code = int(result[0])
+                if len(result) == 0:
+                    code = 0
+                else:
+                    code = int(result[0])
+
             else:
                 code = 0
 
             if code != 0:
                 raise RuntimeError(
-                    f"{label}失敗: code={code}, result={result}"
+                    f"{label}失敗: "
+                    f"code={code}, result={result}"
                 )
 
+        # ==================================================
+        # J1電流取得
+        # ==================================================
         def get_j1_current():
             currents = arm.currents
 
             if currents is None or len(currents) < 7:
                 raise RuntimeError(
-                    f"関節電流を取得できません: {currents}"
+                    "関節電流を取得できません: "
+                    f"{currents}"
                 )
 
             j1 = float(currents[0])
@@ -789,29 +901,33 @@ class XArm7:
 
             return j1
 
+        # ==================================================
+        # 動作停止
+        # ==================================================
         def stop_motion():
             result = arm.set_state(4)
-            check_result("挿入停止", result)
+
+            check_result(
+                "挿入停止",
+                result,
+            )
+
             time.sleep(0.2)
 
-        def return_to_capture_pose():
-            if return_joint_angles is None:
-                return
-
-            if len(return_joint_angles) != 7:
-                raise ValueError(
-                    "return_joint_anglesは7要素にしてください"
-                )
-
-            # STOP状態から通常の位置制御状態へ戻す
+        # ==================================================
+        # STOP状態から位置制御へ復帰
+        # ==================================================
+        def restart_position_control():
             check_result(
                 "motion_enable",
                 arm.motion_enable(enable=True),
             )
+
             check_result(
                 "set_mode",
                 arm.set_mode(0),
             )
+
             check_result(
                 "set_state",
                 arm.set_state(0),
@@ -825,20 +941,128 @@ class XArm7:
                     f"error_code={arm.error_code}"
                 )
 
-            result = arm.set_servo_angle(
-                angle=list(return_joint_angles),
-                speed=return_speed,
-                mvacc=return_acceleration,
-                wait=True,
-                is_radian=False,
+        # ==================================================
+        # 1回目に認識した本の正面へ移動
+        # ==================================================
+        def move_to_retry_recognition_pose():
+            """
+            電流閾値検知後、撮影姿勢のX/Z/RPYを維持し、
+            Yだけを1回目に認識した本の位置へ変更する。
+
+            XとYは1回のMoveLで同時に移動する。
+            """
+            restart_position_control()
+
+            current_pose = self.get_tcp_pose(
+                is_radian=True
+            )
+
+            current_pose = [
+                float(value)
+                for value in current_pose
+            ]
+
+            # TCP補正後に保存した撮影姿勢を基準にする
+            retry_target_pose = list(capture_pose)
+
+            # Yだけ1回目の認識結果へ変更
+            retry_target_pose[1] = (
+                retry_capture_y_mm
+                + retry_y_offset_mm
+            )
+
+            dx_mm = (
+                retry_target_pose[0]
+                - current_pose[0]
+            )
+
+            dy_mm = (
+                retry_target_pose[1]
+                - current_pose[1]
+            )
+
+            dz_mm = (
+                retry_target_pose[2]
+                - current_pose[2]
+            )
+
+            print("")
+            print("========== RETRY RECOGNITION MOVE ==========")
+
+            print(
+                "[CURRENT POSE] "
+                f"X={current_pose[0]:.2f} mm, "
+                f"Y={current_pose[1]:.2f} mm, "
+                f"Z={current_pose[2]:.2f} mm, "
+                f"Roll={math.degrees(current_pose[3]):.2f} deg, "
+                f"Pitch={math.degrees(current_pose[4]):.2f} deg, "
+                f"Yaw={math.degrees(current_pose[5]):.2f} deg"
+            )
+
+            print(
+                "[RETRY TARGET] "
+                f"X={retry_target_pose[0]:.2f} mm, "
+                f"Y={retry_target_pose[1]:.2f} mm, "
+                f"Z={retry_target_pose[2]:.2f} mm, "
+                f"Roll={math.degrees(retry_target_pose[3]):.2f} deg, "
+                f"Pitch={math.degrees(retry_target_pose[4]):.2f} deg, "
+                f"Yaw={math.degrees(retry_target_pose[5]):.2f} deg"
+            )
+
+            print(
+                "[RETRY MOVE XYZ] "
+                f"dX={dx_mm:+.2f} mm, "
+                f"dY={dy_mm:+.2f} mm, "
+                f"dZ={dz_mm:+.2f} mm"
+            )
+
+            print(
+                "[RETRY MOVE PARAM] "
+                f"speed={retry_move_speed:.1f} mm/s, "
+                f"acceleration={retry_move_acceleration:.1f} mm/s^2"
+            )
+
+            # XとYを同時に動かして再認識姿勢へ移動
+            result = self._moveL(
+                retry_target_pose,
+                velocity=retry_move_speed,
+                acceleration=retry_move_acceleration,
+                asynchronous=False,
             )
 
             check_result(
-                "撮影姿勢への復帰",
+                "本正面への再認識姿勢移動",
                 result,
             )
 
-        # 電流をレポートする設定
+            time.sleep(0.2)
+
+            after_pose = self.get_tcp_pose(
+                is_radian=True
+            )
+
+            print(
+                "[RETRY AFTER POSE] "
+                f"X={after_pose[0]:.2f} mm, "
+                f"Y={after_pose[1]:.2f} mm, "
+                f"Z={after_pose[2]:.2f} mm, "
+                f"Roll={math.degrees(after_pose[3]):.2f} deg, "
+                f"Pitch={math.degrees(after_pose[4]):.2f} deg, "
+                f"Yaw={math.degrees(after_pose[5]):.2f} deg"
+            )
+
+            print(
+                "[RETRY MOVE] "
+                "X・Y同時移動による再認識姿勢への移動完了"
+            )
+
+            print("============================================")
+            print("")
+
+            return retry_target_pose
+        # ==================================================
+        # 電流レポート設定
+        # ==================================================
         check_result(
             "電流レポート設定",
             arm.set_report_tau_or_i(1),
@@ -846,20 +1070,44 @@ class XArm7:
 
         time.sleep(0.2)
 
-        # 非同期で挿入開始
-        result = self.moveL_to_insert_right(
-            velocity=velocity,
-            acceleration=acceleration,
-            asynchronous=True,
+        # ==================================================
+        # 左右に応じた挿入動作を非同期で開始
+        # ==================================================
+        if side == "right":
+            result = self.moveL_to_insert_right(
+                velocity=velocity,
+                acceleration=acceleration,
+                asynchronous=True,
+            )
+
+            insertion_label = "右側書架への挿入"
+
+        else:
+            result = self.moveL_to_insert_left(
+                velocity=velocity,
+                acceleration=acceleration,
+                asynchronous=True,
+            )
+
+            insertion_label = "左側書架への挿入"
+
+        check_result(
+            insertion_label,
+            result,
         )
-        check_result("右挿入", result)
 
         start_time = time.monotonic()
         trigger_count = 0
         moving_detected = False
 
+        # 挿入開始から終了までのJ1絶対電流の最大値
+        max_j1_current_abs = 0.0
+
         while True:
-            elapsed = time.monotonic() - start_time
+            elapsed = (
+                time.monotonic()
+                - start_time
+            )
 
             if not arm.connected:
                 raise RuntimeError(
@@ -874,10 +1122,22 @@ class XArm7:
                     f"error_code={arm.error_code}"
                 )
 
+            # ==================================================
             # J1電流監視
+            # ==================================================
             j1_current = get_j1_current()
 
-            if j1_current > j1_threshold:
+            # 左右で電流の符号が逆になる可能性があるため、
+            # 絶対値で閾値判定する。
+            j1_current_abs = abs(j1_current)
+
+            # 挿入中の最大J1絶対電流を更新
+            max_j1_current_abs = max(
+                max_j1_current_abs,
+                float(j1_current_abs),
+            )
+
+            if j1_current_abs > j1_threshold:
                 trigger_count += 1
             else:
                 trigger_count = 0
@@ -885,24 +1145,41 @@ class XArm7:
             if trigger_count >= required_count:
                 print(
                     "[INSERT] J1電流閾値超過: "
-                    f"current={j1_current:+.3f}, "
-                    f"threshold={j1_threshold:+.3f}"
+                    f"side={side}, "
+                    f"raw_current={j1_current:+.3f}, "
+                    f"abs_current={j1_current_abs:.3f}, "
+                    f"threshold={j1_threshold:.3f}"
                 )
 
+                # 挿入動作を停止
                 stop_motion()
-                return_to_capture_pose()
+
+                # 元の撮影姿勢を基準に、
+                # Yだけ1回目の認識結果へ変更する
+                retry_target_pose = (
+                    move_to_retry_recognition_pose()
+                )
 
                 return {
                     "ok": False,
                     "reason": "current_threshold",
-                    "j1_current": j1_current,
+                    "j1_current": float(j1_current),
+                    "j1_current_abs": float(j1_current_abs),
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
+                    "retry_target_pose": retry_target_pose,
+                    "retry_target_y_mm": retry_target_pose[1],
                 }
 
+            # ==================================================
             # 移動完了確認
+            # ==================================================
             moving_result = arm.get_is_moving()
 
             if isinstance(moving_result, bool):
                 moving = moving_result
+
             elif (
                 isinstance(moving_result, (tuple, list))
                 and len(moving_result) >= 2
@@ -911,7 +1188,11 @@ class XArm7:
                     "get_is_moving",
                     moving_result,
                 )
-                moving = bool(moving_result[1])
+
+                moving = bool(
+                    moving_result[1]
+                )
+
             else:
                 moving = None
 
@@ -925,6 +1206,9 @@ class XArm7:
                 return {
                     "ok": True,
                     "reason": "completed",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
                 }
 
             # 短い動作でmoving=Trueを取得できなかった場合
@@ -936,6 +1220,9 @@ class XArm7:
                 return {
                     "ok": True,
                     "reason": "completed",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
                 }
 
             if elapsed >= timeout:
@@ -944,9 +1231,13 @@ class XArm7:
                 return {
                     "ok": False,
                     "reason": "timeout",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
                 }
 
             time.sleep(sample_interval)
+
 
     def moveL_z_offset(self,
                         z_offset: float,
@@ -982,99 +1273,15 @@ class XArm7:
             asynchronous=asynchronous,
         )
 
-    def moveL_post_grasp_right(
-        self,
-        velocity: float = TCP_VEL_1,
-        acceleration: float = TCP_ACC_1,
-        joint_velocity: float = J_VEL_1,
-        joint_acceleration: float = J_ACC_1,
-        asynchronous: bool = False,
-    ):
-        """
-        右側書架から本を引き抜いた後、
-        指定した関節姿勢まで移動して終了する。
+    def moveL_post_grasp_right(self,
+                         velocity: float = TCP_VEL_1,
+                         acceleration: float = TCP_ACC_1,
+                         asynchronous: bool = False):
 
-        動作順:
-        1. TCPをXマイナス方向へRETRIEVAL_DXだけ直線移動
-        2. 指定した7関節角へmoveJ
-        """
-
-        # この関数は直線移動完了後に関節移動する必要があるため、
-        # 非同期動作は許可しない
-        if asynchronous:
-            raise ValueError(
-                "moveL_post_grasp_rightでは、"
-                "moveL完了後にmoveJを行うため"
-                "asynchronous=Falseを指定してください"
-            )
-
-        # ==================================================
-        # 1. X方向へ直線的に引き抜く
-        # ==================================================
         curr_pose = self._get_tcp_pose(is_radian=True)
-
         next_pose = list(curr_pose)
         next_pose[0] -= RETRIEVAL_DX
-
-        print("[POST GRASP RIGHT] 本の引き抜きを開始します")
-        print(f"[POST GRASP RIGHT] X -= {RETRIEVAL_DX}")
-
-        moveL_code = self._moveL(
-            next_pose,
-            velocity,
-            acceleration,
-            asynchronous=False,
-        )
-
-        if moveL_code != 0:
-            raise RuntimeError(
-                "右側書架からの引き抜きmoveLに失敗しました: "
-                f"code={moveL_code}"
-            )
-
-        print("[POST GRASP RIGHT] 引き抜き完了")
-
-        # ==================================================
-        # 2. 指定した関節角へ移動
-        # ==================================================
-        target_joint_deg = [
-            85.8,
-            -56.0,
-            173.0,
-            61.5,
-            100.1,
-            7.2,
-            41.7,
-        ]
-
-        # moveJはラジアン指定
-        target_joint_rad = [
-            angle_deg * np.pi / 180.0
-            for angle_deg in target_joint_deg
-        ]
-
-        print("[POST GRASP RIGHT] 関節姿勢への移動を開始します")
-        print(
-            "[POST GRASP RIGHT] target joint deg =",
-            target_joint_deg,
-        )
-
-        moveJ_code = self.moveJ(
-            target_joint_rad,
-            velocity=joint_velocity,
-            acceleration=joint_acceleration,
-            asynchronous=False,
-        )
-
-        if moveJ_code != 0:
-            raise RuntimeError(
-                "引き抜き後の関節姿勢移動に失敗しました: "
-                f"code={moveJ_code}"
-            )
-
-        print("[POST GRASP RIGHT] 関節姿勢への移動完了")
-
-        return moveJ_code
+        return self._moveL(next_pose, velocity, acceleration, asynchronous)
     
     def moveL_post_grasp_left(self,
                          velocity: float = TCP_VEL_1,
@@ -1135,8 +1342,8 @@ class XArm7:
     #進行方向左側の書架のみ，もしかしたら両方使えるかも
     def switch_gripper_pose(self,
                         joints_deg: list,
-                        velocity: float = J_VEL_1,
-                        acceleration: float = J_ACC_1,
+                        velocity: float = 0.5,
+                        acceleration: float = 1.0,
                         asynchronous: bool = False
                         ):
         curr_joint = self.get_joint_angle(is_radian=True)

@@ -92,7 +92,8 @@ def main():
         # まずグリッパ全開 → 把持
         HandBook.open_until_full(dxl=Hand, asynchronous=False)
 
-        input("press enter to close gripper :")
+        time.sleep(5.0)
+        #input("press enter to close gripper :")
         HandBook.grasp(dxl=Hand, keep_torque=True)
         # book_t = ．．． # TODO グリッパモータ回転位置から推定する書籍厚みからスペーサ回転量の決定するため
         try:
@@ -172,11 +173,31 @@ def main():
             HandBook.reset_rot(Hand)
 
         time.sleep(2.0)
+
+        print("[DEBUG] before contract_sp_lin_1")
         HandBook.contract_sp_lin_1(Hand, asynchronous=False)
         print("[DEBUG] after contract_sp_lin_1")
-        ret = Xarm7.move_L_to_insert_book_tip(velocity= 15,acceleration= 15,asynchronous=True)   
+
+        print("[DEBUG] before move_L_to_insert_book_tip")
+        ret = Xarm7.move_L_to_insert_book_tip(
+            velocity=15,
+            acceleration=15,
+            asynchronous=False
+        )
+        print("[DEBUG] after move_L_to_insert_book_tip ret =", ret)
+
+        if ret != 0:
+            raise RuntimeError(
+                f"move_L_to_insert_book_tip failed: ret={ret}"
+            )
+
+        time.sleep(0.5)
+
         print("[DEBUG] before contract_sp_lin_2")
-        HandBook.contract_sp_lin_2(Hand, asynchronous=False)
+        HandBook.contract_sp_lin_2(
+            Hand,
+            asynchronous=False
+        )
         print("[DEBUG] after contract_sp_lin_2")
 
         print("[DEBUG] before ungrasp")

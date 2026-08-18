@@ -20,7 +20,10 @@ from PIL import Image
 from . import get_book_points as current
 from . import get_book_points_no_mask_merge_no_side_filter as stable
 from .modules.book_width import estimate_book_width
-from .modules.grip_point import find_target_point
+from .modules.grip_point import (
+    find_target_point,
+    find_target_point_longitudinal,
+)
 from .modules.pca_vector import pca_axes_fix_dir
 from .modules.pointcloud_utils import save_ply_ascii
 from .sam3_mask_refinement import refine_selected_sam3_mask
@@ -42,6 +45,160 @@ def _write_json(path: Path, value) -> None:
     path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+
+
+def _camera_point_to_uv(point_m, intr):
+    """Project one camera-frame point with the intrinsics used for 3D recovery."""
+    point = np.asarray(point_m, dtype=np.float64).reshape(3)
+    if not np.all(np.isfinite(point)) or point[2] <= 0.0:
+        return None
+    u = float(intr.fx) * point[0] / point[2] + float(intr.ppx)
+    v = float(intr.fy) * point[1] / point[2] + float(intr.ppy)
+    return int(round(u)), int(round(v))
+
+
+def _save_target_point_before_after(
+    output_path,
+    color_np,
+    mask01,
+    old_target_uv,
+    new_target_uv,
+    new_target_m,
+    book_up_vector,
+    intr,
+):
+    """Save a separate old/new target comparison without changing final.png."""
+    color = np.asarray(color_np)
+    mask = np.asarray(mask01) > 0
+    green = color.copy()
+    green[mask] = (0, 255, 0)
+    image = cv2.addWeighted(color, 0.75, green, 0.25, 0)
+
+    new_uv = tuple(int(value) for value in new_target_uv)
+    old_uv = (
+        None
+        if old_target_uv is None
+        else tuple(int(value) for value in old_target_uv)
+    )
+    if old_uv is not None:
+        cv2.line(image, old_uv, new_uv, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.circle(image, old_uv, 7, (255, 255, 0), -1, cv2.LINE_AA)
+        cv2.putText(
+            image,
+            "OLD camera-Y +100mm",
+            (old_uv[0] + 10, old_uv[1] - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            (255, 255, 0),
+            2,
+            cv2.LINE_AA,
+        )
+
+    cv2.circle(image, new_uv, 8, (255, 255, 255), -1, cv2.LINE_AA)
+    cv2.circle(image, new_uv, 6, (0, 0, 255), -1, cv2.LINE_AA)
+    cv2.putText(
+        image,
+        "NEW bottom +75mm",
+        (new_uv[0] + 10, new_uv[1] + 24),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.55,
+        (0, 0, 255),
+        2,
+        cv2.LINE_AA,
+    )
+
+    arrow_end_m = np.asarray(new_target_m, dtype=np.float64).reshape(3) + (
+        0.050 * np.asarray(book_up_vector, dtype=np.float64).reshape(3)
+    )
+    arrow_end_uv = _camera_point_to_uv(arrow_end_m, intr)
+    if arrow_end_uv is not None:
+        cv2.arrowedLine(
+            image,
+            new_uv,
+            arrow_end_uv,
+            (0, 255, 255),
+            2,
+            cv2.LINE_AA,
+            tipLength=0.2,
+        )
+        cv2.putText(
+            image,
+            "BOOK UP",
+            (arrow_end_uv[0] + 8, arrow_end_uv[1]),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
+
+    if not cv2.imwrite(str(Path(output_path)), image):
+        raise RuntimeError(f"failed to save target comparison: {output_path}")
+
+
+def _target_longitudinal_log(
+    target_info,
+    target_uv,
+    old_target,
+    old_target_uv,
+):
+    """Build and print the auditable camera-frame target-point log."""
+    origin = np.asarray(target_info["origin_m"], dtype=np.float64).reshape(3)
+    book_up = np.asarray(
+        target_info["book_up_vector"], dtype=np.float64
+    ).reshape(3)
+    target = np.asarray(target_info["target_m"], dtype=np.float64).reshape(3)
+    bottom = float(target_info["bottom_longitudinal_m"])
+    old_height = None
+    old_distance_mm = None
+    if old_target is not None:
+        old = np.asarray(old_target, dtype=np.float64).reshape(3)
+        old_height = float(np.dot(old - origin, book_up) - bottom)
+        old_distance_mm = float(np.linalg.norm(target - old) * 1000.0)
+
+    tilt_xy_deg = float(np.degrees(np.arctan2(book_up[0], book_up[1])))
+    payload = {
+        "coordinate_frame": "camera",
+        "unit": "meter",
+        "pc1_raw": np.asarray(target_info["pc1_raw"], float).tolist(),
+        "book_up_vector": book_up.tolist(),
+        "book_tilt_camera_xy_deg": tilt_xy_deg,
+        "bottom_method": target_info["bottom_method"],
+        "bottom_percentile": float(target_info["bottom_percentile"]),
+        "origin_m": origin.tolist(),
+        "bottom_longitudinal_m": bottom,
+        "target_height_m": float(target_info["target_height_m"]),
+        "selected_height_from_bottom_m": float(
+            target_info["selected_height_from_bottom_m"]
+        ),
+        "candidate_tolerance_m": float(
+            target_info["candidate_tolerance_m"]
+        ),
+        "used_tolerance_m": target_info["used_tolerance_m"],
+        "candidate_count": int(target_info["candidate_count"]),
+        "fallback_method": target_info["fallback_method"],
+        "target_xyz_m": target.tolist(),
+        "target_uv": [int(value) for value in target_uv],
+        "old_target_xyz_m": (
+            None
+            if old_target is None
+            else np.asarray(old_target, dtype=float).tolist()
+        ),
+        "old_target_uv": (
+            None
+            if old_target_uv is None
+            else [int(value) for value in old_target_uv]
+        ),
+        "old_longitudinal_height_m": old_height,
+        "new_longitudinal_height_m": float(
+            target_info["selected_height_from_bottom_m"]
+        ),
+        "old_to_new_distance_mm": old_distance_mm,
+    }
+    print("[TARGET POINT LONGITUDINAL]")
+    for key, value in payload.items():
+        print(f"{key:<25}: {value}")
+    return payload
 
 
 def _sha256(path: Path) -> str:
@@ -282,10 +439,28 @@ def _depth_and_pca(
     width_m = width_info.get("av_book_width_m")
     if width_m is None:
         raise RuntimeError(f"book width estimation failed: {width_info}")
-    target_info = find_target_point(points_for_pca)
+    # Keep the old camera-Y target only for comparison. The formal target is
+    # selected directly at 75 mm from the robust book bottom along pc1.
+    old_target_info = find_target_point(points_for_pca)
+    old_target = old_target_info.get("target_m")
+    target_info = find_target_point_longitudinal(points_for_pca, pc1)
     target = target_info.get("target_m")
     if target is None:
         raise RuntimeError(f"target point estimation failed: {target_info}")
+    target_index = int(target_info["target_index"])
+    target_uv_direct = tuple(int(value) for value in uv_for_pca[target_index])
+    old_target_uv = None
+    if old_target is not None:
+        old_target_index = int(
+            np.argmin(
+                np.linalg.norm(
+                    points_for_pca - np.asarray(old_target).reshape(3), axis=1
+                )
+            )
+        )
+        old_target_uv = tuple(
+            int(value) for value in uv_for_pca[old_target_index]
+        )
     # The final display mask is the actual component-refined/raw mask, not a
     # RANSAC visualization. Yellow contours are not drawn.
     target_uv = stable._save_final_png_with_target(
@@ -296,6 +471,27 @@ def _depth_and_pca(
         points_for_pca,
         uv_for_pca,
     )
+    if tuple(target_uv) != target_uv_direct:
+        raise RuntimeError(
+            "target point/UV correspondence mismatch: "
+            f"selected={target_uv_direct}, visualized={target_uv}"
+        )
+    _save_target_point_before_after(
+        shot_dir / "target_point_before_after.png",
+        color_np,
+        used_mask,
+        old_target_uv,
+        target_uv,
+        target,
+        target_info["book_up_vector"],
+        intr,
+    )
+    target_longitudinal = _target_longitudinal_log(
+        target_info,
+        target_uv,
+        old_target,
+        old_target_uv,
+    )
     _write_json(shot_dir / "depth_flattening_result.json", flatten_info)
     return {
         "roll_rad": roll,
@@ -303,6 +499,7 @@ def _depth_and_pca(
         "pred_book_width_mm": float(width_m * 1000.0),
         "width_info": width_info,
         "target_uv": list(target_uv),
+        "target_longitudinal": target_longitudinal,
         "point_counts": {
             "pointcloud_from_mask": int(points.shape[0]),
             "sent_to_pca": int(points_for_pca.shape[0]),

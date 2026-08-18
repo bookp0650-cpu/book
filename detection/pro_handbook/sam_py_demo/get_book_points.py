@@ -368,7 +368,8 @@ def capture_one_shot(pipe, cfg, align, shot_dir, *, stem: str, color_only: bool 
 def _resolve_ocr_subprocess_paths():
     ocr_dir = Path(__file__).resolve().parent / "OCR"
     ocr_py = ocr_dir / ".paadle_ocr" / "bin" / "python"
-    ocr_script = ocr_dir / "paddle_ocr_test.py"
+    #ocr_script = ocr_dir / "paddle_ocr_test.py"
+    ocr_script = ocr_dir / "paddle_ocr_dual_angle.py"
     if not ocr_py.exists():
         ocr_py = Path(sys.executable)
     else:

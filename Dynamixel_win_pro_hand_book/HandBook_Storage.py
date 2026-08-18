@@ -205,34 +205,213 @@ def contract_sp_lin_1(dxl, asynchronous = False): # TODO async 対応
             break
 
 
-def contract_sp_lin_2(dxl, asynchronous = False): # TODO async 対応
+def contract_sp_lin_2(
+    dxl,
+    asynchronous=False,
+    timeout_sec=15.0
+):
+    """
+    スペーサ直動軸をSP_LIN_BACKまで収縮させる。
+
+    asynchronous=False:
+        目標位置到達まで待つ。
+    asynchronous=True:
+        位置指令だけ送ってすぐ戻る。
+    """
+
+    print(
+        f"[SP_LIN_2] start contraction: "
+        f"target={SP_LIN_BACK}, "
+        f"threshold={POSITION_THRESHOLD}"
+    )
 
     dxl.enable_torque(SP_LIN_ID)
     time.sleep(0.5)
+
+    current_pos = dxl.read_position(SP_LIN_ID)
+    print(f"[SP_LIN_2] position before command={current_pos}")
+
     dxl.write_position(SP_LIN_ID, SP_LIN_BACK)
+    print(f"[SP_LIN_2] position command sent: target={SP_LIN_BACK}")
+
+    # 非同期の場合は指令後すぐに戻る
+    if asynchronous:
+        print("[SP_LIN_2] asynchronous command completed")
+        return True
+
+    start_time = time.monotonic()
+    last_print_time = 0.0
 
     while True:
-        dxl.read_position(SP_LIN_ID)
+        elapsed = time.monotonic() - start_time
+
+        try:
+            current_pos = dxl.read_position(SP_LIN_ID)
+        except Exception as e:
+            print(f"[SP_LIN_2][WARN] read_position failed: {e}")
+            current_pos = None
+
+        # 0.2秒ごとに現在位置を表示
+        if elapsed - last_print_time >= 0.2:
+            print(
+                f"[SP_LIN_2] "
+                f"elapsed={elapsed:.1f}s, "
+                f"current={current_pos}, "
+                f"target={SP_LIN_BACK}"
+            )
+            last_print_time = elapsed
+
+        if current_pos is not None:
+            position_error = abs(current_pos - SP_LIN_BACK)
+
+            if position_error <= POSITION_THRESHOLD:
+                print(
+                    f"[SP_LIN_2] spacer contracted: "
+                    f"current={current_pos}, "
+                    f"error={position_error}"
+                )
+
+                dxl.disable_torque(SP_LIN_ID)
+                return True
+
+        if elapsed >= timeout_sec:
+            print(
+                f"[SP_LIN_2][ERROR] contraction timeout: "
+                f"current={current_pos}, "
+                f"target={SP_LIN_BACK}, "
+                f"timeout={timeout_sec}s"
+            )
+
+            # 永久に押し続けないようにトルクを切る
+            try:
+                dxl.disable_torque(SP_LIN_ID)
+            except Exception as e:
+                print(f"[SP_LIN_2][WARN] disable_torque failed: {e}")
+
+            raise TimeoutError(
+                "contract_sp_lin_2 timeout: "
+                f"current={current_pos}, "
+                f"target={SP_LIN_BACK}"
+            )
+
         time.sleep(0.05)
-        if SP_LIN_BACK - POSITION_THRESHOLD < dxl.read_position(SP_LIN_ID) < SP_LIN_BACK + POSITION_THRESHOLD:
-            print('spacer contracted')
-            dxl.disable_torque(SP_LIN_ID)
-            break
 
 
-def ungrasp_auto(dxl):
-    
+def ungrasp_auto(
+    dxl,
+    timeout_sec=10.0,
+    print_interval_sec=0.2
+):
+    """
+    現在位置からRELEASE_GAINだけグリッパを開く。
+
+    成功:
+        Trueを返す。
+
+    失敗:
+        タイムアウト時にTimeoutErrorを送出する。
+        安全のためグリッパのトルクを無効化する。
+    """
+
+    print("[UNGRASP] start")
+
     dxl.enable_torque(GRIPPER_ID)
     time.sleep(0.5)
-    gripper_curr_pos = dxl.read_position(GRIPPER_ID)
-    gripper_ungrasp_pos = gripper_curr_pos + RELEASE_GAIN
-    dxl.write_position(GRIPPER_ID, gripper_ungrasp_pos)
+
+    try:
+        gripper_curr_pos = dxl.read_position(GRIPPER_ID)
+    except Exception as e:
+        dxl.disable_torque(GRIPPER_ID)
+        raise RuntimeError(
+            f"[UNGRASP] initial position read failed: {e}"
+        ) from e
+
+    if gripper_curr_pos is None:
+        dxl.disable_torque(GRIPPER_ID)
+        raise RuntimeError(
+            "[UNGRASP] initial position is None"
+        )
+
+    gripper_ungrasp_pos = int(
+        gripper_curr_pos + RELEASE_GAIN
+    )
+
+    print(
+        f"[UNGRASP] current={gripper_curr_pos}, "
+        f"release_gain={RELEASE_GAIN}, "
+        f"target={gripper_ungrasp_pos}, "
+        f"threshold={POSITION_THRESHOLD}"
+    )
+
+    try:
+        dxl.write_position(
+            GRIPPER_ID,
+            gripper_ungrasp_pos
+        )
+    except Exception as e:
+        dxl.disable_torque(GRIPPER_ID)
+        raise RuntimeError(
+            f"[UNGRASP] position command failed: {e}"
+        ) from e
+
+    start_time = time.monotonic()
+    last_print_time = start_time
 
     while True:
+        now = time.monotonic()
+        elapsed = now - start_time
 
-        if gripper_ungrasp_pos - POSITION_THRESHOLD < dxl.read_position(GRIPPER_ID) < gripper_ungrasp_pos + POSITION_THRESHOLD:
-            print('ungrasp : done')
-            dxl.disable_torque(GRIPPER_ID)
-            break
+        try:
+            current_pos = dxl.read_position(GRIPPER_ID)
+        except Exception as e:
+            print(
+                f"[UNGRASP][WARN] "
+                f"position read failed: {e}"
+            )
+            current_pos = None
+
+        if current_pos is not None:
+            position_error = abs(
+                current_pos - gripper_ungrasp_pos
+            )
+
+            if now - last_print_time >= print_interval_sec:
+                print(
+                    f"[UNGRASP] "
+                    f"elapsed={elapsed:.1f}s, "
+                    f"current={current_pos}, "
+                    f"target={gripper_ungrasp_pos}, "
+                    f"error={position_error}"
+                )
+                last_print_time = now
+
+            if position_error <= POSITION_THRESHOLD:
+                print(
+                    f"[UNGRASP] done: "
+                    f"current={current_pos}, "
+                    f"target={gripper_ungrasp_pos}, "
+                    f"error={position_error}"
+                )
+
+                dxl.disable_torque(GRIPPER_ID)
+                return True
+
+        if elapsed >= timeout_sec:
+            try:
+                dxl.disable_torque(GRIPPER_ID)
+            except Exception as e:
+                print(
+                    "[UNGRASP][WARN] "
+                    f"disable_torque failed: {e}"
+                )
+
+            raise TimeoutError(
+                "[UNGRASP] timeout: "
+                f"current={current_pos}, "
+                f"target={gripper_ungrasp_pos}, "
+                f"timeout={timeout_sec}s"
+            )
+
+        time.sleep(0.05)
 
 

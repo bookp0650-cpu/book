@@ -1,7 +1,11 @@
 # shelf_id_manager.py
 
 from std_msgs.msg import String
-
+from rclpy.qos import (
+    QoSProfile,
+    ReliabilityPolicy,
+    DurabilityPolicy,
+)
 
 class ShelfIDManager:
     """
@@ -112,20 +116,44 @@ class ShelfIDManager:
         """
         self.node = node
 
-        # Subscriptionを親ノードに作らせる
-        self.node.create_subscription(
-            String,
-            '/shelf_id',
-            self.shelf_callback,
-            10
-        )
-
+        # ==========================================
+        # 内部状態
+        # ==========================================
+        self.shelf_id = None
         self.B = None
         self.C = None
         self.side = None
         self.height = None
         self.tcp_z_offset = 0.0
         self.received = False
+
+        # ==================================================
+        # /shelf_id QoS
+        #
+        # manager側が最後にpublishした shelf_id を保持し、
+        # 統合プロセスが途中再起動しても受信できるようにする。
+        # ==================================================
+        shelf_id_qos = QoSProfile(
+            depth=1
+        )
+
+        shelf_id_qos.reliability = (
+            ReliabilityPolicy.RELIABLE
+        )
+
+        shelf_id_qos.durability = (
+            DurabilityPolicy.TRANSIENT_LOCAL
+        )
+
+        # Subscriptionを親ノードに作らせる
+        self.subscription = (
+            self.node.create_subscription(
+                String,
+                "/shelf_id",
+                self.shelf_callback,
+                shelf_id_qos,
+            )
+        )
 
     # ==========================
     # Callback
@@ -196,11 +224,12 @@ class ShelfIDManager:
 
     def reset(self):
         self.received = False
+        self.shelf_id = None
         self.B = None
         self.C = None
         self.side = None
         self.height = None
         self.tcp_z_offset = 0.0
-    
+        
     def get_tcp_z_offset(self):    # TCP微調整
         return self.tcp_z_offset

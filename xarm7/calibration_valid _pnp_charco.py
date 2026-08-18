@@ -68,10 +68,10 @@ from xarm7.control.robot_base_coordinate import (
 # =============================================================================
 
 CONFIG_PATH = "Retrieval_integration.yaml"
-RESULT_CSV_PATH = "charuco_single_board_reaching_eval_live_base_compact_uv_mm.csv"
+RESULT_CSV_PATH = "charuco_single_board_reaching_eval_live_base_compact_uv_mm_rad.csv"
 
 HANDEYE_JSON_PATH = (
-    "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json"
+    "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json"
 )
 
 SIDE = "right"
@@ -203,9 +203,9 @@ ROTATE_DISPLAY_180 = True
 # 旧640x480基準 (344.8, 183.4) を画素比で暫定変換した値。
 # 1280x720では画角・クロップが完全一致しない可能性があるため、
 # 完璧に合った状態を再計測して必ず置き換える。
-EVAL_REF_U_PX = 670.17
-EVAL_REF_V_PX = 263.73
-EVAL_REF_ROLL_DEG = -0.48
+EVAL_REF_U_PX = 679.2
+EVAL_REF_V_PX = 278.6
+EVAL_REF_ROLL_RAD = math.radians(1.4)
 
 
 # =============================================================================
@@ -1275,14 +1275,16 @@ def capture_charuco_pose(
                 if require_eval_pixel and eval_pixel_measurement is not None:
                     u_now = float(eval_pixel_measurement["uv"][0])
                     v_now = float(eval_pixel_measurement["uv"][1])
-                    roll_now_deg = math.degrees(
-                        normalize_roll_for_board(
-                            eval_pixel_measurement["angle_rad"]
-                        )
+                    roll_now_rad = normalize_roll_for_board(
+                        eval_pixel_measurement["angle_rad"]
                     )
                     du_px_live = u_now - EVAL_REF_U_PX
                     dv_px_live = v_now - EVAL_REF_V_PX
-                    droll_deg_live = roll_now_deg - EVAL_REF_ROLL_DEG
+                    droll_rad_live = roll_now_rad - EVAL_REF_ROLL_RAD
+
+                    # OpenCVへの描画だけdegreeへ変換
+                    roll_now_deg = math.degrees(roll_now_rad)
+                    droll_deg_live = math.degrees(droll_rad_live)
 
                     uv_mm_live = pixel_delta_to_image_plane_mm(
                         current_uv_px=(u_now, v_now),
@@ -1522,14 +1524,14 @@ def build_post_reaching_evaluation(arm, post_capture):
     # ArUco版と同じ方法:
     # 画像上の右向き辺角度を[-90, 90]へ寄せ、
     # ROLL_SIGNとROLL_OFFSET_RADを適用した値をrollとする。
-    eval_roll_deg = math.degrees(
-        normalize_roll_for_board(post_capture["image_angle_rad"])
+    eval_roll_rad = normalize_roll_for_board(
+        post_capture["image_angle_rad"]
     )
 
     ref_uv = np.array([EVAL_REF_U_PX, EVAL_REF_V_PX], dtype=np.float64)
     delta_uv = eval_uv - ref_uv
     pixel_error = float(np.linalg.norm(delta_uv))
-    droll_deg = eval_roll_deg - EVAL_REF_ROLL_DEG
+    droll_rad = eval_roll_rad - EVAL_REF_ROLL_RAD
 
     uv_mm = pixel_delta_to_image_plane_mm(
         current_uv_px=eval_uv,
@@ -1545,9 +1547,9 @@ def build_post_reaching_evaluation(arm, post_capture):
         "eval_point_camera_mm": eval_camera_mm,
         "eval_point_base_mm": eval_base_mm,
         "eval_uv_px": eval_uv,
-        "eval_roll_deg": float(eval_roll_deg),
+        "eval_roll_rad": float(eval_roll_rad),
         "ref_uv_px": ref_uv,
-        "ref_roll_deg": float(EVAL_REF_ROLL_DEG),
+        "ref_roll_rad": float(EVAL_REF_ROLL_RAD),
         "delta_uv_px": delta_uv,
         "pixel_error_px": pixel_error,
         "delta_uv_mm": (
@@ -1559,7 +1561,7 @@ def build_post_reaching_evaluation(arm, post_capture):
         "evaluation_depth_mm": (
             None if uv_mm is None else uv_mm["depth_mm"]
         ),
-        "droll_deg": float(droll_deg),
+        "droll_rad": float(droll_rad),
         "direct_pixel_frame_count": int(
             post_capture["direct_pixel_frame_count"]
         ),
@@ -1586,11 +1588,11 @@ def print_post_reaching_evaluation(evaluation):
     print("---------------------------------------------------")
     print("[detected image coordinate]")
     print("u, v [px] =", evaluation["eval_uv_px"])
-    print("roll [deg] =", evaluation["eval_roll_deg"])
+    print("roll [rad] =", evaluation["eval_roll_rad"])
     print("---------------------------------------------------")
     print("[temporary reference]")
     print("u, v [px] =", evaluation["ref_uv_px"])
-    print("roll [deg] =", evaluation["ref_roll_deg"])
+    print("roll [rad] =", evaluation["ref_roll_rad"])
     print("---------------------------------------------------")
     print("[error]")
     print("du, dv [px] =", evaluation["delta_uv_px"])
@@ -1599,7 +1601,7 @@ def print_post_reaching_evaluation(evaluation):
         print("du, dv image-plane [mm] =", evaluation["delta_uv_mm"])
         print("2D image-plane error [mm] =", evaluation["image_plane_error_mm"])
         print("evaluation depth [mm] =", evaluation["evaluation_depth_mm"])
-    print("droll [deg] =", evaluation["droll_deg"])
+    print("droll [rad] =", evaluation["droll_rad"])
     print("---------------------------------------------------")
     print("[evaluation point: camera frame]")
     print("position [mm] =", evaluation["eval_point_camera_mm"])
@@ -1638,14 +1640,14 @@ def append_result_csv(pre_capture, target_base_mm, evaluation):
         "command_target_base_x_mm",
         "command_target_base_y_mm",
         "command_target_base_z_mm",
-        "command_droll_deg",
+        "command_droll_rad",
         "du_px",
         "dv_px",
         "pixel_error_px",
         "du_mm",
         "dv_mm",
         "uv_error_mm",
-        "droll_deg",
+        "droll_rad",
         "post_reprojection_mean_px",
         "post_detected_corner_count",
     ]
@@ -1654,7 +1656,7 @@ def append_result_csv(pre_capture, target_base_mm, evaluation):
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         *[f"{value:.3f}" for value in pre_target_camera_mm],
         *[f"{value:.3f}" for value in target_base_mm],
-        f"{math.degrees(pre_capture['d_roll_rad']):.3f}",
+        f"{pre_capture['d_roll_rad']:.6f}",
         f"{evaluation['delta_uv_px'][0]:.3f}",
         f"{evaluation['delta_uv_px'][1]:.3f}",
         f"{evaluation['pixel_error_px']:.3f}",
@@ -1673,7 +1675,7 @@ def append_result_csv(pre_capture, target_base_mm, evaluation):
             if evaluation["image_plane_error_mm"] is None
             else f"{evaluation['image_plane_error_mm']:.3f}"
         ),
-        f"{evaluation['droll_deg']:.3f}",
+        f"{evaluation['droll_rad']:.6f}",
         f"{evaluation['mean_reprojection_error_px']:.6f}",
         str(evaluation["detected_corner_count"]),
     ]
@@ -1715,8 +1717,8 @@ def reach_charuco_center_square_top_left(arm: XArm7, side: str = "right"):
     print("target board [mm]  =", TARGET_POINT_BOARD_M * 1000.0)
     print("target camera [mm] =", target_camera_mm)
     print("target pixel [px]  =", pre_capture["point_uv"])
-    print("board image angle [deg] =", math.degrees(pre_capture["image_angle_rad"]))
-    print("d_roll [deg] =", math.degrees(d_roll_rad))
+    print("board image angle [rad] =", pre_capture["image_angle_rad"])
+    print("d_roll [rad] =", d_roll_rad)
     print("===================================\n")
 
     # デバッグ表示と実際の変換で同じhand-eye JSONを必ず使用する。
@@ -1736,7 +1738,6 @@ def reach_charuco_center_square_top_left(arm: XArm7, side: str = "right"):
     print("========== ROBOT TARGET ==========")
     print("p_robot_mm =", target_base_mm)
     print("d_roll_rad =", d_roll_rad)
-    print("d_roll_deg =", math.degrees(d_roll_rad))
     print("side       =", side)
     print("==================================")
 
