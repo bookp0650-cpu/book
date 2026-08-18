@@ -218,3 +218,4 @@ xarm7/xarm_current_logs/
 !.env.example
 *.pem
 *.key
+captures_oldPC/captures.7z
