@@ -71,19 +71,36 @@ class Sam3ServiceSession:
         self,
         endpoint: str | None = None,
         ready_timeout: float = READY_TIMEOUT_SECONDS,
+        required_capability: str | None = None,
     ):
         self.endpoint = endpoint or os.environ["SAM3_ENDPOINT"]
         self.ready_timeout = float(ready_timeout)
+        self.required_capability = required_capability
         self.started_by_this_process = False
         self.owned_pid: int | None = None
         self.health_payload: dict | None = None
 
     def ensure_ready(self) -> dict:
         reachable, ready, payload = _health(self.endpoint)
-        if ready:
+        capability_ready = bool(
+            ready
+            and (
+                self.required_capability is None
+                or self.required_capability
+                in (payload or {}).get("capabilities", [])
+            )
+        )
+        if capability_ready:
             self.health_payload = payload
             print("[SAM3] using pre-existing ready service")
             return payload or {}
+
+        if ready and not capability_ready:
+            raise RuntimeError(
+                "SAM3 service is ready but lacks required capability: "
+                f"{self.required_capability!r}; capabilities="
+                f"{(payload or {}).get('capabilities', [])}"
+            )
 
         if reachable:
             print("[SAM3] service is reachable but not ready; waiting")
@@ -99,7 +116,15 @@ class Sam3ServiceSession:
         last_payload = payload
         while time.monotonic() < deadline:
             reachable, ready, last_payload = _health(self.endpoint)
-            if ready:
+            capability_ready = bool(
+                ready
+                and (
+                    self.required_capability is None
+                    or self.required_capability
+                    in (last_payload or {}).get("capabilities", [])
+                )
+            )
+            if capability_ready:
                 if self.started_by_this_process and not _pid_is_running(
                     self.owned_pid
                 ):

@@ -8,10 +8,52 @@ import signal
 import sys
 
 from . import HandBook_Retrieval as HandBook
+from . import HandBook_Storage as StorageHandBook
 
 
 RESPONSE_PREFIX = "__DXL_WORKER_JSON__"
 PR_SET_PDEATHSIG = 1
+
+
+def _prepare_storage_axes(dxl) -> None:
+    """同じworkerが所有するDynamixel接続で入庫用2軸を初期化する。"""
+    targets = (
+        ("SP_LIN", StorageHandBook.SP_LIN_ID),
+        ("SP_ROT", StorageHandBook.SP_ROT_ID),
+    )
+
+    for name, dxl_id in targets:
+        print(
+            f"[DXL WORKER] preparing storage axis {name}(ID={dxl_id})...",
+            flush=True,
+        )
+        dxl.disable_torque(dxl_id)
+        dxl.set_mode_ex_position(dxl_id)
+        position = dxl.read_position(dxl_id)
+        print(
+            f"[DXL WORKER] storage axis READY: "
+            f"{name}(ID={dxl_id}) position={position}",
+            flush=True,
+        )
+
+
+def _cleanup_storage_axes(dxl) -> None:
+    """終了時に入庫用2軸のトルクをOFFする。"""
+    if dxl is None:
+        return
+
+    for dxl_id in (
+        StorageHandBook.SP_LIN_ID,
+        StorageHandBook.SP_ROT_ID,
+    ):
+        try:
+            dxl.disable_torque(dxl_id)
+        except Exception as exc:
+            print(
+                "[DXL WORKER] storage torque-off warning: "
+                f"ID={dxl_id}, {type(exc).__name__}: {exc}",
+                flush=True,
+            )
 
 
 def _emit(payload: dict) -> None:
@@ -202,6 +244,8 @@ def main() -> None:
         )
 
         if command == "shutdown":
+            _cleanup_storage_axes(dxl)
+
             try:
                 HandBook._cleanup_dynamixel(
                     dxl
@@ -283,6 +327,67 @@ def main() -> None:
                 data = {
                     "all_ok": True
                 }
+
+            elif command == "expand_sp_lin":
+
+                data = StorageHandBook.expand_sp_lin(
+                    dxl,
+                    asynchronous=bool(
+                        request.get(
+                            "asynchronous",
+                            False,
+                        )
+                    ),
+                )
+
+            elif command == "contract_sp_lin_1":
+
+                data = StorageHandBook.contract_sp_lin_1(
+                    dxl,
+                    asynchronous=bool(
+                        request.get(
+                            "asynchronous",
+                            False,
+                        )
+                    ),
+                )
+
+            elif command == "contract_sp_lin_2":
+
+                data = StorageHandBook.contract_sp_lin_2(
+                    dxl,
+                    asynchronous=bool(
+                        request.get(
+                            "asynchronous",
+                            False,
+                        )
+                    ),
+                )
+
+            elif command == "rotate_spacer":
+
+                data = StorageHandBook.rotate_spacer(
+                    dxl,
+                    float(request["theta_deg"]),
+                )
+
+            elif command == "reset_rot":
+
+                data = StorageHandBook.reset_rot(
+                    dxl,
+                    asynchronous=bool(
+                        request.get(
+                            "asynchronous",
+                            False,
+                        )
+                    ),
+                )
+
+            elif command == "ungrasp_auto":
+
+                # 現在位置 + RELEASE_GAIN の相対操作。
+                # 二重実行を避けるためclient側でも自動再試行しない。
+                data = StorageHandBook.ungrasp_auto(dxl)
 
             else:
                 raise ValueError(

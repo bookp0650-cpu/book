@@ -832,6 +832,102 @@ class DynamixelWorkerClient:
             timeout_sec=5.0,
         )
 
+    def expand_sp_lin(
+        self,
+        asynchronous: bool = False,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "expand_sp_lin",
+                "asynchronous": bool(asynchronous),
+            },
+            timeout_sec=(
+                8.0 if asynchronous else 20.0
+            ),
+        )
+
+        return self
+
+    def contract_sp_lin_1(
+        self,
+        asynchronous: bool = False,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "contract_sp_lin_1",
+                "asynchronous": bool(asynchronous),
+            },
+            timeout_sec=(
+                8.0 if asynchronous else 20.0
+            ),
+        )
+
+        return self
+
+    def contract_sp_lin_2(
+        self,
+        asynchronous: bool = False,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "contract_sp_lin_2",
+                "asynchronous": bool(asynchronous),
+            },
+            timeout_sec=(
+                8.0 if asynchronous else 20.0
+            ),
+        )
+
+        return self
+
+    def rotate_spacer(
+        self,
+        theta_deg: float,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "rotate_spacer",
+                "theta_deg": float(theta_deg),
+            },
+            timeout_sec=15.0,
+        )
+
+        return self
+
+    def reset_rot(
+        self,
+        asynchronous: bool = False,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "reset_rot",
+                "asynchronous": bool(asynchronous),
+            },
+            timeout_sec=(
+                8.0 if asynchronous else 15.0
+            ),
+        )
+
+        return self
+
+    def ungrasp_auto(self) -> Any:
+        """
+        現在位置 + RELEASE_GAIN の相対操作なので、
+        応答喪失時に同じ命令を自動再実行しない。
+        """
+        with self._command_lock:
+            return self._call_once(
+                {
+                    "cmd": "ungrasp_auto"
+                },
+                timeout_sec=15.0,
+            )
+
     def __enter__(
         self,
     ) -> "DynamixelWorkerClient":

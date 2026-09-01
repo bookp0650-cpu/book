@@ -161,8 +161,17 @@ PLACING_FOR_TEST_Q = [
     44.6,
     189.4
 ] # deg
-# INIT_Q_A5_OFFSET = [
-#     ,,,,,,]  # deg
+
+
+CAPTURE_RIGHT_STRAGE = [
+   66.4,
+   -49.4,
+   187.9,
+   40.9,
+   29.3,
+   -10.9,
+   43.1
+] 
 
 DISTANCE_BOOKSHELF = np.radians(60.0)
 INSERT_CONTAINER = -330
@@ -183,6 +192,7 @@ J_ACC_1 = 2.0
 SECOND_POSE_DX = 177.5
 #SECOND_POSE_DX = 227.5
 INSERT_DX = 90.0
+INSERT_DZ = 70.0
 RETRIEVAL_DX = SECOND_POSE_DX + INSERT_DX 
 PASS_POLL_DY = 500.0
 PASS_POLL_DX = -60.0
@@ -305,7 +315,6 @@ class XArm7:
                         velocity: float = J_VEL_1,
                         acceleration: float = J_ACC_1,
                         asynchronous: bool = False):
-        """UR版 moveJ_to_init_Q"""
         joints_deg = CAPTURE_RIGHT
         joints_rad = convert.deg_to_rad(joints_deg)
         return self._moveJ(joints_rad, velocity, acceleration, asynchronous)
@@ -314,8 +323,15 @@ class XArm7:
                         velocity: float = J_VEL_1,
                         acceleration: float = J_ACC_1,
                         asynchronous: bool = False):
-        """UR版 moveJ_to_init_Q"""
         joints_deg = CAPTURE_LEFT
+        joints_rad = convert.deg_to_rad(joints_deg)
+        return self._moveJ(joints_rad, velocity, acceleration, asynchronous)
+
+    def moveJ_to_capture_right_strage(self,
+                        velocity: float = J_VEL_1,
+                        acceleration: float = J_ACC_1,
+                        asynchronous: bool = False):
+        joints_deg = CAPTURE_RIGHT_STRAGE
         joints_rad = convert.deg_to_rad(joints_deg)
         return self._moveJ(joints_rad, velocity, acceleration, asynchronous)
     
@@ -579,101 +595,6 @@ class XArm7:
 
         return ret
 
-    def move_to_storage_target_xyz_and_roll(
-        self,
-        p_robot_mm: np.ndarray,
-        d_roll_rad: float,
-        side: str = "right",
-        x_offset_mm: float = 0.0,
-        y_offset_mm: float = 0.0,
-        z_offset_mm: float = 0.0,
-        roll_scale: float = 1.0,
-        sleep_s: float = 0.02,
-    ):
-        """
-        入庫用：認識した収納ターゲットXYZへリーチングする関数
-
-        p_robot_mm:
-            cam_mm_to_robot_mm() で変換済みのロボットベース座標 [x,y,z] [mm]
-
-        d_roll_rad:
-            認識した本/隙間の傾き角 [rad]
-
-        side:
-            "right" or "left"
-
-        approach_offset_mm:
-            挿入方向に対して少し手前に止めたい場合のオフセット
-            最初は 0.0 推奨
-
-        y_offset_mm, z_offset_mm:
-            実機合わせ込み用の微調整値
-
-        roll_scale:
-            角度方向が逆なら -1.0 にする
-        """
-
-        p_robot_mm = np.asarray(p_robot_mm, dtype=np.float64).reshape(3)
-
-        if side not in ["right", "left"]:
-            raise ValueError("side must be 'right' or 'left'")
-
-        curr = self.get_tcp_pose(is_radian=True)
-        curr_xyz = np.array(curr[:3], dtype=np.float64)
-
-        target_xyz = p_robot_mm.copy()
-
-        # sideごとの挿入手前オフセット
-        # どの軸が「棚へ近づく方向」かは実機座標に合わせて確認。
-        # ここでは仮にX方向を手前/奥方向としている。
-        if side == "right":
-            target_xyz[0] += 0#-100
-            target_xyz[1] += 0
-            target_xyz[2] += 0
-
-
-        elif side == "left":
-            target_xyz[0] += 0
-            target_xyz[1] += 0
-            target_xyz[2] += 0
-
-        dxyz = target_xyz - curr_xyz
-
-        print("========== STORAGE REACHING ==========")
-        print("[STORAGE] curr_xyz     =", curr_xyz)
-        print("[STORAGE] target_xyz   =", target_xyz)
-        print("[STORAGE] dxyz         =", dxyz)
-        print("[STORAGE] d_roll_rad   =", d_roll_rad)
-        print("[STORAGE] d_roll_deg   =", np.degrees(d_roll_rad))
-        print("======================================")
-
-        self.moveL_relative(
-            [
-                0.0,
-                float(dxyz[1]),
-                float(dxyz[2]),
-                float(roll_scale * d_roll_rad),
-                0.0,
-                0.0,
-            ],
-        )
-
-
-        self.moveL_relative(
-            [
-                float(dxyz[0])-100,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-            ],
-
-            asynchronous=False
-        )
-
-        time.sleep(sleep_s)
-        return 0
 
     def moveL_to_2nd_pos_with_offset(self,
                                      velocity: float = TCP_VEL_1,
@@ -1403,9 +1324,609 @@ class XArm7:
         )
     
    
-
-
 # Storage -----------------------------------------------------------------------------------------------------------------------------
+    def moveL_to_storage_insert_z(
+        self,
+        velocity: float = TCP_VEL_1,
+        acceleration: float = TCP_ACC_2,
+        asynchronous: bool = False,
+    ):
+        insert_dx = INSERT_DZ * (4.0 / 15.0)
+
+        next_pose_relative = [
+            +insert_dx,
+            0.0,
+            -INSERT_DZ,
+            0.0,
+            0.0,
+            0.0,
+        ]
+
+        print(
+            f"[STORAGE INSERT XZ] "
+            f"dX={insert_dx:+.2f} mm, "
+            f"dZ={-INSERT_DZ:+.2f} mm"
+        )
+
+        return self.moveL_relative(
+            next_pose_relative,
+            velocity=velocity,
+            acceleration=acceleration,
+            asynchronous=asynchronous,
+        )
+
+
+    def moveL_to_storage_retract_z(
+        self,
+        velocity: float = TCP_VEL_1,
+        acceleration: float = TCP_ACC_2,
+        asynchronous: bool = False,
+    ):
+        """
+        入庫用引き抜き。
+        Z方向へ INSERT_DZ + 50 mm 戻し、
+        そのZ移動量の4/15だけ -X方向へ同時移動する。
+        """
+
+        retract_dz = INSERT_DZ + 50.0
+        retract_dx = retract_dz * (4.0 / 15.0)
+
+        next_pose_relative = [
+            -retract_dx,
+            0.0,
+            +retract_dz,
+            0.0,
+            0.0,
+            0.0,
+        ]
+
+        print(
+            f"[STORAGE RETRACT XZ] "
+            f"dX={-retract_dx:+.2f} mm, "
+            f"dZ={retract_dz:+.2f} mm"
+        )
+
+        return self.moveL_relative(
+            next_pose_relative,
+            velocity=velocity,
+            acceleration=acceleration,
+            asynchronous=asynchronous,
+        )
+
+
+    def moveL_to_storage_insert_z_with_current_monitor(
+        self,
+        retry_capture_pose,
+        retry_reaching_x_mm: float,
+        velocity: float = TCP_VEL_1,
+        acceleration: float = TCP_ACC_2,
+        j1_threshold: float = 2.8,
+        j2_threshold: float = 7.6,
+        required_count: int = 1,
+        sample_interval: float = 0.02,
+        timeout: float = 10.0,
+        retry_x_offset_mm: float = 0.0,
+        retry_move_speed: float = 120.0,
+        retry_move_acceleration: float = 80.0,
+    ):
+        """
+        入庫用 -Z 挿入 + J1/J2電流監視
+
+        電流閾値超過時:
+          1. 挿入停止
+          2. position modeへ復帰
+          3. コンテナ撮影姿勢をベースにする
+          4. Xだけ認識後のリーチングXへ置換
+          5. その姿勢へMoveLで退避
+
+        retry target:
+            X     = retry_reaching_x_mm
+            Y     = capture_pose Y
+            Z     = capture_pose Z
+            Roll  = capture_pose Roll
+            Pitch = capture_pose Pitch
+            Yaw   = capture_pose Yaw
+        """
+
+        import math
+        import time
+
+        arm = self.arm
+
+        # ==================================================
+        # 入力確認
+        # ==================================================
+        if arm is None or not arm.connected:
+            raise RuntimeError(
+                "xArmに接続されていません"
+            )
+
+        if required_count < 1:
+            raise ValueError(
+                "required_countは1以上にしてください"
+            )
+
+        if retry_capture_pose is None:
+            raise ValueError(
+                "retry_capture_poseが設定されていません"
+            )
+
+        if len(retry_capture_pose) != 6:
+            raise ValueError(
+                "retry_capture_poseは"
+                "[x, y, z, roll, pitch, yaw]"
+                "の6要素にしてください"
+            )
+
+        capture_pose = [
+            float(v)
+            for v in retry_capture_pose
+        ]
+
+        if not all(
+            math.isfinite(v)
+            for v in capture_pose
+        ):
+            raise ValueError(
+                f"retry_capture_poseが不正です: "
+                f"{retry_capture_pose}"
+            )
+
+        retry_reaching_x_mm = float(
+            retry_reaching_x_mm
+        )
+
+        retry_x_offset_mm = float(
+            retry_x_offset_mm
+        )
+
+        if not math.isfinite(
+            retry_reaching_x_mm
+        ):
+            raise ValueError(
+                "retry_reaching_x_mmが不正です: "
+                f"{retry_reaching_x_mm}"
+            )
+
+        # ==================================================
+        # SDK戻り値確認
+        # ==================================================
+        def check_result(
+            label,
+            result,
+        ):
+            if result is None:
+                return
+
+            if isinstance(result, int):
+                code = result
+
+            elif isinstance(
+                result,
+                (tuple, list),
+            ):
+                if len(result) == 0:
+                    code = 0
+                else:
+                    code = int(
+                        result[0]
+                    )
+
+            else:
+                code = 0
+
+            if code != 0:
+                raise RuntimeError(
+                    f"{label}失敗: "
+                    f"code={code}, "
+                    f"result={result}"
+                )
+
+        # ==================================================
+        # J1電流
+        # ==================================================
+        def get_j1_j2_current():
+            currents = arm.currents
+
+            if (
+                currents is None
+                or len(currents) < 7
+            ):
+                raise RuntimeError(
+                    "関節電流を取得できません: "
+                    f"{currents}"
+                )
+
+            j1 = float(currents[0])
+            j2 = float(currents[1])
+
+            if not math.isfinite(j1):
+                raise RuntimeError(
+                    f"J1電流値が不正です: {j1}"
+                )
+
+            if not math.isfinite(j2):
+                raise RuntimeError(
+                    f"J2電流値が不正です: {j2}"
+                )
+
+            return j1, j2
+
+        # ==================================================
+        # 停止
+        # ==================================================
+        def stop_motion():
+            result = arm.set_state(4)
+
+            check_result(
+                "入庫挿入停止",
+                result,
+            )
+
+            time.sleep(0.2)
+
+        # ==================================================
+        # STOP解除
+        # ==================================================
+        def restart_position_control():
+            check_result(
+                "motion_enable",
+                arm.motion_enable(
+                    enable=True
+                ),
+            )
+
+            check_result(
+                "set_mode",
+                arm.set_mode(0),
+            )
+
+            check_result(
+                "set_state",
+                arm.set_state(0),
+            )
+
+            time.sleep(0.2)
+
+            if arm.error_code != 0:
+                raise RuntimeError(
+                    "停止後にxArmエラー: "
+                    f"error_code={arm.error_code}"
+                )
+
+        # ==================================================
+        # 入庫retry姿勢
+        # ==================================================
+        def move_to_retry_recognition_pose():
+
+            restart_position_control()
+
+            current_pose = [
+                float(v)
+                for v in self.get_tcp_pose(
+                    is_radian=True
+                )
+            ]
+
+            # ★ コンテナ撮影姿勢をベース
+            retry_target_pose = list(
+                capture_pose
+            )
+
+            # ★ Xだけリーチング時の値に置換
+            retry_target_pose[0] = (
+                retry_reaching_x_mm
+                + retry_x_offset_mm
+            )
+
+            print("")
+            print(
+                "========== STORAGE RETRY =========="
+            )
+
+            print(
+                "[CURRENT] "
+                f"X={current_pose[0]:.2f}, "
+                f"Y={current_pose[1]:.2f}, "
+                f"Z={current_pose[2]:.2f}"
+            )
+
+            print(
+                "[CAPTURE BASE] "
+                f"X={capture_pose[0]:.2f}, "
+                f"Y={capture_pose[1]:.2f}, "
+                f"Z={capture_pose[2]:.2f}"
+            )
+
+            print(
+                "[REACHING X] "
+                f"{retry_reaching_x_mm:.2f} mm"
+            )
+
+            print(
+                "[RETRY TARGET] "
+                f"X={retry_target_pose[0]:.2f}, "
+                f"Y={retry_target_pose[1]:.2f}, "
+                f"Z={retry_target_pose[2]:.2f}"
+            )
+
+            result = self._moveL(
+                retry_target_pose,
+                velocity=retry_move_speed,
+                acceleration=retry_move_acceleration,
+                asynchronous=False,
+            )
+
+            check_result(
+                "入庫retry姿勢移動",
+                result,
+            )
+
+            time.sleep(0.2)
+
+            return retry_target_pose
+
+        # ==================================================
+        # 電流レポート
+        # ==================================================
+        check_result(
+            "電流レポート設定",
+            arm.set_report_tau_or_i(1),
+        )
+
+        time.sleep(0.2)
+
+        # ==================================================
+        # -Z挿入開始
+        # ==================================================
+        result = (
+            self.moveL_to_storage_insert_z(
+                velocity=velocity,
+                acceleration=acceleration,
+                asynchronous=True,
+            )
+        )
+
+        check_result(
+            "入庫Z挿入",
+            result,
+        )
+
+        start_time = time.monotonic()
+
+        j1_trigger_count = 0
+        j2_trigger_count = 0
+        moving_detected = False
+
+        max_j1_current_abs = 0.0
+        max_j2_current_abs = 0.0
+
+        # ==================================================
+        # 電流監視
+        # ==================================================
+        while True:
+
+            elapsed = (
+                time.monotonic()
+                - start_time
+            )
+
+            if not arm.connected:
+                raise RuntimeError(
+                    "xArmとの接続が切断されました"
+                )
+
+            if arm.error_code != 0:
+                stop_motion()
+
+                raise RuntimeError(
+                    "入庫挿入中にxArmエラー: "
+                    f"error_code={arm.error_code}"
+                )
+
+            j1_current, j2_current = (
+                get_j1_j2_current()
+            )
+
+            j1_current_abs = abs(j1_current)
+            j2_current_abs = abs(j2_current)
+
+            max_j1_current_abs = max(
+                max_j1_current_abs,
+                j1_current_abs,
+            )
+
+            max_j2_current_abs = max(
+                max_j2_current_abs,
+                j2_current_abs,
+            )
+
+
+            # J1
+            if j1_current_abs > j1_threshold:
+                j1_trigger_count += 1
+            else:
+                j1_trigger_count = 0
+
+
+            # J2
+            if j2_current_abs > j2_threshold:
+                j2_trigger_count += 1
+            else:
+                j2_trigger_count = 0
+
+
+            j1_triggered = (
+                j1_trigger_count
+                >= required_count
+            )
+
+            j2_triggered = (
+                j2_trigger_count
+                >= required_count
+            )
+
+            # ==================================================
+            # 電流超過
+            # ==================================================
+            if j1_triggered or j2_triggered:
+                if j1_triggered and j2_triggered:
+                    trigger_joint = "J1+J2"
+                elif j1_triggered:
+                    trigger_joint = "J1"
+                else:
+                    trigger_joint = "J2"
+
+                print(
+                    "[STORAGE INSERT] "
+                    f"{trigger_joint} 電流閾値超過"
+                )
+
+                print(
+                    f"J1 raw={j1_current:+.3f}, "
+                    f"abs={j1_current_abs:.3f}, "
+                    f"threshold={j1_threshold:.3f}"
+                )
+
+                print(
+                    f"J2 raw={j2_current:+.3f}, "
+                    f"abs={j2_current_abs:.3f}, "
+                    f"threshold={j2_threshold:.3f}"
+                )
+
+                stop_motion()
+
+                retry_target_pose = (
+                    move_to_retry_recognition_pose()
+                )
+
+                return {
+                    "ok": False,
+                    "reason": "current_threshold",
+
+                    # どの関節で止まったか
+                    "trigger_joint": trigger_joint,
+
+                    # J1
+                    "j1_current": float(
+                        j1_current
+                    ),
+                    "j1_current_abs": float(
+                        j1_current_abs
+                    ),
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
+
+                    # J2
+                    "j2_current": float(
+                        j2_current
+                    ),
+                    "j2_current_abs": float(
+                        j2_current_abs
+                    ),
+                    "max_j2_current_abs": float(
+                        max_j2_current_abs
+                    ),
+
+                    "retry_target_pose": (
+                        retry_target_pose
+                    ),
+                    "retry_target_x_mm": float(
+                        retry_target_pose[0]
+                    ),
+                }
+
+            # ==================================================
+            # 動作完了確認
+            # ==================================================
+            moving_result = (
+                arm.get_is_moving()
+            )
+
+            if isinstance(
+                moving_result,
+                bool,
+            ):
+                moving = (
+                    moving_result
+                )
+
+            elif (
+                isinstance(
+                    moving_result,
+                    (tuple, list),
+                )
+                and len(
+                    moving_result
+                ) >= 2
+            ):
+                check_result(
+                    "get_is_moving",
+                    moving_result,
+                )
+
+                moving = bool(
+                    moving_result[1]
+                )
+
+            else:
+                moving = None
+
+            if moving is True:
+                moving_detected = True
+
+            if (
+                moving_detected
+                and moving is False
+            ):
+                return {
+                    "ok": True,
+                    "reason": "completed",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
+                    "max_j2_current_abs": float(
+                        max_j2_current_abs
+                    ),
+                }
+
+            # 短い移動でmoving=Trueを
+            # 取り逃した場合
+            if (
+                elapsed >= 1.0
+                and not moving_detected
+                and moving is False
+            ):
+                return {
+                    "ok": True,
+                    "reason": "completed",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
+                    "max_j2_current_abs": float(
+                        max_j2_current_abs
+                    ),
+                }
+
+            if elapsed >= timeout:
+
+                stop_motion()
+
+                return {
+                    "ok": False,
+                    "reason": "timeout",
+                    "max_j1_current_abs": float(
+                        max_j1_current_abs
+                    ),
+                    "max_j2_current_abs": float(
+                        max_j2_current_abs
+                    ),
+                }
+
+            time.sleep(
+                sample_interval
+            )
 
     def moveL_to_storage_pose(self,
                                 dy: float,
@@ -1772,6 +2293,384 @@ class XArm7:
 
         print("[return pose ret] =", ret)
         return ret
+
+
+#コンテナから取り出す場合の挿入
+    def move_to_storage_target_xyz_and_roll_container(
+        self,
+        p_robot_mm: np.ndarray,
+        d_roll_rad: float,
+        side: str,
+        sleep_s: float = 0.02,
+        velocity: float = TCP_VEL_1,
+        acceleration: float = TCP_ACC_1,
+        pos_tol_mm: float = 1.0,
+    ):
+        """
+        入庫専用リーチング。
+
+        出庫用 move_to_target_xyz_and_roll() と同じ構造で、
+        入庫用キャリブレーションだけ独立して持つ。
+
+        p_robot_mm:
+            認識結果をロボット座標系へ変換した [x, y, z] [mm]
+
+        d_roll_rad:
+            認識した傾き [rad]
+
+        side:
+            "right" / "left"
+        """
+
+        p_robot_mm = np.asarray(
+            p_robot_mm,
+            dtype=np.float64,
+        ).reshape(3)
+
+        # ==================================================
+        # 入庫専用キャリブレーション
+        # 最初は全部0で実機実験
+        # ==================================================
+        x_offset_mm = -1.0
+        y_offset_mm = 0.0
+        z_offset_mm = 8.0
+        calib_rad = 0.0
+
+        # ==================================================
+        # 現在TCP姿勢
+        # ==================================================
+        curr = self.get_tcp_pose(
+            is_radian=True
+        )
+
+
+        # ==================================================
+        # 入庫リーチング目標姿勢
+        # ==================================================
+        target_pose = [
+            float(
+                p_robot_mm[0]
+                + x_offset_mm
+            ),
+            float(
+                p_robot_mm[1]
+                + y_offset_mm
+            ),
+            float(
+                p_robot_mm[2]
+                + z_offset_mm
+            ),
+            float(curr[3]),
+            float(curr[4]),
+            float(curr[5]+ d_roll_rad +calib_rad),
+        ]
+
+
+        print(
+            "\n========== STORAGE ABS TARGET MOVE =========="
+        )
+
+        print(
+            "[recognition position] "
+            f"X={p_robot_mm[0]:.2f} mm, "
+            f"Y={p_robot_mm[1]:.2f} mm, "
+            f"Z={p_robot_mm[2]:.2f} mm"
+        )
+
+        print(
+            "[storage calibration] "
+            f"dX={x_offset_mm:+.2f} mm, "
+            f"dY={y_offset_mm:+.2f} mm, "
+            f"dZ={z_offset_mm:+.2f} mm, "
+            f"dRoll={np.degrees(calib_rad):+.2f} deg"
+        )
+
+        print(
+            "[target pose] "
+            f"X={target_pose[0]:.2f} mm, "
+            f"Y={target_pose[1]:.2f} mm, "
+            f"Z={target_pose[2]:.2f} mm, "
+            f"roll={target_pose[3]:.4f}, "
+            f"pitch={target_pose[4]:.4f}, "
+            f"yaw={target_pose[5]:.4f}"
+        )
+
+
+        # ==================================================
+        # 絶対座標MoveL
+        # 出庫 move_to_target_xyz_and_roll() と同じ方式
+        # ==================================================
+        ret = self._moveL(
+            target_pose,
+            velocity=velocity,
+            acceleration=acceleration,
+            asynchronous=False,
+        )
+
+        time.sleep(
+            sleep_s
+        )
+
+
+        # ==================================================
+        # 到達位置確認
+        # ==================================================
+        after = self.get_tcp_pose(
+            is_radian=True
+        )
+
+        after_xyz = np.array(
+            after[:3],
+            dtype=np.float64,
+        )
+
+        target_xyz = np.array(
+            target_pose[:3],
+            dtype=np.float64,
+        )
+
+        err_xyz = (
+            target_xyz
+            - after_xyz
+        )
+
+        err_norm = float(
+            np.linalg.norm(
+                err_xyz
+            )
+        )
+
+
+        print(
+            "[after pose] "
+            f"X={after[0]:.2f} mm, "
+            f"Y={after[1]:.2f} mm, "
+            f"Z={after[2]:.2f} mm, "
+            f"roll={after[3]:.4f}, "
+            f"pitch={after[4]:.4f}, "
+            f"yaw={after[5]:.4f}"
+        )
+
+
+        print(
+            "[position error] "
+            f"dX={err_xyz[0]:.2f} mm, "
+            f"dY={err_xyz[1]:.2f} mm, "
+            f"dZ={err_xyz[2]:.2f} mm, "
+            f"|e|={err_norm:.2f} mm"
+        )
+
+
+        if err_norm <= pos_tol_mm:
+
+            print(
+                f"[OK] reached target within "
+                f"{pos_tol_mm:.2f} mm"
+            )
+
+        else:
+
+            print(
+                "[WARN] target error is larger "
+                f"than tolerance: "
+                f"{err_norm:.2f} mm"
+            )
+
+
+        print(
+            "=============================================\n"
+        )
+
+        return ret
+
+
+    def move_to_storage_target_xyz_and_roll(
+        self,
+        p_robot_mm: np.ndarray,
+        d_roll_rad: float,
+        side: str,
+        sleep_s: float = 0.02,
+        velocity: float = TCP_VEL_1,
+        acceleration: float = TCP_ACC_1,
+        pos_tol_mm: float = 1.0,
+    ):
+        """
+        入庫専用リーチング。
+
+        出庫用 move_to_target_xyz_and_roll() と同じ構造で、
+        入庫用キャリブレーションだけ独立して持つ。
+
+        p_robot_mm:
+            認識結果をロボット座標系へ変換した [x, y, z] [mm]
+
+        d_roll_rad:
+            認識した傾き [rad]
+
+        side:
+            "right" / "left"
+        """
+
+        p_robot_mm = np.asarray(
+            p_robot_mm,
+            dtype=np.float64,
+        ).reshape(3)
+
+        # ==================================================
+        # 入庫専用キャリブレーション
+        # 最初は全部0で実機実験
+        # ==================================================
+        x_offset_mm = -120.0
+        y_offset_mm = 0.0
+        z_offset_mm = 0.0
+        calib_rad = 0.0
+
+        # ==================================================
+        # 現在TCP姿勢
+        # ==================================================
+        curr = self.get_tcp_pose(
+            is_radian=True
+        )
+
+
+        # ==================================================
+        # 入庫リーチング目標姿勢
+        # ==================================================
+        target_pose = [
+            float(
+                p_robot_mm[0]
+                + x_offset_mm
+            ),
+            float(
+                p_robot_mm[1]
+                + y_offset_mm
+            ),
+            float(
+                p_robot_mm[2]
+                + z_offset_mm
+            ),
+            float(curr[3]+ d_roll_rad +calib_rad),
+            float(curr[4]),
+            float(curr[5]),
+        ]
+
+
+        print(
+            "\n========== STORAGE ABS TARGET MOVE =========="
+        )
+
+        print(
+            "[recognition position] "
+            f"X={p_robot_mm[0]:.2f} mm, "
+            f"Y={p_robot_mm[1]:.2f} mm, "
+            f"Z={p_robot_mm[2]:.2f} mm"
+        )
+
+        print(
+            "[storage calibration] "
+            f"dX={x_offset_mm:+.2f} mm, "
+            f"dY={y_offset_mm:+.2f} mm, "
+            f"dZ={z_offset_mm:+.2f} mm, "
+            f"dRoll={np.degrees(calib_rad):+.2f} deg"
+        )
+
+        print(
+            "[target pose] "
+            f"X={target_pose[0]:.2f} mm, "
+            f"Y={target_pose[1]:.2f} mm, "
+            f"Z={target_pose[2]:.2f} mm, "
+            f"roll={target_pose[3]:.4f}, "
+            f"pitch={target_pose[4]:.4f}, "
+            f"yaw={target_pose[5]:.4f}"
+        )
+
+
+        # ==================================================
+        # 絶対座標MoveL
+        # 出庫 move_to_target_xyz_and_roll() と同じ方式
+        # ==================================================
+        ret = self._moveL(
+            target_pose,
+            velocity=velocity,
+            acceleration=acceleration,
+            asynchronous=False,
+        )
+
+        time.sleep(
+            sleep_s
+        )
+
+
+        # ==================================================
+        # 到達位置確認
+        # ==================================================
+        after = self.get_tcp_pose(
+            is_radian=True
+        )
+
+        after_xyz = np.array(
+            after[:3],
+            dtype=np.float64,
+        )
+
+        target_xyz = np.array(
+            target_pose[:3],
+            dtype=np.float64,
+        )
+
+        err_xyz = (
+            target_xyz
+            - after_xyz
+        )
+
+        err_norm = float(
+            np.linalg.norm(
+                err_xyz
+            )
+        )
+
+
+        print(
+            "[after pose] "
+            f"X={after[0]:.2f} mm, "
+            f"Y={after[1]:.2f} mm, "
+            f"Z={after[2]:.2f} mm, "
+            f"roll={after[3]:.4f}, "
+            f"pitch={after[4]:.4f}, "
+            f"yaw={after[5]:.4f}"
+        )
+
+
+        print(
+            "[position error] "
+            f"dX={err_xyz[0]:.2f} mm, "
+            f"dY={err_xyz[1]:.2f} mm, "
+            f"dZ={err_xyz[2]:.2f} mm, "
+            f"|e|={err_norm:.2f} mm"
+        )
+
+
+        if err_norm <= pos_tol_mm:
+
+            print(
+                f"[OK] reached target within "
+                f"{pos_tol_mm:.2f} mm"
+            )
+
+        else:
+
+            print(
+                "[WARN] target error is larger "
+                f"than tolerance: "
+                f"{err_norm:.2f} mm"
+            )
+
+
+        print(
+            "=============================================\n"
+        )
+
+        return ret
+
 
 def main():
     rclpy.init()

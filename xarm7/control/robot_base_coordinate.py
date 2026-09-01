@@ -47,34 +47,68 @@ class PoseChain:
         self.T_tcp_camera = load_T_tcp_camera_from_json(self.handeye_json_path, key="T_cam_tcp")
 
 
-    def get_T_robot_tcp(self, arm: XArm7) -> Transform:
-        """
-        xArm から現在の TCP 姿勢を取得し、base(robot)->tcp の Transform にする。
-        get_tcp_pose() は [x,y,z,roll,pitch,yaw] を返す想定。
-        """
-        x, y, z, roll, pitch, yaw = arm.get_tcp_pose(is_radian=True)
+    def get_T_robot_tcp(
+        self,
+        arm: XArm7 | None = None,
+        tcp_pose=None,
+    ) -> Transform:
 
-        t = np.array([_mm_to_m(x), _mm_to_m(y), _mm_to_m(z)], dtype=np.float64)
+        # 保存済みTCP姿勢が与えられなければ現在姿勢を取得
+        if tcp_pose is None:
+            if arm is None:
+                raise ValueError("arm or tcp_pose must be provided")
 
-        # xArmの並びが roll,pitch,yaw なので一旦 xyz として回転を構成
-        R = Rotation.from_euler("xyz", [roll, pitch, yaw], degrees=False)
+            tcp_pose = arm.get_tcp_pose(is_radian=True)
+
+        x, y, z, roll, pitch, yaw = tcp_pose
+
+        t = np.array(
+            [
+                _mm_to_m(x),
+                _mm_to_m(y),
+                _mm_to_m(z),
+            ],
+            dtype=np.float64,
+        )
+
+        R = Rotation.from_euler(
+            "xyz",
+            [roll, pitch, yaw],
+            degrees=False,
+        )
 
         return Transform(R, t)
 
 
-def _cam_mm_to_robot_mm_with_chain(chain: PoseChain, arm: XArm7, p_cam_mm: np.ndarray) -> np.ndarray:
-    """
-    p_cam_mm (camera座標, mm) -> p_robot_mm (robot/base座標, mm)
-    """
-    p_cam_mm = np.asarray(p_cam_mm, dtype=np.float64).reshape(3)
+def _cam_mm_to_robot_mm_with_chain(
+    chain: PoseChain,
+    arm: XArm7,
+    p_cam_mm: np.ndarray,
+    *,
+    tcp_pose=None,
+) -> np.ndarray:
+
+    p_cam_mm = np.asarray(
+        p_cam_mm,
+        dtype=np.float64
+    ).reshape(3)
+
     p_cam_m = p_cam_mm * 1e-3
 
-    T_robot_tcp = chain.get_T_robot_tcp(arm)
+    T_robot_tcp = chain.get_T_robot_tcp(
+        arm=arm,
+        tcp_pose=tcp_pose,
+    )
 
-    # base->camera = base->tcp * tcp->camera
-    T_robot_camera = T_robot_tcp * chain.T_tcp_camera
+    T_robot_camera = (
+        T_robot_tcp
+        * chain.T_tcp_camera
+    )
 
-    p_robot_m = T_robot_camera.apply(p_cam_m)
+    p_robot_m = T_robot_camera.apply(
+        p_cam_m
+    )
+
     return p_robot_m * 1e3
 
 
@@ -84,16 +118,23 @@ def cam_mm_to_robot_mm(
     *,
     handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
     dy_adj_mm: float = 0.0,
+    tcp_pose=None,
 ) -> np.ndarray:
-    """
-    JSONの hand-eye 結果（T_tcp_cam）を使って、
-    camera(mm) -> robot(mm) に変換する関数版。
-    """
-    chain = PoseChain(handeye_json_path=handeye_json_path)
-    p_robot_mm = _cam_mm_to_robot_mm_with_chain(chain, arm, p_cam_mm)
+
+    chain = PoseChain(
+        handeye_json_path=handeye_json_path
+    )
+
+    p_robot_mm = _cam_mm_to_robot_mm_with_chain(
+        chain,
+        arm,
+        p_cam_mm,
+        tcp_pose=tcp_pose,
+    )
 
     p_robot_mm = p_robot_mm.copy()
     p_robot_mm[1] += dy_adj_mm
+
     return p_robot_mm
 
 

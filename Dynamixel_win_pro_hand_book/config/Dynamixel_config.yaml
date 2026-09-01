@@ -9,7 +9,7 @@ pos:
   gripper:
     close: 3860
     range: 8190 # 4095*2, open: close + range
-    release: 400
+    release: 2800
     theta_zero: 0.252680 # radian
     backlash: 800 # step
     rad_to_step: 651.8986
@@ -27,13 +27,14 @@ pos:
     gear_ratio: 20
 
   spacer_lin:
-    back: 3891
+    back: 1200
     keep: 77803
     range: 160000 #188664 # front: back - range
 
 thresh:
   vel: 20
   pos: 5
+  spacer_rot_pos: 20
 
 cont_gain:
   gripper:
@@ -41,4 +42,3 @@ cont_gain:
 
   spacer_rot:
     pos_cont: 100
-

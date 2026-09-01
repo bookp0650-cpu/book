@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, Callable
 
 import cv2
 import numpy as np
@@ -685,16 +685,48 @@ def deproject_single_pixel_to_3d(
     u = int(np.clip(u, 0, W - 1))
     v = int(np.clip(v, 0, H - 1))
     d = int(depth_u16[v, u])
-    if d == 0:
+    z = float(d) * float(depth_scale)
+
+    # 0 / 65535 / 範囲外Depthなら周囲から有効Depthを探す
+    if d == 0 or d == 65535 or z < z_min_m or z > z_max_m:
+
         x0 = max(0, u - search_radius_px)
         x1 = min(W, u + search_radius_px + 1)
         y0 = max(0, v - search_radius_px)
         y1 = min(H, v + search_radius_px + 1)
+
         patch = depth_u16[y0:y1, x0:x1]
-        valid = patch[patch > 0]
+        patch_z = patch.astype(np.float32) * float(depth_scale)
+
+        valid_mask = (
+            (patch > 0)
+            & (patch < 65535)
+            & (patch_z >= z_min_m)
+            & (patch_z <= z_max_m)
+        )
+
+        valid = patch[valid_mask]
+
         if valid.size == 0:
-            raise RuntimeError(f"target pixel depth is invalid and no valid depth nearby: pixel={pixel_xy}")
+            raise RuntimeError(
+                f"target pixel depth is invalid and no valid depth nearby: "
+                f"pixel={pixel_xy}, raw_depth={d}, z={z:.4f}"
+            )
+
         d = int(np.median(valid))
+        z = float(d) * float(depth_scale)
+
+        print(
+            f"[WARN] invalid target depth -> neighborhood fallback: "
+            f"pixel={pixel_xy}, depth={z:.4f} m"
+        )
+
+    X, Y, Z = rs.rs2_deproject_pixel_to_point(
+        intr,
+        [float(u), float(v)],
+        z
+    )
+    return np.asarray([X, Y, Z], dtype=np.float32)
 
     z = float(d) * float(depth_scale)
     if z < z_min_m or z > z_max_m:
@@ -1031,6 +1063,7 @@ def run_capture_and_pca_depth_space(
     plane_min_inliers: int = 30,
     surface_clearance_m: float = 0.0,
     show_debug_images: bool = True,
+    after_capture_callback: Optional[Callable[[], None]] = None,
 ):
     """
     Depth画像から収納スペースを推定する新版．
@@ -1075,11 +1108,39 @@ def run_capture_and_pca_depth_space(
         color_prof = rs.video_stream_profile(profile.get_stream(rs.stream.color))
         intr = color_prof.get_intrinsics()
         depth_scale = float(profile.get_device().first_depth_sensor().get_depth_scale())
+
+        # ============================================================
+        # 回転前RGB-D画像を横4分割し、
+        # 左から3番目の領域をDepth認識対象外にする
+        # ============================================================
+        H_before, W_before = depth_u16.shape[:2]
+
+        ignore_x_min = W_before // 2
+        ignore_x_max = 3 * W_before // 4
+
+        depth_u16 = depth_u16.copy()
+        depth_u16[:, ignore_x_min:ignore_x_max] = 0
+
+        print(
+            f"[INFO] pre-rotation Depth ignore region: "
+            f"x={ignore_x_min} ~ {ignore_x_max - 1}"
+        )
+
+
     finally:
         try:
             pipe.stop()
         except Exception:
             pass
+
+    # ============================================================
+    # 撮影完了後コールバック
+    # 画像データはすでに rgb_bgr / depth_u16 にコピー済みなので、
+    # ここからロボットを動かしても1回目画像には影響しない
+    # ============================================================
+    if after_capture_callback is not None:
+        print("[INFO] capture completed -> start robot motion")
+        after_capture_callback()
 
     if rotate_180:
         rgb_bgr = cv2.rotate(rgb_bgr, cv2.ROTATE_180)
@@ -1232,8 +1293,18 @@ def run_capture_and_pca_depth_space(
     # 5. Target pixel by fixed image height
     space_top_y = int(ys_clean.min())
     space_bottom_y = int(ys_clean.max())
+    space_height_px = space_bottom_y - space_top_y + 1
+
+    # 指定位置まで高さがない候補は使用しない
+    if space_height_px <= target_y_from_space_top_px:
+        raise RuntimeError(
+            "収納スペース候補が見つかりませんでした．"
+            f" target位置まで高さ不足: "
+            f"height={space_height_px}px, "
+            f"required>{target_y_from_space_top_px}px"
+        )
+
     target_y_px = space_top_y + int(target_y_from_space_top_px)
-    target_y_px = int(np.clip(target_y_px, space_top_y, space_bottom_y))
 
     first_target_px_selected = select_target_pixel_on_line_by_y(
         p0_int,

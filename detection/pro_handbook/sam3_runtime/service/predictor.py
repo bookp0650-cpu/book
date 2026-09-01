@@ -64,3 +64,44 @@ def infer_to_npz(loaded, input_path: Path, output_path: Path, prompt: str = PROM
     masks, boxes, scores, meta = infer_array(loaded, image, prompt)
     np.savez_compressed(output_path, masks=masks, boxes=boxes, scores=scores)
     return meta
+
+
+def infer_storage_to_npz(
+    loaded_models,
+    input_path: Path,
+    spine_output_path: Path,
+    book_end_output_path: Path,
+) -> dict:
+    """Run both resident models sequentially against one loaded RGB array."""
+    image = np.load(input_path, allow_pickle=False)
+    spine_masks, spine_boxes, spine_scores, spine_meta = infer_array(
+        loaded_models.book_spine,
+        image,
+        "book spine",
+    )
+    np.savez_compressed(
+        spine_output_path,
+        masks=spine_masks,
+        boxes=spine_boxes,
+        scores=spine_scores,
+    )
+    end_masks, end_boxes, end_scores, end_meta = infer_array(
+        loaded_models.book_end,
+        image,
+        "book end",
+    )
+    np.savez_compressed(
+        book_end_output_path,
+        masks=end_masks,
+        boxes=end_boxes,
+        scores=end_scores,
+    )
+    return {
+        "inference_order": ["book_spine", "book_end"],
+        "parallel_inference": False,
+        "book_spine": spine_meta,
+        "book_end": end_meta,
+        "total_inference_seconds": float(
+            spine_meta["inference_seconds"] + end_meta["inference_seconds"]
+        ),
+    }
