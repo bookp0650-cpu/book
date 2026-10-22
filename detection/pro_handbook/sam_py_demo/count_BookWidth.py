@@ -3,7 +3,7 @@ import csv
 
 
 # ===== 設定 =====
-CSV_PATH = Path("/home/book/pro_book/pro_hand_book_python/captures/100test/book_width_eval_results_20260617_181313.csv")
+CSV_PATH = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/100test/book_width_eval_results_20260617_181313.csv")
 
 
 def to_float(x):

@@ -1,0 +1,16 @@
+{
+  "dual_angle": true,
+  "base_rotation": "CW90",
+  "extra_angles_deg": [
+    0.0
+  ],
+  "raw_candidate_count": 23,
+  "merged_candidate_count": 23,
+  "predict_seconds": {
+    "0.0": 0.29055667799548246
+  },
+  "ocr_result_json": "/home/book/pro_book_SAM3/pro_hand_book_python/captures_strage/20260829_131606_live_sam3_refined_sam2_width/ocr_result.json",
+  "cached_worker": true,
+  "worker_pid": 138607,
+  "sam_compatibility": "OCR polygons are inverse-transformed to the legacy CW90 frame. Existing forced_angle=90 matching remains unchanged."
+}

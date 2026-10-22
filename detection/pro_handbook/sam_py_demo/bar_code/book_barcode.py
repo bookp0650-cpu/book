@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 import sys
 
 sys.path.append(
@@ -18,16 +18,19 @@ import time
 import numpy as np
 import traceback
 from typing import Literal
-
 from detection.pro_handbook.sam_py_demo.bar_code.web_camera_capture import (
     capture_one_depstech,
+    DepstechStream,
 )
 from detection.pro_handbook.sam_py_demo.bar_code.code_1_pic import (
     barcode_perception,
 )
 from xarm7.control.xarm7 import XArm7
 from play_way_point import WaypointPlayer
-
+import cv2
+from detection.pro_handbook.sam_py_demo.ocr_worker_client import (
+    run_barcode_ocr_worker,
+)
 
 
 
@@ -57,7 +60,134 @@ CONFIG_DIR = Path(
     "ros2_ws/src/xarm7_teaching/config"
 )
 
+# ============================================================
+# バーコードOCR fallback
+# ============================================================
 
+SAM_PY_DEMO_DIR = (
+    Path(__file__)
+    .resolve()
+    .parent
+    .parent
+)
+
+
+def run_barcode_ocr_once(
+    barcode_number,
+    img,
+    out_dir,
+):
+    """
+    バーコード認識3枚失敗後、
+    書籍認識と同じ常駐PP-OCRv5 workerを使用する。
+    """
+
+
+    out_dir = Path(out_dir)
+
+
+    out_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+
+    # ==========================================
+    # OCR入力画像保存
+    # ==========================================
+    input_path = (
+        out_dir
+        / "ocr_input.png"
+    )
+
+
+    ok = cv2.imwrite(
+        str(input_path),
+        img,
+    )
+
+
+    if not ok:
+        print(
+            "[BARCODE OCR ERROR] "
+            f"cv2.imwrite failed: "
+            f"{input_path}"
+        )
+        return False, None
+
+
+    print("")
+    print("========================================")
+    print("[BARCODE OCR FALLBACK]")
+    print("shared persistent PP-OCRv5 worker")
+    print(f"input : {input_path}")
+    print(f"query : {barcode_number}")
+    print("========================================")
+
+
+    try:
+        data, stdout = (
+            run_barcode_ocr_worker(
+                image_path=input_path,
+                target=barcode_number,
+                out_dir=out_dir,
+                timeout=60.0,
+            )
+        )
+
+
+        if stdout:
+            print(
+                stdout,
+                end=""
+                if stdout.endswith("\n")
+                else "\n",
+            )
+
+
+        matched = bool(
+            data.get(
+                "matched",
+                False,
+            )
+        )
+
+
+        print(
+            "[BARCODE OCR RESULT] "
+            f"matched={matched}"
+        )
+
+
+        print(
+            "[BARCODE OCR RESULT] "
+            f"matched_text="
+            f"{data.get('matched_text')!r}"
+        )
+
+
+        print(
+            "[BARCODE OCR RESULT] "
+            f"matched_digits="
+            f"{data.get('matched_digits')!r}"
+        )
+
+
+        return matched, data
+
+
+    except Exception as e:
+        print(
+            "[BARCODE OCR ERROR] "
+            f"{type(e).__name__}: "
+            f"{e}"
+        )
+
+
+        traceback.print_exc()
+
+
+        return False, None
 
 def get_barcode_motion_params(
     lift_height_mm: float,
@@ -239,15 +369,34 @@ def book_barcode_sequence(
     # 左右それぞれの認識結果を保存する
     side_results = {}
 
+
+    camera = None
+
     def capture_and_perceive(
         side: str,
     ):
         """
-        現在姿勢で撮影し、バーコード認識を1回実行する。
+        1.
+        Depstechで10枚撮影。
+
+        2.
+        10枚すべてMorphology処理後の画像で
+        pyzbar認識。
+
+        3.
+        10枚すべてで目的バーコードが
+        認識できなかった場合のみ、
+        最後の有効フレーム1枚に対して
+        PP-OCRv5を1回だけ実行。
+
+        4.
+        OCR文字列内にtarget数字列が
+        含まれていればsuccess。
         """
 
         print(
-            f"[book barcode] capture start: "
+            f"[book barcode] "
+            f"capture start: "
             f"side={side}"
         )
 
@@ -259,21 +408,28 @@ def book_barcode_sequence(
         # ==================================
         # Depstechで10枚撮影
         # ==================================
-        frames, dev = capture_one_depstech(
-            capture_path,
-            width=3840,
-            height=2160,
-            num_frames=10,
+        frames, dev = (
+            camera.get_frames(
+                num_frames=5,
+                timeout=2.0,
+                save_path=capture_path,
+            )
         )
 
-        if frames is None or len(frames) == 0:
+        if (
+            frames is None
+            or len(frames) == 0
+        ):
+
             raise RuntimeError(
-                "capture_one_depstech() returned no frames"
+                "DepstechStream.get_frames() "
+                "returned no frames"
             )
 
         print(
             f"[book barcode] "
-            f"captured {len(frames)} frames "
+            f"captured "
+            f"{len(frames)} frames "
             f"from {dev}"
         )
 
@@ -284,18 +440,25 @@ def book_barcode_sequence(
             "error",
         }
 
-        # ==================================
-        # 10枚を順番にバーコード認識
-        # ==================================
         wrong_barcode_data = []
         error_count = 0
 
-        for i, frame in enumerate(frames):
+        # OCRへ渡す代表画像
+        # 最後に正常取得できたフレームを使用
+        ocr_frame = None
+
+        # ==================================
+        # 10枚をMorphologyバーコード認識
+        # ==================================
+        for i, frame in enumerate(
+            frames
+        ):
 
             print(
                 f"[book barcode] "
                 f"trying frame "
-                f"{i + 1}/{len(frames)}"
+                f"{i + 1}/"
+                f"{len(frames)}"
             )
 
             color_frame = np.asanyarray(
@@ -303,22 +466,50 @@ def book_barcode_sequence(
             )
 
             if color_frame.size == 0:
+
                 print(
                     f"[book barcode] "
-                    f"frame {i + 1} is empty"
+                    f"frame "
+                    f"{i + 1} is empty"
                 )
+
                 continue
+
+            # 最後の正常フレームを
+            # OCR代表画像として保持
+            ocr_frame = (
+                color_frame.copy()
+            )
+
+            # ==================================
+            # 保存先
+            #
+            # book_barcode/
+            #   left_frame_01/morph.png
+            # ==================================
+            preprocess_dir = (
+                shot_dir
+                / (
+                    f"{side}_frame_"
+                    f"{i + 1:02d}"
+                )
+            )
 
             status, barcode_data = (
                 barcode_perception(
                     barcode_number_input,
                     color_frame,
+                    debug_dir=preprocess_dir,
                 )
             )
 
-            if status not in valid_statuses:
+            if (
+                status
+                not in valid_statuses
+            ):
+
                 raise ValueError(
-                    f"Unknown barcode status: "
+                    "Unknown barcode status: "
                     f"{status!r}"
                 )
 
@@ -328,22 +519,17 @@ def book_barcode_sequence(
                 f"status={status}"
             )
 
-            print(
-                "[book barcode] "
-                "barcode_data:",
-                barcode_data,
-            )
-
             # ==================================
-            # 正しいバーコードを発見
-            # → 即成功
+            # バーコードで正解
             # ==================================
             if status == "success":
 
                 print(
-                    f"[book barcode] "
-                    f"SUCCESS at frame "
-                    f"{i + 1}/{len(frames)}"
+                    "[book barcode] "
+                    "SUCCESS by pyzbar "
+                    f"at frame "
+                    f"{i + 1}/"
+                    f"{len(frames)}"
                 )
 
                 return (
@@ -352,41 +538,102 @@ def book_barcode_sequence(
                 )
 
             # ==================================
-            # バーコードは見えたが番号違い
+            # 番号違い
+            # ただしまだreturnしない。
+            #
+            # OCRでtargetが見つかる可能性がある。
             # ==================================
-            if status == "wrong_barcode":
+            if (
+                status
+                == "wrong_barcode"
+            ):
 
-                if barcode_data is not None:
+                if (
+                    barcode_data
+                    is not None
+                ):
 
                     if isinstance(
                         barcode_data,
                         (list, tuple),
                     ):
+
                         wrong_barcode_data.extend(
                             barcode_data
                         )
 
                     else:
+
                         wrong_barcode_data.append(
                             barcode_data
                         )
 
-            # ==================================
-            # 認識処理自体がエラー
-            # ==================================
-            elif status == "error":
+            elif (
+                status
+                == "error"
+            ):
+
                 error_count += 1
 
         # ==================================
-        # 10枚全部試しても正解なし
+        # ここまで来た
+        # =
+        # 10枚全部で目的バーコードなし
+        #
+        # OCRはここで1回だけ
+        # ==================================
+        if ocr_frame is not None:
+
+            ocr_dir = (
+                shot_dir
+                / f"{side}_ocr"
+            )
+
+            (
+                ocr_matched,
+                ocr_data,
+            ) = run_barcode_ocr_once(
+                barcode_number_input,
+                ocr_frame,
+                ocr_dir,
+            )
+
+            # ==================================
+            # OCR文字列中にtarget数字列あり
+            # ==================================
+            if ocr_matched:
+
+                print(
+                    "[book barcode] "
+                    "SUCCESS by OCR fallback"
+                )
+
+                if (
+                    ocr_data
+                    is None
+                ):
+                    ocr_data = {}
+
+                ocr_data[
+                    "method"
+                ] = "ocr"
+
+                return (
+                    "success",
+                    ocr_data,
+                )
+
+        # ==================================
+        # OCRでもtargetなし
+        # → 従来判定へ
         # ==================================
 
-        # どこかの画像で別バーコードが見えていた
         if wrong_barcode_data:
 
             print(
                 "[book barcode] "
-                "all frames checked: "
+                "all frames checked + "
+                "OCR failed: "
                 "wrong barcode detected"
             )
 
@@ -395,8 +642,10 @@ def book_barcode_sequence(
                 wrong_barcode_data,
             )
 
-        # 全画像で認識処理そのものがエラー
-        if error_count == len(frames):
+        if (
+            error_count
+            == len(frames)
+        ):
 
             print(
                 "[book barcode] "
@@ -408,11 +657,10 @@ def book_barcode_sequence(
                 None,
             )
 
-        # バーコード自体が見つからなかった
         print(
             "[book barcode] "
-            "all frames checked: "
-            "no barcode"
+            "all barcode frames + "
+            "OCR checked: no match"
         )
 
         return (
@@ -433,7 +681,17 @@ def book_barcode_sequence(
             return []
 
         if status == "success":
-            # successではDecodedが1件返る
+
+            # OCR fallback成功時
+            if isinstance(
+                barcode_data,
+                dict,
+            ):
+                return [
+                    barcode_data
+                ]
+
+            # pyzbar成功時
             return [
                 decoded_to_dict_safe(
                     barcode_data
@@ -450,6 +708,20 @@ def book_barcode_sequence(
         return []
 
     try:
+
+        # ==================================
+        # Depstechを先に起動
+        # アーム移動中も常時readする
+        # ==================================
+        camera = DepstechStream(
+            width=3840,
+            height=2160,
+            fps=30,
+            buffer_size=5,
+        )
+
+        camera.start()
+
         set_stage(
             "BOOK_BARCODE_START"
         )
@@ -488,7 +760,7 @@ def book_barcode_sequence(
         arm.moveL_relative(
             [
                 -80.0,
-                580.0,
+                610.0,
                 55.0,
                 0.0,
                 0.0,
@@ -498,7 +770,6 @@ def book_barcode_sequence(
             acceleration=movel_acceleration,
         )
 
-        time.sleep(2.0)
 
         # ==================================
         # 左面バーコード認識
@@ -574,7 +845,7 @@ def book_barcode_sequence(
 
             container_side = "right"
 
-            time.sleep(2.0)
+
 
             # 右側認識
             right_status, right_data = (
@@ -694,6 +965,414 @@ def book_barcode_sequence(
             )
 
         return "error", container_side
+
+    finally:
+
+        if camera is not None:
+
+            try:
+                camera.stop()
+
+            except Exception as e:
+                print(
+                    "[book barcode] "
+                    "Depstech stop warning: "
+                    f"{type(e).__name__}: "
+                    f"{e}"
+                )
+
+# ============================================================
+# ISBN / BOOK MASTER LOOKUP
+# ============================================================
+def normalize_isbn(value):
+    """
+    ISBN比較用。
+    ハイフン・空白などを除去する。
+    """
+    return "".join(
+        ch
+        for ch in str(value).upper()
+        if ch.isdigit() or ch == "X"
+    )
+
+
+def find_book_by_isbn(
+    books_master,
+    detected_isbn,
+):
+    """
+    読み取ったISBNからbooks_masterを逆引きする。
+
+    Parameters
+    ----------
+    books_master : list[dict]
+        書籍マスターJSON
+
+    detected_isbn : str
+        バーコードから読み取ったISBN
+
+    Returns
+    -------
+    dict
+        ISBNが一致した書籍のJSONエントリ
+    """
+
+    target_isbn = normalize_isbn(
+        detected_isbn
+    )
+
+    if not target_isbn:
+        raise RuntimeError(
+            "detected ISBN is empty"
+        )
+
+    matches = []
+
+    for book in books_master:
+
+        if not isinstance(book, dict):
+            continue
+
+        json_isbn = normalize_isbn(
+            book.get(
+                "ISBN_number",
+                "",
+            )
+        )
+
+        if json_isbn == target_isbn:
+            matches.append(book)
+
+    if len(matches) == 0:
+        raise RuntimeError(
+            "読み取ったISBNがJSONに存在しません: "
+            f"{detected_isbn}"
+        )
+
+    if len(matches) > 1:
+        raise RuntimeError(
+            "同じISBNがJSONに複数存在します: "
+            f"{detected_isbn}"
+        )
+
+    return matches[0]
+
+
+def identify_book_isbn_at_current_pose(
+    books_master,
+    shot_dir,
+    num_frames=5,
+):
+    """
+    入庫用バーコード認識。
+
+    アームは動かさない。
+    現在のバーコード撮影姿勢で、
+
+      1. Depstechから複数枚取得
+      2. 出庫と同じbarcode_perception
+      3. 全枚失敗したらPP-OCRv5
+      4. 認識ISBNをbooks_masterから検索
+
+    Returns
+    -------
+    detected_isbn : str
+    matched_book : dict
+    method : str
+        "pyzbar" or "ocr"
+    """
+
+    shot_dir = Path(shot_dir)
+
+    shot_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    camera = None
+    ocr_frame = None
+
+    try:
+        # ====================================================
+        # 出庫と同じDepstech連続撮影
+        # ====================================================
+        camera = DepstechStream(
+            width=3840,
+            height=2160,
+            fps=30,
+            buffer_size=5,
+        )
+
+        camera.start()
+
+        capture_path = (
+            shot_dir
+            / "storage_book_barcode_capture.png"
+        )
+
+        frames, dev = camera.get_frames(
+            num_frames=num_frames,
+            timeout=2.0,
+            save_path=capture_path,
+        )
+
+        if (
+            frames is None
+            or len(frames) == 0
+        ):
+            raise RuntimeError(
+                "DepstechStream.get_frames() "
+                "returned no frames"
+            )
+
+        print(
+            "[STORAGE BARCODE] "
+            f"captured {len(frames)} frames "
+            f"from {dev}"
+        )
+
+        # ====================================================
+        # まずpyzbar
+        # ====================================================
+        for i, frame in enumerate(
+            frames
+        ):
+            print(
+                "[STORAGE BARCODE] "
+                f"trying frame "
+                f"{i + 1}/{len(frames)}"
+            )
+
+            color_frame = np.asanyarray(
+                frame
+            )
+
+            if color_frame.size == 0:
+                continue
+
+            # OCR fallback用に最後の正常画像を保存
+            ocr_frame = color_frame.copy()
+
+            preprocess_dir = (
+                shot_dir
+                / f"frame_{i + 1:02d}"
+            )
+
+            status, barcode_data = (
+                barcode_perception(
+                    None,
+                    color_frame,
+                    debug_dir=preprocess_dir,
+                )
+            )
+
+            if (
+                status == "success"
+                and barcode_data is not None
+            ):
+                raw_data = getattr(
+                    barcode_data,
+                    "data",
+                    None,
+                )
+
+                if raw_data is None:
+                    continue
+
+                if isinstance(
+                    raw_data,
+                    (bytes, bytearray),
+                ):
+                    detected_isbn = (
+                        raw_data.decode(
+                            "utf-8",
+                            errors="replace",
+                        ).strip()
+                    )
+                else:
+                    detected_isbn = str(
+                        raw_data
+                    ).strip()
+
+                if not detected_isbn:
+                    continue
+
+                print(
+                    "[STORAGE BARCODE] "
+                    f"pyzbar detected="
+                    f"{detected_isbn!r}"
+                )
+
+                # JSONに存在するISBNか確認
+                try:
+                    matched_book = (
+                        find_book_by_isbn(
+                            books_master,
+                            detected_isbn,
+                        )
+                    )
+
+                    print(
+                        "[STORAGE BARCODE] "
+                        "SUCCESS by pyzbar"
+                    )
+
+                    return (
+                        detected_isbn,
+                        matched_book,
+                        "pyzbar",
+                    )
+
+                except RuntimeError as e:
+                    # ISBN以外のバーコード等を
+                    # 読んだ可能性があるので次フレームへ
+                    print(
+                        "[STORAGE BARCODE] "
+                        f"not in books master: {e}"
+                    )
+
+
+        # ====================================================
+        # pyzbar全滅
+        # -> 出庫と同じPP-OCRv5 fallback
+        # ====================================================
+        if ocr_frame is None:
+            raise RuntimeError(
+                "OCR fallback frame is None"
+            )
+
+        print("")
+        print("========================================")
+        print("[STORAGE BARCODE OCR FALLBACK]")
+        print("pyzbar failed -> PP-OCRv5")
+        print("========================================")
+
+        ocr_dir = (
+            shot_dir
+            / "ocr"
+        )
+
+        # 入庫では期待ISBNが無いので空文字。
+        # OCR自体は出庫と同じworkerを使う。
+        _, ocr_data = run_barcode_ocr_once(
+            "",
+            ocr_frame,
+            ocr_dir,
+        )
+
+        if not isinstance(
+            ocr_data,
+            dict,
+        ):
+            raise RuntimeError(
+                "barcode OCR returned no data"
+            )
+
+        texts = ocr_data.get(
+            "texts",
+            [],
+        )
+
+        if not isinstance(
+            texts,
+            list,
+        ):
+            texts = []
+
+        print(
+            "[STORAGE BARCODE OCR] "
+            f"texts={texts!r}"
+        )
+
+
+        # ====================================================
+        # OCR文字列とJSON内ISBNを照合
+        #
+        # 出庫：
+        #   expected ISBN in OCR digits
+        #
+        # 入庫：
+        #   JSON内ISBN in OCR digits
+        # ====================================================
+        found = {}
+
+        for text in texts:
+
+            ocr_digits = normalize_isbn(
+                text
+            )
+
+            if not ocr_digits:
+                continue
+
+            for book in books_master:
+
+                if not isinstance(
+                    book,
+                    dict,
+                ):
+                    continue
+
+                json_isbn = normalize_isbn(
+                    book.get(
+                        "ISBN_number",
+                        "",
+                    )
+                )
+
+                if not json_isbn:
+                    continue
+
+                if json_isbn in ocr_digits:
+                    found[
+                        json_isbn
+                    ] = book
+
+
+        if len(found) == 0:
+            raise RuntimeError(
+                "PP-OCRv5でもJSON内ISBNを"
+                "特定できませんでした"
+            )
+
+        if len(found) > 1:
+            raise RuntimeError(
+                "OCR結果から複数ISBNが"
+                "候補になりました: "
+                f"{list(found.keys())}"
+            )
+
+
+        detected_isbn = next(
+            iter(found.keys())
+        )
+
+        matched_book = found[
+            detected_isbn
+        ]
+
+        print(
+            "[STORAGE BARCODE] "
+            "SUCCESS by PP-OCRv5"
+        )
+
+        return (
+            detected_isbn,
+            matched_book,
+            "ocr",
+        )
+
+    finally:
+        if camera is not None:
+            try:
+                camera.stop()
+            except Exception as e:
+                print(
+                    "[STORAGE BARCODE] "
+                    "camera stop warning: "
+                    f"{type(e).__name__}: {e}"
+                )
+
 
 import rclpy
 from rclpy.node import Node

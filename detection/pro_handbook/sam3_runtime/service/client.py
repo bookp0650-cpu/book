@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 import uuid
@@ -43,9 +44,33 @@ class Sam3BatchInfer:
             body = json.dumps({"input_npy": inp, "output_npz": out, "prompt": self.prompt}).encode()
             req = urllib.request.Request(self.endpoint + "/infer", data=body, headers={"Content-Type": "application/json", "X-Request-ID": request_id})
             try:
-                with urllib.request.urlopen(req, timeout=self.timeout) as response: meta = json.load(response)
+                with urllib.request.urlopen(
+                    req,
+                    timeout=self.timeout,
+                ) as response:
+                    meta = json.load(response)
+
+            except urllib.error.HTTPError as exc:
+                try:
+                    error_body = exc.read().decode(
+                        "utf-8",
+                        errors="replace",
+                    )
+                except Exception:
+                    error_body = "<failed to read HTTP error body>"
+
+                raise Sam3ServiceError(
+                    f"SAM3 HTTP error at {self.endpoint} "
+                    f"(request {request_id}): "
+                    f"HTTP {exc.code} {exc.reason}, "
+                    f"body={error_body}"
+                ) from exc
+
             except (urllib.error.URLError, TimeoutError) as exc:
-                raise Sam3ServiceError(f"SAM3 service unavailable at {self.endpoint} (request {request_id}): {exc}") from exc
+                raise Sam3ServiceError(
+                    f"SAM3 service unavailable at {self.endpoint} "
+                    f"(request {request_id}): {exc}"
+                ) from exc
             data = np.load(out, allow_pickle=False)
             masks, boxes, scores = data["masks"].astype(bool), data["boxes"], data["scores"]
         sam_data = [{"name": f"book{i+1}", "score": float(scores[i]), "box": {"x1": float(b[0]), "y1": float(b[1]), "x2": float(b[2]), "y2": float(b[3])}} for i, b in enumerate(boxes)]
@@ -143,13 +168,16 @@ class Sam3StorageClient:
             raise ValueError(
                 f"expected RGB uint8 HxWx3 array, got {image.shape} {image.dtype}"
             )
+        total_started = time.perf_counter()
         request_id = str(uuid.uuid4())
         base = "/dev/shm" if os.path.isdir("/dev/shm") else "/tmp"
         with tempfile.TemporaryDirectory(prefix="sam3-storage-", dir=base) as tmp:
             inp = os.path.join(tmp, "input.npy")
             spine_out = os.path.join(tmp, "book_spine.npz")
             end_out = os.path.join(tmp, "book_end.npz")
+            input_save_started = time.perf_counter()
             np.save(inp, image, allow_pickle=False)
+            input_save_seconds = time.perf_counter() - input_save_started
             body = json.dumps(
                 {
                     "input_npy": inp,
@@ -165,18 +193,63 @@ class Sam3StorageClient:
                     "X-Request-ID": request_id,
                 },
             )
+
             try:
+                http_started = time.perf_counter()
                 with urllib.request.urlopen(
                     request,
                     timeout=self.timeout,
                 ) as response:
                     metadata = json.load(response)
+
+                http_roundtrip_seconds = time.perf_counter() - http_started
+
+            except urllib.error.HTTPError as exc:
+                try:
+                    error_body = exc.read().decode(
+                        "utf-8",
+                        errors="replace",
+                    )
+                except Exception:
+                    error_body = "<failed to read HTTP error body>"
+
+                print("\n[SAM3 STORAGE HTTP ERROR]")
+                print("Request ID:", request_id)
+                print("HTTP Status:", exc.code)
+                print("HTTP Reason:", exc.reason)
+                print("Server Response:", error_body)
+                print("Input Shape:", image.shape)
+                print("Input Dtype:", image.dtype)
+
+                raise Sam3ServiceError(
+                    f"SAM3 storage HTTP error at {self.endpoint} "
+                    f"(request {request_id}): "
+                    f"HTTP {exc.code} {exc.reason}, "
+                    f"body={error_body}"
+                ) from exc
+
             except (urllib.error.URLError, TimeoutError) as exc:
                 raise Sam3ServiceError(
                     f"SAM3 storage service unavailable at {self.endpoint} "
                     f"(request {request_id}): {exc}"
                 ) from exc
+
+            output_load_started = time.perf_counter()
             spine_instances = _npz_to_instances(spine_out)
             end_instances = _npz_to_instances(end_out)
+            output_load_seconds = time.perf_counter() - output_load_started
+        server_pipeline_seconds = float(
+            metadata.get("server_pipeline_seconds", 0.0)
+        )
+        metadata["client_timing"] = {
+            "input_save_seconds": input_save_seconds,
+            "http_roundtrip_seconds": http_roundtrip_seconds,
+            "communication_overhead_seconds": max(
+                0.0,
+                http_roundtrip_seconds - server_pipeline_seconds,
+            ),
+            "output_load_seconds": output_load_seconds,
+            "total_seconds": time.perf_counter() - total_started,
+        }
         self.last_metadata = metadata
         return spine_instances, end_instances, metadata

@@ -42,7 +42,7 @@ OpenCVの戻り値:
     xarm7/handeye_pairs/
       handeye_T_tcp_cam_YYYYMMDD_HHMMSS.json
 
-    /home/book/pro_book/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/
+    /home/book/pro_book_SAM3/pro_hand_book_python/xarm7/charuco_variation_plots/sampling_csv/
       <入力CSV名>_inliers_YYYYMMDD_HHMMSS.csv
 
     outlier CSVは出力しない。外れ値情報はJSON内に保存する。
@@ -121,14 +121,14 @@ MIN_HAND_EYE_SAMPLES = 4
 
 # 入力CSVの検索先。
 SAMPLING_CSV_DIR = Path(
-    "/home/book/pro_book/pro_hand_book_python/xarm7/"
+    "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/"
     "charuco_variation_plots/sampling_csv"
 )
 
 # 外れ値除外後のCSVは、必ずこのフォルダへ保存する。
 # 保存するのはinlierのみ。outlier CSVは作成しない。
 INLIER_CSV_OUTPUT_DIR = Path(
-    "/home/book/pro_book/pro_hand_book_python/xarm7/"
+    "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/"
     "charuco_variation_plots/sampling_csv"
 )
 

@@ -1,3 +1,4 @@
+from typing import Any, Protocol
 import json
 from pathlib import Path
 
@@ -39,6 +40,16 @@ def load_T_tcp_camera_from_json(json_path: str | Path, *, key: str = "T_tcp_cam"
     if key not in data:
         raise KeyError(f"'{key}' not found in {p}. available keys={list(data.keys())}")
     return make_T_from_matrix4(np.array(data[key], dtype=np.float64))
+
+
+class TcpPoseProvider(Protocol):
+    """Object that can provide an xArm-style TCP pose."""
+
+    def get_tcp_pose(
+        self,
+        is_radian: bool = True,
+    ) -> Any:
+        ...
 
 
 class PoseChain:
@@ -113,7 +124,7 @@ def _cam_mm_to_robot_mm_with_chain(
 
 
 def cam_mm_to_robot_mm(
-    arm: XArm7,
+    arm: TcpPoseProvider,
     p_cam_mm: np.ndarray,
     *,
     handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
@@ -156,7 +167,7 @@ def get_camera_debug_info(
     arm: XArm7,
     p_cam_mm: np.ndarray,
     *,
-    handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json",
+    handeye_json_path: str | Path = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy2.json",
     dy_adj_mm: float = 0.0,
 ):
     """

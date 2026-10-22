@@ -23,7 +23,7 @@ def generate_launch_description():
             "-lc",
             (
                 "exec "
-                "/home/book/pro_book/pro_hand_book_python/"
+                "/home/book/pro_book_SAM3/pro_hand_book_python/"
                 ".pro_hand_book_fixed/bin/python3 "
                 "-u "
                 "/home/book/pro_book_SAM3/pro_hand_book_python/"

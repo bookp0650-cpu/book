@@ -142,6 +142,8 @@ OCR_REQUIRED_MODEL_FILES = (
 
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
 os.environ["PADDLE_PDX_LOCAL_FONT_FILE_PATH"] = str(OCR_VISUALIZATION_FONT)
+# A requested GPU must never be silently replaced by CPU inside PaddleX.
+os.environ["PADDLE_PDX_DISABLE_DEVICE_FALLBACK"] = "True"
 
 
 def _deny_python_network(event: str, args) -> None:
@@ -352,32 +354,152 @@ def enhance_contrast_for_ocr(img_bgr: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(lab2, cv2.COLOR_LAB2BGR)
 
 
-def _configure_paddle_device_once() -> None:
-    """GPU対応Paddleなら gpu:0 を明示する．失敗してもOCR本体に任せる．"""
+def _resolve_ocr_device() -> tuple[str, str]:
+    """Return (requested, resolved) PaddleOCR device names."""
+    requested = os.environ.get("BOOK_OCR_DEVICE", "gpu").strip().lower()
+    if requested not in {"auto", "cpu", "gpu", "gpu:0"}:
+        raise ValueError(
+            "BOOK_OCR_DEVICE must be 'auto', 'cpu', 'gpu', or 'gpu:0': "
+            f"{requested!r}"
+        )
+    if paddle is None:
+        if requested in {"gpu", "gpu:0"}:
+            raise RuntimeError("BOOK_OCR_DEVICE requests GPU, but Paddle is unavailable")
+        return requested, "cpu"
+
+    cuda_available = bool(
+        paddle.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0
+    )
+    if requested in {"gpu", "gpu:0"}:
+        if not cuda_available:
+            raise RuntimeError(
+                "BOOK_OCR_DEVICE requests GPU, but no CUDA device is available"
+            )
+        return requested, "gpu:0"
+    if requested == "cpu":
+        return requested, "cpu"
+    return requested, "gpu:0" if cuda_available else "cpu"
+
+
+def _configure_paddle_device_once() -> str:
+    """
+    BOOK_OCR_DEVICE:
+      auto -> CUDAが使えればgpu:0、それ以外cpu
+      gpu  -> gpu:0を強制
+      cpu  -> CPUを強制
+
+    SAM3とOCRのGPU競合を避ける場合はcpuを使用する。
+    """
     if paddle is None:
         return
 
     try:
-        print(f"[OCR CACHE] CUDA_VISIBLE_DEVICES={os.environ.get('CUDA_VISIBLE_DEVICES')}", flush=True)
-        print(f"[OCR CACHE] paddle.is_compiled_with_cuda={paddle.is_compiled_with_cuda()}", flush=True)
-        if paddle.is_compiled_with_cuda():
-            paddle.set_device("gpu:0")
-        else:
-            paddle.set_device("cpu")
-        print(f"[OCR CACHE] paddle.device={paddle.device.get_device()}", flush=True)
-    except Exception as e:
-        print(f"[OCR CACHE] paddle device setup skipped: {e}", flush=True)
+        requested, device = _resolve_ocr_device()
+        cuda_available = bool(paddle.is_compiled_with_cuda())
+
+        print(
+            "[OCR CACHE] "
+            f"BOOK_OCR_DEVICE={requested}",
+            flush=True,
+        )
+
+        print(
+            "[OCR CACHE] "
+            f"CUDA_VISIBLE_DEVICES="
+            f"{os.environ.get('CUDA_VISIBLE_DEVICES')}",
+            flush=True,
+        )
+
+        print(
+            "[OCR CACHE] "
+            f"paddle.is_compiled_with_cuda="
+            f"{cuda_available}",
+            flush=True,
+        )
+
+        paddle.set_device(device)
+
+        print(
+            "[OCR CACHE] "
+            f"paddle.device="
+            f"{paddle.device.get_device()}",
+            flush=True,
+        )
+        return device
+
+    except Exception as exc:
+        print(
+            "[OCR CACHE] "
+            f"paddle device setup failed: {exc}",
+            flush=True,
+        )
+        raise
+
+
+def get_ocr_runtime_info(ocr: PaddleOCR) -> dict:
+    """Inspect the actual PaddleOCR pipeline and predictor devices."""
+    requested, resolved = _resolve_ocr_device()
+    pipeline = getattr(ocr, "paddlex_pipeline", None)
+
+    def predictor_device(attribute: str) -> dict:
+        predictor = getattr(pipeline, attribute, None)
+        if predictor is None:
+            return {"device_type": None, "device_id": None}
+        option = getattr(predictor, "pp_option", None)
+        return {
+            "device_type": getattr(option, "device_type", None),
+            "device_id": getattr(option, "device_id", None),
+        }
+
+    detector = predictor_device("text_det_model")
+    recognizer = predictor_device("text_rec_model")
+    pipeline_device = getattr(pipeline, "device", None)
+    paddle_device = paddle.device.get_device() if paddle is not None else None
+    actual_devices = {
+        str(value).lower()
+        for value in (
+            pipeline_device,
+            detector["device_type"],
+            recognizer["device_type"],
+        )
+        if value is not None
+    }
+    gpu_verified = bool(actual_devices) and all(
+        value.startswith("gpu") for value in actual_devices
+    )
+    return {
+        "requested_device": requested,
+        "resolved_device": resolved,
+        "paddle_device": paddle_device,
+        "pipeline_device": pipeline_device,
+        "text_detector_predictor": detector,
+        "text_recognizer_predictor": recognizer,
+        "gpu_verified": gpu_verified,
+    }
 
 
 def create_ocr_model() -> PaddleOCR:
     """検証済みローカル資材だけで現行PP-OCRv5モデルを作る．"""
     validate_offline_ocr_assets()
-    _configure_paddle_device_once()
+    requested_device = _configure_paddle_device_once()
+
+    print(
+        "[OCR CACHE] "
+        f"PaddleOCR device={requested_device}",
+        flush=True,
+    )
 
     return PaddleOCR(
-        text_detection_model_dir=str(OCR_DETECTION_MODEL_DIR),
-        text_recognition_model_dir=str(OCR_RECOGNITION_MODEL_DIR),
-        use_doc_orientation_classify=False,  # 勝手に回さない
+        text_detection_model_dir=str(
+            OCR_DETECTION_MODEL_DIR
+        ),
+        text_recognition_model_dir=str(
+            OCR_RECOGNITION_MODEL_DIR
+        ),
+
+        device=requested_device,
+
+        use_doc_orientation_classify=False,
         use_doc_unwarping=False,
         use_textline_orientation=False,
     )

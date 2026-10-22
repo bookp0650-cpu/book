@@ -141,8 +141,8 @@ def capture_one_shot(pipe, cfg, align, shot_dir, *, stem: str, color_only: bool 
 def run_ocr_subprocess(shot_dir: Path):
     # OCR用仮想環境の python へのパス（あなたの環境に合わせて変更）
     # Linux venv例: /home/book/venv/ocr/bin/python
-    OCR_PY = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
-    OCR_SCRIPT = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
+    OCR_PY = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
+    OCR_SCRIPT = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
 
     subprocess.run([OCR_PY, OCR_SCRIPT, str(shot_dir)], check=True)
     print(f"✔ OCR done: {shot_dir / 'ocr_result.json'}")
@@ -158,8 +158,8 @@ def run_capture_and_pca(
     barcode_width: int = 1920,
     barcode_height: int = 1080,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
 ) -> tuple[float, np.ndarray, np.ndarray]:
     try:
@@ -169,7 +169,7 @@ def run_capture_and_pca(
         shot_dir = out_dir / ts
         shot_dir.mkdir(parents=True, exist_ok=True)
         # shot_dir を作った直後あたり
-        # latest_path = Path("/home/book/pro_book/pro_hand_book_python/captures/LATEST_PATH.txt")
+        # latest_path = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/LATEST_PATH.txt")
         # latest_path.write_text(str(shot_dir), encoding="utf-8")
         # print(f"✔ Saved latest shot_dir: {latest_path}")
 
@@ -433,11 +433,11 @@ def main():
     ap.add_argument("--sam_device", choices=["gpu", "cpu", "auto"], default="gpu")
     ap.add_argument(
         "--encoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
     )
     ap.add_argument(
         "--decoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     )
     args = ap.parse_args()
 

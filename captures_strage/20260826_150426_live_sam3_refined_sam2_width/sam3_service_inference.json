@@ -1,0 +1,110 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 8,
+  "nms_mask_count": 8,
+  "service_metadata": {
+    "request_id": "6b96f8d4-720d-4da5-a2e3-8ff1cd12e740",
+    "output_npz": "/dev/shm/sam3-mfn9v17o/output.npz",
+    "count": 8,
+    "raw_count": 8,
+    "nms_count": 8,
+    "inference_seconds": 0.3023110359999919,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.9609375,
+      "box": {
+        "x1": 260.0,
+        "y1": 129.0,
+        "x2": 315.0,
+        "y2": 625.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.95703125,
+      "box": {
+        "x1": 290.0,
+        "y1": 120.0,
+        "x2": 340.0,
+        "y2": 618.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.953125,
+      "box": {
+        "x1": 387.0,
+        "y1": 113.0,
+        "x2": 447.0,
+        "y2": 605.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.953125,
+      "box": {
+        "x1": 353.0,
+        "y1": 115.0,
+        "x2": 407.0,
+        "y2": 610.0
+      }
+    },
+    {
+      "name": "book5",
+      "score": 0.953125,
+      "box": {
+        "x1": 178.0,
+        "y1": 109.0,
+        "x2": 230.0,
+        "y2": 619.0
+      }
+    },
+    {
+      "name": "book6",
+      "score": 0.953125,
+      "box": {
+        "x1": 215.0,
+        "y1": 102.0,
+        "x2": 281.0,
+        "y2": 634.0
+      }
+    },
+    {
+      "name": "book7",
+      "score": 0.953125,
+      "box": {
+        "x1": 318.0,
+        "y1": 98.0,
+        "x2": 375.0,
+        "y2": 626.0
+      }
+    },
+    {
+      "name": "book8",
+      "score": 0.94921875,
+      "box": {
+        "x1": 136.0,
+        "y1": 113.0,
+        "x2": 197.0,
+        "y2": 634.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    14309,
+    11682,
+    15762,
+    15086,
+    15722,
+    18635,
+    16673,
+    16897
+  ]
+}

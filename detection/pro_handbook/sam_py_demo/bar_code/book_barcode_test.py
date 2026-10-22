@@ -9,7 +9,7 @@ import rclpy
 from rclpy.executors import MultiThreadedExecutor
 
 # パスが通っていない場合のための保険（不要であれば削除可）
-sys.path.append("/home/book/pro_book/pro_hand_book_python")
+sys.path.append("/home/book/pro_book_SAM3/pro_hand_book_python")
 
 from xarm7.control.xarm7 import XArm7
 

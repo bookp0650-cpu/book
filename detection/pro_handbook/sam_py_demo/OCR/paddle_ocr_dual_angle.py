@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-
 """
 paddle_ocr_dual_angle.py
 
@@ -27,6 +26,7 @@ _resolve_ocr_subprocess_paths() の ocr_script だけこのファイルへ差し
 
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -38,10 +38,34 @@ import numpy as np
 import paddle_ocr_test as base_ocr
 
 
-EXTRA_ANGLES_DEG = (0.0, +30.0, -30.0)
+def _get_extra_angles_deg():
+    raw = os.environ.get(
+        "BOOK_OCR_ANGLES",
+        "0,30,-30",
+    )
 
+    try:
+        angles = tuple(
+            float(v.strip())
+            for v in raw.split(",")
+            if v.strip()
+        )
+    except Exception as e:
+        raise RuntimeError(
+            f"Invalid BOOK_OCR_ANGLES: {raw!r}"
+        ) from e
+
+    if not angles:
+        raise RuntimeError(
+            "BOOK_OCR_ANGLES is empty"
+        )
+
+    return angles
+
+
+EXTRA_ANGLES_DEG = _get_extra_angles_deg()
 # 同じ文字行を 0 / +30 / -30 で複数回拾った場合の重複除去
-DUPLICATE_AABB_IOU_THRESHOLD = 0.6
+DUPLICATE_POLYGON_IOU_THRESHOLD = 0.6
 DUPLICATE_CENTER_DISTANCE_PX = 6.0
 
 def save_json(path: Path, obj) -> None:
@@ -191,6 +215,20 @@ def polygon_center(poly):
     return pts.mean(axis=0)
 
 
+def polygon_intersection_iou(a, b):
+    """Return actual overlap area and IoU of OCR polygons in the CW90 frame."""
+    a_pts = cv2.convexHull(np.asarray(a, dtype=np.float32).reshape(-1, 1, 2))
+    b_pts = cv2.convexHull(np.asarray(b, dtype=np.float32).reshape(-1, 1, 2))
+    a_area = float(cv2.contourArea(a_pts))
+    b_area = float(cv2.contourArea(b_pts))
+    if a_area <= 0.0 or b_area <= 0.0:
+        return 0.0, 0.0
+    intersection, _ = cv2.intersectConvexConvex(a_pts, b_pts)
+    intersection = max(0.0, float(intersection))
+    union = a_area + b_area - intersection
+    return intersection, intersection / union if union > 0.0 else 0.0
+
+
 def normalize_text(text):
     return "".join(
         str(text)
@@ -223,8 +261,12 @@ def candidate_quality(candidate):
 def is_duplicate_candidate(a, b):
     a_box = polygon_aabb(a["poly"])
     b_box = polygon_aabb(b["poly"])
+    if a_box[2] <= b_box[0] or b_box[2] <= a_box[0] or a_box[3] <= b_box[1] or b_box[3] <= a_box[1]:
+        return False
 
-    iou = aabb_iou(a_box, b_box)
+    intersection, iou = polygon_intersection_iou(a["poly"], b["poly"])
+    if intersection <= 0.0:
+        return False
 
     a_center = polygon_center(a["poly"])
     b_center = polygon_center(b["poly"])
@@ -240,7 +282,7 @@ def is_duplicate_candidate(a, b):
         and normalize_text(a["text"]) != ""
     )
 
-    if iou >= DUPLICATE_AABB_IOU_THRESHOLD:
+    if iou >= DUPLICATE_POLYGON_IOU_THRESHOLD:
         return True
 
     if (
@@ -288,14 +330,18 @@ def run_one_angle(
     base_img,
     shot_dir: Path,
     extra_angle_deg: float,
+    timing_out=None,
 ):
     """
     1角度分OCRし、polygonをCW90基準座標へ戻して候補listを返す。
     """
+    angle_total_start = time.perf_counter()
+    stage_start = time.perf_counter()
     rotated, base_to_rotated = rotate_bound_with_matrix(
         base_img,
         extra_angle_deg,
     )
+    rotation_seconds = time.perf_counter() - stage_start
 
     rotated_to_base = cv2.invertAffineTransform(
         base_to_rotated
@@ -303,22 +349,36 @@ def run_one_angle(
 
     # 角度ごとに必ず別ファイル名にする。
     # 旧実装では 0 deg も "m030" になり、-30 deg のログで上書きされていた。
+
     if abs(float(extra_angle_deg)) < 1e-9:
         tag = "0deg"
-    elif extra_angle_deg > 0:
-        tag = "p030"
     else:
-        tag = "m030"
+        angle_abs = int(
+            round(abs(float(extra_angle_deg)))
+        )
+
+        if extra_angle_deg > 0:
+            tag = f"p{angle_abs:03d}"
+        else:
+            tag = f"m{angle_abs:03d}"
 
     input_path = shot_dir / f"ocr_input_{tag}.png"
     tmp_json_path = shot_dir / f"ocr_result_{tag}.json"
     overlay_path = shot_dir / f"ocr_overlay_{tag}.png"
 
-    # デバッグ確認用。不要になったら消してもよい。
-    cv2.imwrite(
-        str(input_path),
-        rotated,
+    save_debug_images = (
+        os.environ.get("BOOK_OCR_SAVE_DEBUG_IMAGES", "0") == "1"
     )
+
+    # OCR JSON is always retained. Heavy input/overlay images are optional
+    # because they do not participate in recognition.
+    stage_start = time.perf_counter()
+    if save_debug_images:
+        cv2.imwrite(
+            str(input_path),
+            rotated,
+        )
+    input_save_seconds = time.perf_counter() - stage_start
 
     print(
         f"[OCR DUAL] predict extra={extra_angle_deg:+.1f} deg",
@@ -336,19 +396,26 @@ def run_one_angle(
 
     res0 = result[0]
 
+    stage_start = time.perf_counter()
     res0.save_to_json(
         str(tmp_json_path)
     )
+    json_save_seconds = time.perf_counter() - stage_start
 
-    res0.save_to_img(
-        str(overlay_path)
-    )
+    stage_start = time.perf_counter()
+    if save_debug_images:
+        res0.save_to_img(
+            str(overlay_path)
+        )
+    overlay_save_seconds = time.perf_counter() - stage_start
 
+    stage_start = time.perf_counter()
     obj = json.loads(
         tmp_json_path.read_text(
             encoding="utf-8"
         )
     )
+    json_read_seconds = time.perf_counter() - stage_start
 
     container = find_ocr_arrays_container(obj)
 
@@ -380,6 +447,7 @@ def run_one_angle(
         )
 
     candidates = []
+    stage_start = time.perf_counter()
 
     for i, (poly, text) in enumerate(
         zip(dt_polys, rec_texts)
@@ -411,6 +479,24 @@ def run_one_angle(
             }
         )
 
+    polygon_transform_seconds = time.perf_counter() - stage_start
+    if timing_out is not None:
+        timing_out.update(
+            {
+                "rotation_seconds": float(rotation_seconds),
+                "input_save_seconds": float(input_save_seconds),
+                "predict_wall_seconds": float(elapsed),
+                "json_save_seconds": float(json_save_seconds),
+                "overlay_save_seconds": float(overlay_save_seconds),
+                "json_read_seconds": float(json_read_seconds),
+                "polygon_transform_seconds": float(polygon_transform_seconds),
+                "debug_images_saved": bool(save_debug_images),
+                "angle_total_seconds": float(
+                    time.perf_counter() - angle_total_start
+                ),
+            }
+        )
+
     print(
         f"[OCR DUAL] angle={extra_angle_deg:+.1f} "
         f"detected={len(candidates)} "
@@ -426,6 +512,7 @@ def candidates_to_legacy_json(
     *,
     shot_dir: Path,
     runtimes,
+    candidates_by_angle=None,
 ):
     """
     既存の load_text_data() / _iter_ocr_items() がそのまま読める
@@ -475,7 +562,7 @@ def candidates_to_legacy_json(
             )
         )
 
-    return {
+    result = {
         # 既存コードが直接読む主要フィールド
         "dt_polys": dt_polys,
         "rec_texts": rec_texts,
@@ -508,6 +595,38 @@ def candidates_to_legacy_json(
             "shot_dir": str(shot_dir),
         },
     }
+
+    if candidates_by_angle is not None:
+        angle_payloads = {}
+        for angle in EXTRA_ANGLES_DEG:
+            angle = float(angle)
+            if abs(angle) < 1e-9:
+                key = "0deg"
+            elif angle > 0:
+                key = f"+{int(round(abs(angle)))}deg"
+            else:
+                key = f"-{int(round(abs(angle)))}deg"
+
+            angle_candidates = candidates_by_angle.get(angle, [])
+            angle_payload = candidates_to_legacy_json(
+                angle_candidates,
+                shot_dir=shot_dir,
+                runtimes={angle: runtimes.get(angle, 0.0)},
+            )
+            angle_payloads[key] = {
+                "source_extra_angle_deg": angle,
+                "dt_polys": angle_payload["dt_polys"],
+                "rec_texts": angle_payload["rec_texts"],
+                "rec_scores": angle_payload["rec_scores"],
+                "rec_boxes": angle_payload["rec_boxes"],
+            }
+
+        result["per_angle_ocr"] = {
+            "polygon_coordinate_frame": "CW90_base_frame",
+            "angles": angle_payloads,
+        }
+
+    return result
 
 
 def main():
@@ -545,6 +664,7 @@ def main():
     ocr = base_ocr.get_ocr_model()
 
     all_candidates = []
+    candidates_by_angle = {}
     runtimes = {}
 
     for angle in EXTRA_ANGLES_DEG:
@@ -558,6 +678,7 @@ def main():
         all_candidates.extend(
             candidates
         )
+        candidates_by_angle[float(angle)] = merge_candidates(candidates)
 
         runtimes[angle] = elapsed
 
@@ -569,6 +690,7 @@ def main():
         merged_candidates,
         shot_dir=shot_dir,
         runtimes=runtimes,
+        candidates_by_angle=candidates_by_angle,
     )
 
     final_path = (

@@ -77,6 +77,7 @@ class Sam3ServiceSession:
         self.ready_timeout = float(ready_timeout)
         self.required_capability = required_capability
         self.started_by_this_process = False
+        self.used_preexisting_ready_service = False
         self.owned_pid: int | None = None
         self.health_payload: dict | None = None
 
@@ -91,6 +92,7 @@ class Sam3ServiceSession:
             )
         )
         if capability_ready:
+            self.used_preexisting_ready_service = True
             self.health_payload = payload
             print("[SAM3] using pre-existing ready service")
             return payload or {}

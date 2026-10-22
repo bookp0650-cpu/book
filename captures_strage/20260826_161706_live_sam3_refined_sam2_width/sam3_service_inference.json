@@ -1,0 +1,110 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 8,
+  "nms_mask_count": 8,
+  "service_metadata": {
+    "request_id": "318e8778-7b64-490f-a4a6-9bd589674d5f",
+    "output_npz": "/dev/shm/sam3-lptz_tar/output.npz",
+    "count": 8,
+    "raw_count": 8,
+    "nms_count": 8,
+    "inference_seconds": 0.3187777069997537,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.9609375,
+      "box": {
+        "x1": 381.0,
+        "y1": 101.0,
+        "x2": 446.0,
+        "y2": 593.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.95703125,
+      "box": {
+        "x1": 348.0,
+        "y1": 108.0,
+        "x2": 408.0,
+        "y2": 603.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.95703125,
+      "box": {
+        "x1": 247.0,
+        "y1": 77.0,
+        "x2": 302.0,
+        "y2": 578.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.95703125,
+      "box": {
+        "x1": 273.0,
+        "y1": 70.0,
+        "x2": 333.0,
+        "y2": 599.0
+      }
+    },
+    {
+      "name": "book5",
+      "score": 0.95703125,
+      "box": {
+        "x1": 179.0,
+        "y1": 94.0,
+        "x2": 243.0,
+        "y2": 595.0
+      }
+    },
+    {
+      "name": "book6",
+      "score": 0.95703125,
+      "box": {
+        "x1": 217.0,
+        "y1": 91.0,
+        "x2": 278.0,
+        "y2": 588.0
+      }
+    },
+    {
+      "name": "book7",
+      "score": 0.95703125,
+      "box": {
+        "x1": 301.0,
+        "y1": 61.0,
+        "x2": 372.0,
+        "y2": 593.0
+      }
+    },
+    {
+      "name": "book8",
+      "score": 0.94140625,
+      "box": {
+        "x1": 131.0,
+        "y1": 91.0,
+        "x2": 198.0,
+        "y2": 612.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    15950,
+    15226,
+    10688,
+    14093,
+    16445,
+    13688,
+    19077,
+    17025
+  ]
+}

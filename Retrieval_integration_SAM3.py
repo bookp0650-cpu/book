@@ -1,3 +1,4 @@
+from typing import Any
 from xarm7.control.xarm7 import (XArm7,RETRIEVAL_DX,TCP_VEL_1,TCP_ACC_1,)
 from rs_d435i.get_book_position import GetBookSpinePosition
 import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval 
@@ -27,7 +28,7 @@ from xarm7.control.xarm_init_to_capture_integration import WaypointPlayerNode
 import signal, os
 import math
 import sys
-from xarm7.control.xarm_monitor import XArmMonitor, safe_motion
+from xarm7.control.xarm_monitor import (XArmMonitor, safe_motion, assert_xarm_normal)
 from datetime import datetime
 from std_msgs.msg import Bool, Int32, Float32, String
 import yaml
@@ -405,58 +406,6 @@ def emergency_stop_linear_lift():
         )
         return False
 
-    except Exception as e:
-        print(
-            "[LIFT E-STOP] failed: "
-            f"{type(e).__name__}: {e}"
-        )
-        return False
-
-
-def release_linear_lift_estop():
-    pub = globals().get(
-        "lift_estop_pub",
-        None,
-    )
-
-    if pub is None:
-        print(
-            "[LIFT E-STOP RELEASE] "
-            "publisher is not initialized"
-        )
-        return False
-
-    try:
-        msg = Bool()
-        msg.data = False
-
-        print("")
-        print("========================================")
-        print("[LIFT E-STOP RELEASE] releasing...")
-        print("========================================")
-
-        # DDS取りこぼし対策で数回送る
-        for _ in range(3):
-            pub.publish(msg)
-            time.sleep(0.1)
-
-        # 次回のE-STOPを送れるように戻す
-        globals()["_lift_estop_sent"] = False
-
-        print(
-            "[LIFT E-STOP RELEASE] "
-            "/emergency_stop=False sent"
-        )
-
-        return True
-
-    except Exception as e:
-        print(
-            "[LIFT E-STOP RELEASE] failed: "
-            f"{type(e).__name__}: {e}"
-        )
-        return False
-
 
 def monitor_emergency_stop(msg):
 
@@ -696,7 +645,14 @@ def write_log(
 def load_config(config_path):
     config_path = Path(config_path).expanduser().resolve()
     with config_path.open("r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
+        loaded = yaml.safe_load(f)
+
+    if not isinstance(loaded, dict):
+        raise ValueError(
+            f"Invalid YAML config: {config_path}"
+        )
+
+    config: dict[str, Any] = loaded
     config["_config_path"] = str(config_path)
     config["_config_dir"] = str(config_path.parent)
     return config
@@ -810,7 +766,7 @@ def hard_disconnect(arm):
     except Exception as e:
         print(f"disconnect failed: {e}")
         
-def main_sequence(
+def main_sequence(  # pyright: ignore[reportGeneralTypeIssues]
     config,
     book_name: str,
     barcode_number: str,
@@ -907,22 +863,7 @@ def main_sequence(
 
         return True
 
-    def assert_xarm_normal(where: str):
-        state = arm.get_state()
-        err, warn = arm.get_err_warn()
-
-        node.get_logger().info(
-            f"[XARM CHECK] {where}: "
-            f"state={state}, err={err}, warn={warn}"
-        )
-
-        if state in (4, 5) or err != 0:
-            raise RuntimeError(
-                f"xArm abnormal at {where}: "
-                f"state={state}, err={err}, warn={warn}"
-            )
-
-    runtime_log = {
+    runtime_log: dict[str, Any] = {
         "roll_deg": None,
         "estimated_book_width_mm": None,
         "camera_point_mm": None,
@@ -944,7 +885,7 @@ def main_sequence(
     successful_recognition_attempt = None
     max_j1_current_abs = None
     container_full = False
-
+    reaching_y_mm = None
     # ==================================================
     # 復帰モード判定
     #
@@ -1765,6 +1706,24 @@ def main_sequence(
                     dtype=np.float64,
                 ).reshape(3).copy()
 
+                # ROC artificial-mask experiments are opt-in through the
+                # dedicated wrapper.  Normal retrieval never enters this path.
+                from detection.pro_handbook.thesis import roc_live
+                if roc_live.active("retrieval"):
+                    roc_live.confirm_pre_motion(
+                        "retrieval",
+                        calculated_grasp_position={
+                            "camera_mm": runtime_log["camera_point_mm"],
+                            "robot_mm": runtime_log["robot_point_mm"],
+                            "roll_deg": runtime_log["roll_deg"],
+                            "book_width_mm": book_width,
+                        },
+                        validity={
+                            "recognition_attempt": successful_recognition_attempt,
+                            "shot_dir": str(shot_dir),
+                        },
+                    )
+
                 # ==============================================
                 # 復帰用状態を保存
                 #
@@ -1804,6 +1763,18 @@ def main_sequence(
                         "insertz_before",
                     )
 
+                    reaching_pose = arm.get_tcp_pose(
+                        is_radian=True
+                    )
+
+                    reaching_y_mm = float(
+                        reaching_pose[1]
+                    )
+
+                    print(
+                        "[REACHING Y SAVED] "
+                        f"Y={reaching_y_mm:.2f} mm"
+                    )
 
                 # ==============================================
                 # ハンドOPEN
@@ -2035,7 +2006,9 @@ def main_sequence(
 
                 # xArmが保護停止していないことを確認
                 assert_xarm_normal(
-                    "after INSERTING"
+                    arm,
+                    "after INSERTING",
+                    logger=node.get_logger(),
                 )
 
                 set_retrieval_stage(
@@ -2045,7 +2018,26 @@ def main_sequence(
                 # ==================================================
                 # 挿入成功後：把持
                 # ==================================================
+
                 grasp_position = None
+
+                # ==============================================
+                # GRASPING_BOOK復帰時のreaching Y補完
+                # ==============================================
+                if reaching_y_mm is None:
+                    current_pose_for_reaching_y = arm.get_tcp_pose(
+                        is_radian=True
+                    )
+
+                    reaching_y_mm = float(
+                        current_pose_for_reaching_y[1]
+                    )
+
+                    print(
+                        "[REACHING Y RESTORED] "
+                        f"Y={reaching_y_mm:.2f} mm "
+                        "(current TCP Y)"
+                    )
 
                 if set_retrieval_stage(
                     "GRASPING_BOOK"
@@ -2172,13 +2164,10 @@ def main_sequence(
                     )
 
                     # ==============================================
-                    # 空把持時：X方向だけ撮影位置まで退避
+                    # 空把持時：
+                    # 元の撮影姿勢へ退避し、
+                    # Yだけ直前のリーチング位置を維持
                     # ==============================================
-                    print(
-                        "[EMPTY GRASP RETRY] "
-                        "空把持を検知したため、X方向だけ退避します。"
-                    )
-
                     current_pose = arm.get_tcp_pose(
                         is_radian=True
                     )
@@ -2188,37 +2177,38 @@ def main_sequence(
                         for value in current_pose
                     ]
 
-                    # 現在姿勢をそのままコピー
-                    retry_pose = list(current_pose)
+                    # ==============================================
+                    # 再認識姿勢
+                    # 元の撮影姿勢をベースにして、
+                    # Yだけ直前のリーチング位置に変更する
+                    # ==============================================
+                    retry_pose = [
+                        float(value)
+                        for value in capture_pose_for_retry
+                    ]
 
-                    # Xだけ、保存してある撮影姿勢のXへ戻す
-                    retry_pose[0] = float(
-                        capture_pose_for_retry[0]
-                    )
-
-                    dx_mm = (
-                        retry_pose[0]
-                        - current_pose[0]
+                    retry_pose[1] = float(
+                        reaching_y_mm
                     )
 
                     print("")
-                    print("========== EMPTY GRASP X RETREAT ==========")
+                    print("========== EMPTY GRASP RETRY POSE ==========")
 
                     print(
                         "[CURRENT POSE] "
                         f"X={current_pose[0]:.2f} mm, "
                         f"Y={current_pose[1]:.2f} mm, "
-                        f"Z={current_pose[2]:.2f} mm, "
-                        f"Roll={np.degrees(current_pose[3]):.2f} deg, "
-                        f"Pitch={np.degrees(current_pose[4]):.2f} deg, "
-                        f"Yaw={np.degrees(current_pose[5]):.2f} deg"
+                        f"Z={current_pose[2]:.2f} mm"
                     )
 
                     print(
-                        "[X RETREAT] "
-                        f"current_X={current_pose[0]:.2f} mm -> "
-                        f"capture_X={retry_pose[0]:.2f} mm "
-                        f"(dX={dx_mm:+.2f} mm)"
+                        "[RETRY CAPTURE POSE] "
+                        f"X={retry_pose[0]:.2f} mm, "
+                        f"Y={retry_pose[1]:.2f} mm, "
+                        f"Z={retry_pose[2]:.2f} mm, "
+                        f"Roll={np.degrees(retry_pose[3]):.2f} deg, "
+                        f"Pitch={np.degrees(retry_pose[4]):.2f} deg, "
+                        f"Yaw={np.degrees(retry_pose[5]):.2f} deg"
                     )
 
                     safe_motion(
@@ -2229,8 +2219,9 @@ def main_sequence(
                             asynchronous=False,
                         ),
                         monitor,
-                        "empty_grasp_x_retreat",
+                        "empty_grasp_return_retry_capture_pose",
                     )
+
 
                     after_pose = arm.get_tcp_pose(
                         is_radian=True
@@ -2245,9 +2236,8 @@ def main_sequence(
 
                     print(
                         "[EMPTY GRASP RETRY] "
-                        "X方向だけの退避が完了しました。"
+                        "リーチングYを維持した再撮影姿勢への退避が完了しました。"
                     )
-
                     print("===========================================")
                     print("")
                     # ==============================================
@@ -2527,9 +2517,10 @@ def main_sequence(
 
                     # 引き抜きが本当に成功したか確認
                     assert_xarm_normal(
-                        "after RETRIEVING_BOOK"
+                        arm,
+                        "after RETRIEVING_BOOK",
+                        logger=node.get_logger(),
                     )
-
                     actual_pose = arm.get_tcp_pose(
                         is_radian=True
                     )
@@ -2575,6 +2566,10 @@ def main_sequence(
                 set_retrieval_stage(
                     "BOOK_RETRIEVED"
                 )
+
+                from detection.pro_handbook.thesis import roc_live
+                if roc_live.active("retrieval"):
+                    roc_live.record_manual_success("retrieval")
 
                 successful_insert_attempt = insert_attempt
                 break
@@ -2631,22 +2626,34 @@ def main_sequence(
 
 
             # ==========================
-            # 書籍バーコード認識
+            # 書籍バーコード認識結果保存先
             #
-            # book_barcode_sequence内部で、
-            # 左面未検出の場合は
-            # 右面への移動と再撮影まで実行する
+            # captures/日付/book_barcode/
             # ==========================
+            book_barcode_shot_dir = (
+                Path(shot_dir)
+                / "book_barcode"
+            )
+
+            book_barcode_shot_dir.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            print(
+                "[BOOK BARCODE] "
+                f"shot_dir={book_barcode_shot_dir}"
+            )
+
             barcode_status, container_side = (
                 book_barcode_sequence(
                     barcode_number_input=barcode_number,
-                    shot_dir=shot_dir,
+                    shot_dir=book_barcode_shot_dir,
                     arm=arm,
                     lift_height_mm=height,
                     stage_callback=set_retrieval_stage,
                 )
             )
-
             # 正しいバーコードと一致した場合だけTrue
             barcode_result = (
                 barcode_status == "success"
@@ -3032,7 +3039,7 @@ def main():
     #   0 = 1冊目
     #   1 = 2冊目
     # ==================================================
-    book_index_state = {
+    book_index_state: dict[str, Any] = {
         "value": None
     }
 
@@ -3089,9 +3096,7 @@ def main():
     # autolaunch側が保持している
     # コンテナ累積offset
     # ==================================================
-    container_offset_state = {
-        "value": None
-    }
+    container_offset_state: dict[str, float | None] = {"value": None}
 
     def container_offset_callback(
         msg: Float32,
@@ -3128,9 +3133,7 @@ def main():
     # ==================================================
     # managerが保持している現在stage
     # ==================================================
-    retrieval_stage_state = {
-        "value": None
-    }
+    retrieval_stage_state: dict[str, str | None] = {"value": None}
 
     def retrieval_stage_callback(
         msg: String,
@@ -3361,8 +3364,15 @@ def main():
         book_index_state["value"]
     )
 
+    container_offset_value = container_offset_state["value"]
+
+    if container_offset_value is None:
+        raise RuntimeError(
+            "Container offset has not been received"
+        )
+
     start_container_offset_mm = float(
-        container_offset_state["value"]
+        container_offset_value
     )
 
     start_retrieval_stage = str(
@@ -3943,6 +3953,13 @@ def main():
                     executor.spin_once(
                         timeout_sec=0.1
                     )
+
+            from detection.pro_handbook.thesis import roc_live
+            if roc_live.completed():
+                node.get_logger().info(
+                    "[ROC] one planned retrieval trial completed; stop book loop"
+                )
+                break
 
 
             # ==================================================

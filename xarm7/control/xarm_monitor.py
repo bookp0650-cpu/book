@@ -279,6 +279,34 @@ class XArmMonitor:
 
 
 # ================================================================
+# xArm状態確認
+# ================================================================
+def assert_xarm_normal(
+    arm,
+    where="",
+    logger=None,
+):
+    state = arm.get_state()
+    err, warn = arm.get_err_warn()
+
+    message = (
+        f"[XARM CHECK] {where}: "
+        f"state={state}, err={err}, warn={warn}"
+    )
+
+    if logger is not None:
+        logger.info(message)
+    else:
+        print(message)
+
+    if state in (4, 5) or err != 0:
+        raise RuntimeError(
+            f"xArm abnormal at {where}: "
+            f"state={state}, err={err}, warn={warn}"
+        )
+
+
+# ================================================================
 # 安全なモーション実行
 # ================================================================
 def safe_motion(

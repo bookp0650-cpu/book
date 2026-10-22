@@ -353,8 +353,8 @@ def capture_one_shot(pipe, cfg, align, shot_dir, *, stem: str, color_only: bool 
     pipe.stop()
     return color_np, depth_np_u16, intr, depth_scale #後で調べる
 def run_ocr_subprocess(shot_dir: Path):
-    OCR_PY = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
-    OCR_SCRIPT = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
+    OCR_PY = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
+    OCR_SCRIPT = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
 
     env = os.environ.copy()
     # PaddleOCR側が親プロセスのCUDA/cuBLASを拾って不安定になるのを避ける．
@@ -371,8 +371,8 @@ def start_ocr_subprocess(shot_dir: Path):
     OCR を非同期で開始して Popen を返す．
     後で communicate() / wait() して終了を待つ．
     """
-    OCR_PY = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
-    OCR_SCRIPT = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
+    OCR_PY = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
+    OCR_SCRIPT = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
 
     env = os.environ.copy()
     # PaddleOCR側が親プロセスのCUDA/cuBLASを拾って不安定になるのを避ける．
@@ -7405,8 +7405,8 @@ def run_capture_and_pca(
     height: int = 720,
     fps: int = 6,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     use_persistent_runtime: bool = True,
     sam_pts_side: tuple[int, int] = (32, 8),
@@ -7482,8 +7482,8 @@ def run_capture_and_pca_offline(
     query: str,
     shot_dir: str | Path,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     use_persistent_runtime: bool = True,
     sam_pts_side: tuple[int, int] = (32, 8),
@@ -7644,11 +7644,11 @@ def main():
 #     ap.add_argument("--sam_device", choices=["gpu", "cpu", "auto"], default="gpu")
 #     ap.add_argument(
 #         "--encoder",
-#         default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+#         default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
 #     )
 #     ap.add_argument(
 #         "--decoder",
-#         default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+#         default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
 #     )
 #     args = ap.parse_args()
 

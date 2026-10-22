@@ -200,8 +200,8 @@ def load_camera_params(
 # OCR
 # =========================================
 def run_ocr_subprocess(shot_dir: Path):
-    OCR_PY = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
-    OCR_SCRIPT = "/home/book/pro_book/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
+    OCR_PY = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/.paadle_ocr/bin/python"
+    OCR_SCRIPT = "/home/book/pro_book_SAM3/pro_hand_book_python/detection/pro_handbook/sam_py_demo/OCR/paddle_ocr_test.py"
 
     subprocess.run([OCR_PY, OCR_SCRIPT, str(shot_dir)], check=True)
     print(f"✔ OCR done: {shot_dir / 'ocr_result.json'}")
@@ -510,8 +510,8 @@ def run_capture_and_pca(
     height: int = 720,
     fps: int = 6,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     z_tolerance_raw: int = 80,
     visualize: bool = True,
@@ -548,8 +548,8 @@ def run_capture_and_pca_offline(
     query: str,
     shot_dir: str | Path,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     z_tolerance_raw: int = 80,
     visualize: bool = True,
@@ -616,11 +616,11 @@ def main():
     ap.add_argument("--sam_device", choices=["gpu", "cpu", "auto"], default="gpu")
     ap.add_argument(
         "--encoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
     )
     ap.add_argument(
         "--decoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     )
 
     ap.add_argument("--non_interactive", action="store_true", help="OCR失敗時でも mask1 を使う前提で動かしたい場合")

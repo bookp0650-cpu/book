@@ -158,6 +158,7 @@
 #     return results
  
 import json
+import time
 from pathlib import Path
 
 import cv2
@@ -238,6 +239,24 @@ def load_text_data(shot_dir):
     all_min_arearect = data.get("dt_polys", [])
     all_mojis = data.get("rec_texts", [])
     return all_min_arearect, all_mojis
+
+
+def load_per_angle_text_data(shot_dir):
+    with open(shot_dir, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    angles = data.get("per_angle_ocr", {}).get("angles", {})
+    required = ("0deg", "+30deg", "-30deg")
+    if not all(label in angles for label in required):
+        return None
+
+    return {
+        label: (
+            angles[label].get("dt_polys", []),
+            angles[label].get("rec_texts", []),
+        )
+        for label in required
+    }
 
 
 def save_json(path: str | Path, obj) -> None:
@@ -462,6 +481,71 @@ def match_book_name(query, book_texts, shot_dir, threshold=40.0):
     return matches, all_scores
 
 
+def match_book_name_by_angle(
+    query,
+    book_texts_by_angle,
+    shot_dir,
+    threshold=40.0,
+):
+    """Score each OCR angle independently and retain its maximum per mask."""
+    angle_fields = (
+        ("0deg", "text_0deg", "score_0deg"),
+        ("+30deg", "text_plus30", "score_plus30"),
+        ("-30deg", "text_minus30", "score_minus30"),
+    )
+    names = list(book_texts_by_angle["0deg"].keys())
+    matches = []
+    all_scores = []
+
+    for name in names:
+        row = {"name": name}
+        angle_scores = []
+
+        for angle, text_field, score_field in angle_fields:
+            parts = book_texts_by_angle[angle].get(name, [])
+            text = " ".join(parts) if isinstance(parts, (list, tuple)) else str(parts)
+            score = int(fuzz.partial_ratio(query, text))
+            row[text_field] = text
+            row[score_field] = score
+            angle_scores.append((score, angle, text))
+
+        # Tie order intentionally prefers 0deg, then +30deg, then -30deg.
+        # Adding rescue angles therefore cannot replace an equally good 0deg result.
+        final_score, source_angle, final_text = max(
+            angle_scores,
+            key=lambda item: item[0],
+        )
+        row.update(
+            {
+                # Backward-compatible fields used by existing artifacts/readers.
+                "score": final_score,
+                "text": final_text,
+                "final_score": final_score,
+                "final_score_source_angle": source_angle,
+            }
+        )
+        all_scores.append(row)
+
+        if final_score > threshold:
+            matches.append((name, final_score))
+
+    matches.sort(key=lambda item: item[1], reverse=True)
+    all_scores.sort(key=lambda row: row["final_score"], reverse=True)
+
+    save_json(
+        Path(shot_dir) / "similarity_scores.json",
+        {
+            "query": query,
+            "threshold": threshold,
+            "scoring_mode": "max_independent_angle_scores",
+            "source_priority_for_ties": ["0deg", "+30deg", "-30deg"],
+            "scores": all_scores,
+        },
+    )
+
+    return matches, all_scores
+
+
 def match_text_to_mask_main(query, masks, shot_dir, threshold=40):
     """
     既存コードからそのまま呼べる入口関数。
@@ -470,29 +554,114 @@ def match_text_to_mask_main(query, masks, shot_dir, threshold=40):
     ocr_json_path = Path(shot_dir) / "ocr_result.json"
     rgb_path = Path(shot_dir) / "after_init_rgb.png"
 
-    all_text_polys, all_texts = load_text_data(ocr_json_path)
+    per_angle_text_data = load_per_angle_text_data(ocr_json_path)
 
-    # ここで masks をそのまま渡し、IoU ベースで割り当てる
-    book_texts, book_boxes, debug_rows = match_text_to_mask(
-        all_text_polys,
-        all_texts,
-        masks,
-        rgb_path,
-        forced_angle=90,
-        return_debug=True,
-    )
+    # OCR 完了後にだけ GPU 実装を読み込み、CUDA 不可/OOM 時は内部で本ファイルの
+    # match_text_to_mask へフォールバックする。
+    from .only_one_tilted_gpu import match_text_to_mask as match_text_to_mask_gpu
 
-    save_json(
-        Path(shot_dir) / "text_mask_iou_debug.json",
-        {
+    if per_angle_text_data is None:
+        # Older saved OCR results have only the legacy merged arrays.
+        all_text_polys, all_texts = load_text_data(ocr_json_path)
+        assignment_start = time.perf_counter()
+        book_texts, book_boxes, debug_rows = match_text_to_mask_gpu(
+            all_text_polys,
+            all_texts,
+            masks,
+            rgb_path,
+            forced_angle=90,
+            return_debug=True,
+            ocr_batch_size=4,
+        )
+        assignment_seconds = time.perf_counter() - assignment_start
+        similarity_start = time.perf_counter()
+        matches, all_scores = match_book_name(
+            query,
+            book_texts,
+            shot_dir,
+            threshold,
+        )
+        similarity_seconds = time.perf_counter() - similarity_start
+        debug_payload = {
             "forced_angle": 90,
             "num_masks": len(masks),
             "num_ocr_boxes": len(all_texts),
             "assignments": debug_rows,
-        },
+            "scoring_mode": "legacy_combined_fallback",
+            "timing_seconds": {
+                "ocr_to_mask_assignment": float(assignment_seconds),
+                "similarity_and_scores_json": float(similarity_seconds),
+            },
+        }
+    else:
+        book_texts_by_angle = {}
+        debug_rows_by_angle = {}
+        book_boxes = None
+
+        assignment_seconds_by_angle = {}
+        for angle in ("0deg", "+30deg", "-30deg"):
+            all_text_polys, all_texts = per_angle_text_data[angle]
+            assignment_start = time.perf_counter()
+            angle_book_texts, angle_book_boxes, angle_debug_rows = (
+                match_text_to_mask_gpu(
+                    all_text_polys,
+                    all_texts,
+                    masks,
+                    rgb_path,
+                    forced_angle=90,
+                    return_debug=True,
+                    ocr_batch_size=4,
+                )
+            )
+            assignment_seconds_by_angle[angle] = float(
+                time.perf_counter() - assignment_start
+            )
+            book_texts_by_angle[angle] = angle_book_texts
+            debug_rows_by_angle[angle] = angle_debug_rows
+            if book_boxes is None:
+                book_boxes = angle_book_boxes
+
+        similarity_start = time.perf_counter()
+        matches, all_scores = match_book_name_by_angle(
+            query,
+            book_texts_by_angle,
+            shot_dir,
+            threshold,
+        )
+        similarity_seconds = time.perf_counter() - similarity_start
+        debug_payload = {
+            "forced_angle": 90,
+            "num_masks": len(masks),
+            "num_ocr_boxes": sum(
+                len(per_angle_text_data[angle][1])
+                for angle in ("0deg", "+30deg", "-30deg")
+            ),
+            "num_ocr_boxes_by_angle": {
+                angle: len(per_angle_text_data[angle][1])
+                for angle in ("0deg", "+30deg", "-30deg")
+            },
+            "assignments": [
+                {**row, "source_angle": angle}
+                for angle in ("0deg", "+30deg", "-30deg")
+                for row in debug_rows_by_angle[angle]
+            ],
+            "per_angle_assignments": debug_rows_by_angle,
+            "scoring_mode": "max_independent_angle_scores",
+            "timing_seconds": {
+                "ocr_to_mask_assignment_by_angle": assignment_seconds_by_angle,
+                "ocr_to_mask_assignment": float(
+                    sum(assignment_seconds_by_angle.values())
+                ),
+                "similarity_and_scores_json": float(similarity_seconds),
+            },
+        }
+
+    save_json(
+        Path(shot_dir) / "text_mask_iou_debug.json",
+        debug_payload,
     )
 
-    matches, all_scores = match_book_name(query, book_texts, shot_dir, threshold)
+    score_rows = {row["name"]: row for row in all_scores}
 
     results = []
     for name, score in matches:
@@ -502,6 +671,10 @@ def match_text_to_mask_main(query, masks, shot_dir, threshold=40):
                 "score": score,
                 "box": book_boxes.get(name),
                 "forced_angle": 90,
+                "final_score_source_angle": score_rows[name].get(
+                    "final_score_source_angle",
+                    "combined",
+                ),
             }
         )
     return results

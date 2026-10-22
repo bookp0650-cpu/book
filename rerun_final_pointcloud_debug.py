@@ -35,7 +35,7 @@ def load_query_from_meta(shot_dir: Path) -> str:
 
 def main():
     shot_dir = Path(
-        "/home/book/pro_book/pro_hand_book_python/captures/100test/97"
+        "/home/book/pro_book_SAM3/pro_hand_book_python/captures/100test/97"
     )
 
     query = load_query_from_meta(shot_dir)

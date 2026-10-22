@@ -1,0 +1,40 @@
+{
+  "mode": "refine_only",
+  "raw_component_count": 2,
+  "anchor_component_id": 1,
+  "anchor_confident": true,
+  "axis_source": "ocr_polygon_pca",
+  "axis_uv": [
+    0.008091280879311588,
+    0.9999672650510777
+  ],
+  "kept_component_ids": [
+    1,
+    2
+  ],
+  "removed_component_ids": [],
+  "raw_mask_area_px": 16996,
+  "refined_mask_area_px": 16996,
+  "removed_area_px": 0,
+  "no_op": true,
+  "raw_and_refined_mask_equal": true,
+  "fallback_to_raw_mask": false,
+  "fallback_reason": null,
+  "ocr_overlap_before_px": 7914,
+  "ocr_overlap_after_px": 7914,
+  "axis_change_deg": 0.0,
+  "parameters": {
+    "max_removable_area_ratio": 0.003,
+    "max_removable_anchor_area_ratio": 0.012,
+    "min_distance_anchor_diag_ratio": 0.08,
+    "min_b_gap_anchor_span_ratio": 0.15,
+    "max_a_extension_anchor_span_ratio": 0.2,
+    "min_depth_difference_raw": 80.0,
+    "min_removal_evidence_count": 4,
+    "max_total_removed_ratio": 0.025,
+    "max_axis_change_deg": 5.0,
+    "min_final_area_px": 200,
+    "min_valid_depth_count": 30
+  },
+  "warnings": []
+}

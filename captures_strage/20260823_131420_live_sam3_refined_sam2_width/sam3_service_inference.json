@@ -1,0 +1,66 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 4,
+  "nms_mask_count": 4,
+  "service_metadata": {
+    "request_id": "0eb116a6-81ab-42c5-87af-1c9b1117be8c",
+    "output_npz": "/dev/shm/sam3-m9l56apf/output.npz",
+    "count": 4,
+    "raw_count": 4,
+    "nms_count": 4,
+    "inference_seconds": 0.35406243600300513,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.9375,
+      "box": {
+        "x1": 249.0,
+        "y1": 151.0,
+        "x2": 287.0,
+        "y2": 639.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.9296875,
+      "box": {
+        "x1": 201.0,
+        "y1": 171.0,
+        "x2": 224.0,
+        "y2": 626.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.92578125,
+      "box": {
+        "x1": 292.0,
+        "y1": 152.0,
+        "x2": 322.0,
+        "y2": 628.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.921875,
+      "box": {
+        "x1": 225.0,
+        "y1": 163.0,
+        "x2": 252.0,
+        "y2": 619.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    16000,
+    9519,
+    12378,
+    10467
+  ]
+}

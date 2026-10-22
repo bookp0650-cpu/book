@@ -3,7 +3,7 @@
 # xarm7 モジュールのパスを明示的に追加
 # ==========================
 import sys
-sys.path.append("/home/book/pro_book/pro_hand_book_python")
+sys.path.append("/home/book/pro_book_SAM3/pro_hand_book_python")
 
 # ==========================
 # import
@@ -31,7 +31,7 @@ BASE_DIR = os.path.expanduser("~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7
 YAML_NAME = "init_to_capture_v2.yaml"
 
 # json はこの絶対パス
-LEVEL_MM_JSON_PATH = "/home/book/pro_book/pro_hand_book_python/xarm7/config/level_to_mm.json"
+LEVEL_MM_JSON_PATH = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/config/level_to_mm.json"
 
 DEFAULT_SPEED = 0.5     # rad/s
 DEFAULT_ACCEL = 1.0     # rad/s^2

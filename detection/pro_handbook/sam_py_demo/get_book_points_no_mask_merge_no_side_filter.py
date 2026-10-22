@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import sys
@@ -25,13 +26,26 @@ import pyrealsense2 as rs
 from PIL import Image, ImageDraw, ImageFont
 
 from . import get_book_points as current
+from .book_mask_postprocess import (
+    load_linked_ocr_polygons,
+    postprocess_selected_mask,
+)
 from .modules.book_width import estimate_book_width
 from .modules.grip_point import find_target_point
 from .modules.pca_vector import pca_axes_fix_dir
 from .modules.pointcloud_utils import save_ply_ascii
+from detection.pro_handbook.thesis.gpu_memory_monitor import record_phase
 
 
 VARIANT = "no_mask_merge_no_side_filter"
+# Production default validated by the saved 100-case evaluation.  Keeping this
+# small explicit mapping makes the normal path use the exact same postprocessor
+# and arguments as export_remove_islands_refined.py; callers can still pass an
+# explicit config when they intentionally need a baseline comparison.
+DEFAULT_SELECTED_MASK_POSTPROCESS_CONFIG = {
+    "enabled": True,
+    "method": "remove_islands",
+}
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CAPTURES_DIR = PROJECT_ROOT / "captures"
 SOURCE_SHOT_DIR = CAPTURES_DIR / "100test" / "1"
@@ -123,6 +137,26 @@ def _bbox(mask: np.ndarray) -> list[int]:
     return [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())]
 
 
+def _render_green_mask_overlay(color_np: np.ndarray, mask01: np.ndarray) -> np.ndarray:
+    """Render a mask with the same green blend used by final.png."""
+    color_np = np.asarray(color_np)
+    mask = np.asarray(mask01) > 0
+    if mask.shape != color_np.shape[:2]:
+        raise ValueError(f"mask/image shape mismatch: {mask.shape}/{color_np.shape}")
+    green = color_np.copy()
+    green[mask] = (0, 255, 0)
+    return cv2.addWeighted(color_np, 0.65, green, 0.35, 0)
+
+
+def _save_mask_overlay(
+    output_path: str | Path, color_np: np.ndarray, mask01: np.ndarray
+) -> None:
+    """Save the shared green mask visualization without a target marker."""
+    overlay = _render_green_mask_overlay(color_np, mask01)
+    if not cv2.imwrite(str(Path(output_path)), overlay):
+        raise RuntimeError(f"failed to save mask visualization: {output_path}")
+
+
 def _save_final_png_with_target(
     output_path: str | Path,
     color_np: np.ndarray,
@@ -137,8 +171,6 @@ def _save_final_png_with_target(
     points = np.asarray(points_for_pca, dtype=np.float64).reshape(-1, 3)
     uv = np.asarray(uv_for_pca).reshape(-1, 2)
     target = np.asarray(target_point, dtype=np.float64).reshape(3)
-    if mask.shape != color_np.shape[:2]:
-        raise ValueError(f"final mask/image shape mismatch: {mask.shape}/{color_np.shape}")
     if points.shape[0] == 0 or points.shape[0] != uv.shape[0]:
         raise ValueError(f"invalid PCA point/uv arrays: {points.shape}/{uv.shape}")
 
@@ -150,9 +182,7 @@ def _save_final_png_with_target(
     if not (0 <= u < w and 0 <= v < h):
         raise ValueError(f"target pixel is outside image: {(u, v)} / {(w, h)}")
 
-    green = color_np.copy()
-    green[mask] = (0, 255, 0)
-    final_img = cv2.addWeighted(color_np, 0.65, green, 0.35, 0)
+    final_img = _render_green_mask_overlay(color_np, mask)
     cv2.circle(final_img, (u, v), 8, (255, 255, 255), thickness=-1)
     cv2.circle(final_img, (u, v), 6, (0, 0, 255), thickness=-1)
     if not cv2.imwrite(str(Path(output_path)), final_img):
@@ -173,21 +203,23 @@ def _font(size: int):
 def _save_selected_mask_outputs(
     shot_dir: Path,
     rgb_pil: Image.Image,
-    mask: np.ndarray,
+    original_mask: np.ndarray,
     query: str,
     selected_index: int,
     score: float,
+    used_mask: np.ndarray | None = None,
 ) -> None:
-    mask = np.asarray(mask, dtype=bool)
-    binary = mask.astype(np.uint8) * 255
-    # Comparison invariant: these two files must be identical.
-    Image.fromarray(binary, mode="L").save(
+    original_mask = np.asarray(original_mask, dtype=bool)
+    mask = original_mask if used_mask is None else np.asarray(used_mask, dtype=bool)
+    original_binary = original_mask.astype(np.uint8) * 255
+    used_binary = mask.astype(np.uint8) * 255
+    Image.fromarray(original_binary, mode="L").save(
         shot_dir / "selected_mask_before_legacy_postprocess.png"
     )
-    Image.fromarray(binary, mode="L").save(
+    Image.fromarray(used_binary, mode="L").save(
         shot_dir / "selected_mask_used_for_depth.png"
     )
-    Image.fromarray(binary, mode="L").save(shot_dir / "target_book_mask.png")
+    Image.fromarray(used_binary, mode="L").save(shot_dir / "target_book_mask.png")
 
     rgb = np.asarray(rgb_pil.convert("RGB"))
     only = rgb.copy()
@@ -232,8 +264,10 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     *,
     intr=None,
     depth_scale: float | None = None,
+    timing_sink: dict[str, float] | None = None,
+    postprocess_config: dict | None = None,
 ) -> dict:
-    """Run the isolated comparison pipeline on already-copied RGB-D inputs."""
+    """Run recognition, defaulting to remove_islands after final selection."""
     shot_dir = Path(shot_dir).expanduser().resolve()
     color_np = cv2.imread(str(shot_dir / "after_init_rgb.png"), cv2.IMREAD_COLOR)
     depth_np = np.load(shot_dir / "after_init_depth.npy", allow_pickle=False)
@@ -246,9 +280,27 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     current._save_camera_params_json(shot_dir, intr, depth_scale)
 
     timings: dict[str, float] = {}
+    # RGB-D and camera parameters are ready here.  Evaluation-only input copies,
+    # GT loading, IoU, and CSV/summary output happen outside this function.
+    recognition_total_start = time.perf_counter()
+    if timing_sink is None:
+        timing_sink = {}
+    else:
+        timing_sink.clear()
+    timing_sink["_recognition_total_start_perf_counter"] = recognition_total_start
+
+    def publish_timing(field: str, seconds: float) -> None:
+        timing_sink[field] = float(seconds) * 1000.0
+
+    # BOOK_OCR_GPU_SAFE=1: SAM3推論が終わってからOCRを始める(直列)。
+    # GPUメモリが足りず、SAM3とOCRの同時実行でOOMになる環境用。
+    # 未設定なら従来どおり並列。
+    serial_ocr = os.environ.get("BOOK_OCR_GPU_SAFE", "0") == "1"
     ocr_start = time.perf_counter()
-    ocr_proc = current.start_ocr_subprocess(shot_dir)
-    print("[PARALLEL][COMPARISON] OCR subprocess started")
+    ocr_proc = None
+    if not serial_ocr:
+        ocr_proc = current.start_ocr_subprocess(shot_dir)
+        print("[PARALLEL][COMPARISON] OCR subprocess started")
 
     sam_start = time.perf_counter()
     runner = current._get_sam_runner_compat(
@@ -259,6 +311,8 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     )
     rgb_pil = Image.fromarray(cv2.cvtColor(color_np, cv2.COLOR_BGR2RGB))
     stage_cfg = current._make_stage_save_cfg_compat(shot_dir)
+    sam_request_start = time.perf_counter()
+    record_phase("sam3_inference_start", context=str(shot_dir))
     masks, sam_data = current._infer_masks_compat(
         runner,
         rgb_pil,
@@ -266,18 +320,46 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         depth_np_u16=depth_np,
         depth_merge_tolerance_raw=depth_merge_tolerance_raw,
     )
+    record_phase("sam3_inference_end", context=str(shot_dir))
+    timings["sam3_request_seconds"] = time.perf_counter() - sam_request_start
+    publish_timing("sam3_time_ms", timings["sam3_request_seconds"])
     timings["sam3_offline_call_seconds"] = time.perf_counter() - sam_start
 
+    if serial_ocr:
+        ocr_start = time.perf_counter()
+        ocr_proc = current.start_ocr_subprocess(shot_dir)
+        print("[SERIAL][COMPARISON] SAM3 finished -> OCR subprocess started")
+
     ocr_stdout = current.wait_ocr_subprocess(ocr_proc, timeout=120.0)
+    timings["ocr_wall_seconds"] = time.perf_counter() - ocr_start
+    publish_timing("ocr_time_ms", timings["ocr_wall_seconds"])
+    publish_timing("ocr_total_time_ms", timings["ocr_wall_seconds"])
+    ocr_worker_timing = getattr(ocr_proc, "timing", None) or {}
+    ocr_load_seconds = ocr_worker_timing.get(
+        "worker_start_to_model_ready_seconds"
+    )
+    if (
+        ocr_load_seconds is not None
+        and os.environ.get("BOOK_OCR_RELOAD_EACH_SEQUENCE", "0") == "1"
+    ):
+        timings["ocr_load_seconds"] = float(ocr_load_seconds)
+        publish_timing("ocr_load_time_ms", timings["ocr_load_seconds"])
+    ocr_inference_seconds = ocr_worker_timing.get("inference_seconds")
+    if ocr_inference_seconds is not None:
+        timings["ocr_inference_seconds"] = float(ocr_inference_seconds)
+        publish_timing(
+            "ocr_inference_time_ms", timings["ocr_inference_seconds"]
+        )
     if ocr_stdout.strip():
         print(ocr_stdout, end="" if ocr_stdout.endswith("\n") else "\n")
-    timings["ocr_wall_seconds"] = time.perf_counter() - ocr_start
 
     selection_start = time.perf_counter()
     merged = current.merge_ocr_and_masks(
         query=query, masks=masks, shot_dir=shot_dir, interactive=False, threshold=40
     )
     timings["ocr_mask_selection_seconds"] = time.perf_counter() - selection_start
+    timings["matching_seconds"] = timings["ocr_mask_selection_seconds"]
+    publish_timing("matching_time_ms", timings["matching_seconds"])
     if not merged.get("results"):
         raise TargetMaskSelectionError(
             "target OCR similarity did not exceed threshold 40; "
@@ -286,17 +368,48 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     selected_index = int(merged["sel_idx"])
     selected_mask = np.asarray(merged["mask01"], dtype=bool)
     score = float(sam_data[selected_index - 1]["score"])
-    _save_selected_mask_outputs(
-        shot_dir, rgb_pil, selected_mask, query, selected_index, score
-    )
+    timings["matching_seconds"] = time.perf_counter() - selection_start
+    publish_timing("matching_time_ms", timings["matching_seconds"])
 
     # Comparison version:
     # legacy quality_filter / box-NMS / mask de-dup / merge_coaxial_rect_masks
     # and all later mask shape completion/refinement are intentionally skipped.
-    mask_used_for_depth = selected_mask.copy()
+    # The deletion-only postprocess is inserted strictly after the existing
+    # final OCR/SAM selection and before any depth/width/geometry processing.
+    # Keep an auditable visualization of the exact pre-remove_islands mask.
+    # It deliberately has no target marker because geometry is not known yet.
+    _save_mask_overlay(
+        shot_dir / "before_remove_islands.png", color_np, selected_mask
+    )
+    postprocess_start = time.perf_counter()
+    linked_ocr = load_linked_ocr_polygons(
+        shot_dir, selected_index, selected_mask.shape
+    )
+    effective_postprocess_config = (
+        DEFAULT_SELECTED_MASK_POSTPROCESS_CONFIG
+        if postprocess_config is None
+        else postprocess_config
+    )
+    postprocess_result = postprocess_selected_mask(
+        selected_mask, linked_ocr, effective_postprocess_config
+    )
+    mask_used_for_depth = postprocess_result.mask
+    timings["postprocess_seconds"] = time.perf_counter() - postprocess_start
+    publish_timing("postprocess_time_ms", timings["postprocess_seconds"])
+    _write_json(shot_dir / "book_mask_postprocess.json", postprocess_result.info)
+    _save_selected_mask_outputs(
+        shot_dir,
+        rgb_pil,
+        selected_mask,
+        query,
+        selected_index,
+        score,
+        used_mask=mask_used_for_depth,
+    )
     masks_equal = bool(np.array_equal(selected_mask, mask_used_for_depth))
 
     # OCR geometry is used only as the existing median-depth reference.
+    mask_refinement_start = time.perf_counter()
     _, depth_anchor_info = current.refine_mask_by_ocr_axis_band(
         mask01=mask_used_for_depth.astype(np.uint8),
         merged=merged,
@@ -321,6 +434,12 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         selected_mask01=mask_used_for_depth.astype(np.uint8),
         min_intersection_px=30,
     )
+    timings["mask_refinement_seconds"] = (
+        time.perf_counter() - mask_refinement_start
+    )
+    publish_timing(
+        "mask_refinement_time_ms", timings["mask_refinement_seconds"]
+    )
 
     depth_start = time.perf_counter()
     before_median_count = int(
@@ -342,6 +461,10 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         mask_after_median.astype(np.uint8), depth_median, intr, depth_scale
     )
     colors_rgb = color_np[uv_median[:, 1], uv_median[:, 0], ::-1].astype(np.uint8)
+    timings["depth_pointcloud_seconds"] = time.perf_counter() - depth_start
+    publish_timing(
+        "depth_pointcloud_time_ms", timings["depth_pointcloud_seconds"]
+    )
     save_ply_ascii(
         shot_dir / "pointcloud_after_median_depth_filter.ply",
         points_median,
@@ -359,6 +482,8 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         ransac_n=3,
         num_iterations=1200,
     )
+    timings["ransac_fit_seconds"] = time.perf_counter() - ransac_start
+    publish_timing("ransac_time_ms", timings["ransac_fit_seconds"])
     if not ransac_info.get("used"):
         raise RuntimeError(f"normal RANSAC failed: {ransac_info}")
     points_ransac = points_median[inlier_mask]
@@ -391,7 +516,8 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         stem="comparison_no_mask_merge_no_side_filter",
     )
 
-    pca_start = time.perf_counter()
+    pca_width_target_start = time.perf_counter()
+    pca_geometry_start = time.perf_counter()
     mean, pc1, pc2 = pca_axes_fix_dir(points_for_pca)
     vx, vy = float(pc1[0]), float(pc1[1])
     norm_xy = float(np.hypot(vx, vy))
@@ -400,11 +526,24 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
     width_m = width_info.get("av_book_width_m")
     if width_m is None:
         raise RuntimeError(f"book width estimation failed: {width_info}")
+    timings["pca_geometry_seconds"] = time.perf_counter() - pca_geometry_start
+    publish_timing("pca_geometry_time_ms", timings["pca_geometry_seconds"])
+    grasp_point_start = time.perf_counter()
     target_info = find_target_point(points_for_pca)
     target = target_info.get("target_m")
     if target is None:
         raise RuntimeError(f"target point estimation failed: {target_info}")
-    timings["pca_width_target_seconds"] = time.perf_counter() - pca_start
+    timings["grasp_point_seconds"] = time.perf_counter() - grasp_point_start
+    publish_timing("grasp_point_time_ms", timings["grasp_point_seconds"])
+    timings["pca_width_target_seconds"] = (
+        time.perf_counter() - pca_width_target_start
+    )
+    timings["recognition_total_seconds"] = (
+        time.perf_counter() - recognition_total_start
+    )
+    publish_timing(
+        "recognition_total_time_ms", timings["recognition_total_seconds"]
+    )
     _save_final_png_with_target(
         shot_dir / "final.png",
         color_np,
@@ -435,6 +574,31 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         if isinstance(depth_anchor_info, dict)
         else None
     )
+    timing_ms = {
+        "sam3_time_ms": timings["sam3_request_seconds"] * 1000.0,
+        "ocr_time_ms": timings["ocr_wall_seconds"] * 1000.0,
+        "ocr_load_time_ms": (
+            timings.get("ocr_load_seconds") * 1000.0
+            if timings.get("ocr_load_seconds") is not None
+            else None
+        ),
+        "ocr_inference_time_ms": (
+            timings.get("ocr_inference_seconds") * 1000.0
+            if timings.get("ocr_inference_seconds") is not None
+            else None
+        ),
+        "ocr_total_time_ms": timings["ocr_wall_seconds"] * 1000.0,
+        "matching_time_ms": timings["matching_seconds"] * 1000.0,
+        "postprocess_time_ms": timings["postprocess_seconds"] * 1000.0,
+        "mask_refinement_time_ms": timings["mask_refinement_seconds"] * 1000.0,
+        "depth_pointcloud_time_ms": timings["depth_pointcloud_seconds"] * 1000.0,
+        "ransac_time_ms": timings["ransac_fit_seconds"] * 1000.0,
+        "pca_geometry_time_ms": timings["pca_geometry_seconds"] * 1000.0,
+        "grasp_point_time_ms": timings["grasp_point_seconds"] * 1000.0,
+        "recognition_total_time_ms": timings["recognition_total_seconds"] * 1000.0,
+    }
+    timing_sink.pop("_recognition_total_start_perf_counter", None)
+    timing_sink.update(timing_ms)
     return {
         "roll_rad": roll,
         "point_3d": np.asarray(target, dtype=float).tolist(),
@@ -442,7 +606,9 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
         "selected_mask_index": selected_index,
         "selected_mask_score": score,
         "selected_mask_area_px": int(selected_mask.sum()),
-        "mask_derived_bbox_xyxy": _bbox(selected_mask),
+        "postprocessed_mask_area_px": int(mask_used_for_depth.sum()),
+        "postprocess": postprocess_result.info,
+        "mask_derived_bbox_xyxy": _bbox(mask_used_for_depth),
         "selected_ocr_text": selected_ocr,
         "selected_ocr_confidence": _selected_ocr_confidence(
             ocr_result, selected_ocr
@@ -472,6 +638,7 @@ def run_capture_and_pca_offline_no_mask_merge_no_side_filter(
             "normal_ransac_output_equals_pca_input": ransac_equals_pca,
         },
         "timings": timings,
+        "timing_ms": timing_ms,
         "returned_shot_dir": str(shot_dir),
     }
 

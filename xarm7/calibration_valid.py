@@ -6,9 +6,9 @@ from pathlib import Path
 
 # =========================================================
 # import path fix
-# /home/book/pro_book/pro_hand_book_python を import パスに追加
+# /home/book/pro_book_SAM3/pro_hand_book_python を import パスに追加
 # このファイル:
-# /home/book/pro_book/pro_hand_book_python/xarm7/calibration_valid.py
+# /home/book/pro_book_SAM3/pro_hand_book_python/xarm7/calibration_valid.py
 # =========================================================
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))

@@ -1,0 +1,240 @@
+--- a/xarm7.py
++++ b/xarm7.py
+@@ -214,6 +214,155 @@
+         return float((rad + np.pi) % (2.0 * np.pi) - np.pi)
+ 
+ 
++class JointCurrentLogger:
++    """
++    把持・取り出し中の全関節電流をバックグラウンドで記録する。
++
++    xArm本体の保護停止（エラー31など）でプログラムが強制終了されても
++    データが残るよう、1サンプルごとにCSVへ書き込んでflushする。
++    """
++
++    SUMMARY_PATH = (
++        "/home/book/pro_book_SAM3/pro_hand_book_python/captures/"
++        "joint_current_summary.csv"
++    )
++
++    def __init__(self, xarm_api, log_dir, roll_deg=None,
++                 sample_interval: float = 0.02):
++        import threading
++        from datetime import datetime as _datetime
++
++        self.arm = xarm_api
++        self.roll_deg = roll_deg
++        self.sample_interval = sample_interval
++        self.phase = "start"
++        self.ts = _datetime.now().strftime("%Y%m%d_%H%M%S")
++        self.csv_path = None
++        if log_dir is not None:
++            log_dir_path = Path(log_dir)
++            log_dir_path.mkdir(parents=True, exist_ok=True)
++            self.csv_path = log_dir_path / f"joint_current_log_{self.ts}.csv"
++        self.max_abs = [0.0] * 7
++        self.max_phase = [""] * 7
++        self.first_error = None  # (elapsed, phase, error_code)
++        self._stop_event = threading.Event()
++        self._thread = threading.Thread(target=self._run, daemon=True)
++
++    def _read_settings(self):
++        """衝突感度・TCP荷重（読むだけで設定は変えない）"""
++        try:
++            sensitivity = self.arm.collision_sensitivity
++        except Exception as e:
++            sensitivity = f"error:{e}"
++        try:
++            tcp_load = self.arm.tcp_load
++        except Exception as e:
++            tcp_load = f"error:{e}"
++        return sensitivity, tcp_load
++
++    def start(self):
++        self.sensitivity, self.tcp_load = self._read_settings()
++        print(
++            "[JOINT LOG] start: "
++            f"collision_sensitivity={self.sensitivity}, "
++            f"tcp_load={self.tcp_load}"
++        )
++        self._thread.start()
++        return self
++
++    def set_phase(self, phase: str):
++        self.phase = phase
++
++    def _run(self):
++        import csv
++
++        f = None
++        writer = None
++        if self.csv_path is not None:
++            f = self.csv_path.open("w", newline="", encoding="utf-8")
++            writer = csv.writer(f)
++            writer.writerow(["roll_deg", "collision_sensitivity", "tcp_load"])
++            writer.writerow([self.roll_deg, self.sensitivity, self.tcp_load])
++            writer.writerow([])
++            writer.writerow(
++                ["elapsed_sec", "phase", "state", "error_code", "warn_code"]
++                + [f"J{i}_current" for i in range(1, 8)]
++            )
++            f.flush()
++
++        start_time = time.monotonic()
++        try:
++            while not self._stop_event.is_set():
++                elapsed = time.monotonic() - start_time
++                currents = self.arm.currents
++                if currents is None or len(currents) < 7:
++                    currents = [float("nan")] * 7
++                currents = [float(c) for c in currents[:7]]
++                state = self.arm.state
++                error_code = self.arm.error_code
++                warn_code = self.arm.warn_code
++
++                for i, c in enumerate(currents):
++                    if math.isfinite(c) and abs(c) > self.max_abs[i]:
++                        self.max_abs[i] = abs(c)
++                        self.max_phase[i] = self.phase
++
++                if error_code != 0 and self.first_error is None:
++                    self.first_error = (elapsed, self.phase, error_code)
++                    print(
++                        "[JOINT LOG] xArm error detected: "
++                        f"code={error_code}, phase={self.phase}, "
++                        f"currents={[round(c, 3) for c in currents]}"
++                    )
++
++                if writer is not None:
++                    writer.writerow(
++                        [f"{elapsed:.3f}", self.phase, state,
++                         error_code, warn_code] + currents
++                    )
++                    f.flush()
++
++                time.sleep(self.sample_interval)
++        finally:
++            if f is not None:
++                f.close()
++
++    def stop(self, result: str):
++        """記録を止めて、要約CSVへ1行追記する"""
++        import csv
++
++        self._stop_event.set()
++        self._thread.join(timeout=1.0)
++
++        summary_path = Path(self.SUMMARY_PATH)
++        summary_path.parent.mkdir(parents=True, exist_ok=True)
++        summary_exists = summary_path.exists()
++        err_elapsed, err_phase, err_code = (
++            self.first_error if self.first_error else ("", "", 0)
++        )
++        with summary_path.open("a", newline="", encoding="utf-8") as f:
++            writer = csv.writer(f)
++            if not summary_exists:
++                writer.writerow(
++                    ["timestamp", "roll_deg", "result",
++                     "collision_sensitivity", "tcp_load",
++                     "error_code", "error_phase", "error_elapsed_sec"]
++                    + [f"J{i}_max_abs" for i in range(1, 8)]
++                    + [f"J{i}_max_phase" for i in range(1, 8)]
++                    + ["detail_csv_path"]
++                )
++            writer.writerow(
++                [self.ts, self.roll_deg, result,
++                 self.sensitivity, self.tcp_load,
++                 err_code, err_phase, err_elapsed]
++                + [round(v, 4) for v in self.max_abs]
++                + self.max_phase
++                + [str(self.csv_path)]
++            )
++        print(f"[JOINT LOG] saved: {self.csv_path}")
++        print(f"[JOINT SUMMARY] appended: {summary_path}")
++
++
+ class XArm7:
+     """
+     UR向けのRTDEベース関数群を xArm7 + xarm_python_sdk 用に書き直し
+@@ -1392,6 +1541,13 @@
+             asynchronous=asynchronous,
+         )
+ 
++    def start_joint_current_log(self, log_dir, roll_deg=None,
++                                sample_interval: float = 0.02):
++        """把持・取り出し中の全関節電流の記録を開始する"""
++        return JointCurrentLogger(
++            self.arm, log_dir, roll_deg, sample_interval
++        ).start()
++
+     def moveL_post_grasp_right(self,
+                          velocity: float = TCP_VEL_1,
+                          acceleration: float = TCP_ACC_1,
+--- a/Retrieval_integration_input_SAM3.py
++++ b/Retrieval_integration_input_SAM3.py
+@@ -858,13 +858,26 @@
+                             f"{insert_result}"
+                         )
+                     
+-                    HandBook_retrieval.grasp(HandMotors_retrieval)
+-                    
+-                    safe_motion(
+-                        lambda: arm.moveL_post_grasp_right(),
+-                        monitor,
+-                        "retreave_right",
++                    # 把持・取り出し中の全関節電流を記録
++                    # （xArm本体の保護停止が起きても1行ごとに保存される）
++                    joint_logger = arm.start_joint_current_log(
++                        log_dir=shot_dir,
++                        roll_deg=runtime_log["roll_deg"],
+                     )
++                    joint_log_result = "exception"
++                    try:
++                        joint_logger.set_phase("grasp")
++                        HandBook_retrieval.grasp(HandMotors_retrieval)
++
++                        joint_logger.set_phase("retreave")
++                        safe_motion(
++                            lambda: arm.moveL_post_grasp_right(),
++                            monitor,
++                            "retreave_right",
++                        )
++                        joint_log_result = "completed"
++                    finally:
++                        joint_logger.stop(joint_log_result)
+                     
+                     
+ 
+@@ -874,14 +887,25 @@
+                         monitor,
+                         "insert_left",
+                     )
+-                    HandBook_retrieval.grasp(
+-                        HandMotors_retrieval
+-                    )
+-                    safe_motion(
+-                        lambda: arm.moveL_post_grasp_left(),
+-                        monitor,
+-                        "retreave_left",
++                    joint_logger = arm.start_joint_current_log(
++                        log_dir=shot_dir,
++                        roll_deg=runtime_log["roll_deg"],
+                     )
++                    joint_log_result = "exception"
++                    try:
++                        joint_logger.set_phase("grasp")
++                        HandBook_retrieval.grasp(
++                            HandMotors_retrieval
++                        )
++                        joint_logger.set_phase("retreave")
++                        safe_motion(
++                            lambda: arm.moveL_post_grasp_left(),
++                            monitor,
++                            "retreave_left",
++                        )
++                        joint_log_result = "completed"
++                    finally:
++                        joint_logger.stop(joint_log_result)
+ 
+                 # 挿入・取り出し成功
+                 break

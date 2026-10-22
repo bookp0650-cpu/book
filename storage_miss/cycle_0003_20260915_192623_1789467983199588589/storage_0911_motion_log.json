@@ -1,0 +1,282 @@
+[
+  {
+    "type": "depth_plan",
+    "surface_robot_xyz_mm": [
+      491.43414445723255,
+      -278.9910447219182,
+      -17.05114930735385
+    ],
+    "reach_target_xyz_mm": [
+      411.43414445723255,
+      -281.9910447219182,
+      42.94885069264615
+    ],
+    "expected_final_tcp_x_mm": 566.4341444572326,
+    "expected_final_book_rear_x_mm": 631.4341444572326,
+    "expected_book_insertion_depth_mm": 140.0,
+    "classification": "triangular_left_tilted",
+    "normal_reach_target_xyz_mm": [
+      411.43414445723255,
+      -281.9910447219182,
+      -17.05114930735385
+    ],
+    "tilted_high_reach_offset_mm": 60.0
+  },
+  {
+    "type": "spacer_virtual_tcp",
+    "phase": "configuration",
+    "classification": "triangular_left_tilted",
+    "enabled": false,
+    "calibrated": false,
+    "measured_state_reader_available": false,
+    "initial_reach_virtual_tcp_applied": false,
+    "initial_reach_reason": "the recognition-derived reach target is not proven to be a spacer-tip contact target",
+    "reason": "measured TCP-to-pivot/tip geometry and measured SP_LIN/SP_ROT state source are not present in the repository"
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 APPROACH",
+    "phase": "before",
+    "tcp_pose_mm_rad": [
+      263.638794,
+      -384.220032,
+      -140.887863,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "motion_command",
+    "label": "0911 APPROACH",
+    "original_reach_target_xyz_mm": [
+      411.43414445723255,
+      -281.9910447219182,
+      42.94885069264615
+    ],
+    "approach_target_xyz_mm": [
+      361.43414445723255,
+      -281.9910447219182,
+      42.94885069264615
+    ],
+    "approach_backoff_mm": 50.0,
+    "velocity_mm_s": 180.0,
+    "acceleration_mm_s2": 180.0
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 APPROACH",
+    "phase": "after",
+    "tcp_pose_mm_rad": [
+      361.434021,
+      -281.991272,
+      42.948792,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 REACH FORWARD",
+    "phase": "before",
+    "tcp_pose_mm_rad": [
+      361.434021,
+      -281.991272,
+      42.948792,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "motion_command",
+    "label": "0911 REACH FORWARD",
+    "delta_pose_mm_rad": [
+      50.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "velocity_mm_s": 180.0,
+    "acceleration_mm_s2": 180.0
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 REACH FORWARD",
+    "phase": "after",
+    "tcp_pose_mm_rad": [
+      411.43396,
+      -281.991394,
+      42.948772,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 SPACER INSERT",
+    "phase": "before",
+    "tcp_pose_mm_rad": [
+      411.434143,
+      -311.709229,
+      42.948956,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "motion_command",
+    "label": "0911 SPACER INSERT",
+    "delta_pose_mm_rad": [
+      55.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "velocity_mm_s": 40.0,
+    "acceleration_mm_s2": 40.0
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 SPACER INSERT",
+    "phase": "after",
+    "tcp_pose_mm_rad": [
+      466.434113,
+      -311.708984,
+      42.949017,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 TILTED LOWER",
+    "phase": "before",
+    "tcp_pose_mm_rad": [
+      466.434113,
+      -311.708984,
+      42.949017,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "motion_command",
+    "label": "0911 TILTED LOWER",
+    "classification": "triangular_left_tilted",
+    "normal_target_z_mm": -17.05114930735385,
+    "high_reach_target_z_mm": 42.94885069264615,
+    "lowering_amount_mm": 90.0,
+    "final_target_z_mm": -47.05114930735385,
+    "delta_z_mm": -90.0,
+    "velocity_mm_s": 40.0,
+    "acceleration_mm_s2": 40.0
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 TILTED LOWER",
+    "phase": "after",
+    "tcp_pose_mm_rad": [
+      466.434113,
+      -311.709045,
+      -47.049992,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 FINAL PUSH",
+    "phase": "before",
+    "tcp_pose_mm_rad": [
+      466.434113,
+      -311.709045,
+      -47.049992,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "motion_command",
+    "label": "0911 FINAL PUSH",
+    "delta_pose_mm_rad": [
+      100.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "velocity_mm_s": 15.0,
+    "acceleration_mm_s2": 15.0
+  },
+  {
+    "type": "tcp_checkpoint",
+    "label": "0911 FINAL PUSH",
+    "phase": "after",
+    "tcp_pose_mm_rad": [
+      566.433411,
+      -311.708893,
+      -47.049976,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ]
+  },
+  {
+    "type": "actual_depth_summary",
+    "approach_actual_tcp_pose_mm_rad": [
+      361.434021,
+      -281.991272,
+      42.948792,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ],
+    "reach_actual_tcp_pose_mm_rad": [
+      411.43396,
+      -281.991394,
+      42.948772,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ],
+    "spacer_insert_actual_tcp_pose_mm_rad": [
+      466.434113,
+      -311.708984,
+      42.949017,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ],
+    "tilted_lower_actual_tcp_pose_mm_rad": [
+      466.434113,
+      -311.709045,
+      -47.049992,
+      -3.120118,
+      0.00128,
+      -3.141152
+    ],
+    "final_actual_tcp_pose_mm_rad": [
+      566.433411,
+      -311.708893,
+      -47.049976,
+      -3.120119,
+      0.00128,
+      -3.141152
+    ],
+    "actual_book_rear_x_mm": 631.433411,
+    "actual_insertion_depth_mm": 139.99926654276743
+  }
+]

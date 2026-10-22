@@ -1,0 +1,33 @@
+joint_order:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+
+waypoints:
+
+- name: p1
+  q:
+  - -75.77
+  - -17.6
+  - 201.5
+  - 44.9
+  - -135.4
+  - 71.1
+  - 154.1
+
+- name: p1
+  q:
+  - -24.1
+  - -80.8
+  - 154.7
+  - 81.3
+  - 94.5
+  - 25.1
+  - -31.7
+  speed: 1.0
+  accel: 2.0
+  wait: true

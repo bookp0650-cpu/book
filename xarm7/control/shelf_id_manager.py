@@ -208,6 +208,66 @@ class ShelfIDManager:
             )
 
     # ==========================
+    # 任意の shelf_id を解析
+    # ==========================
+    def resolve_shelf_id(
+        self,
+        shelf_id: str,
+    ):
+        """
+        shelf_id文字列から
+        side / height / tcp_z_offset を取得する。
+
+        例:
+            1-1-2-1
+              B=1 -> right
+              C=2 -> height=440 mm
+        """
+
+        data = str(shelf_id).strip()
+        parts = data.split("-")
+
+        if len(parts) != 4:
+            raise ValueError(
+                f"Invalid shelf_id format: {data}"
+            )
+
+        A, B, C, D = parts
+
+        B = int(B)
+        C = int(C)
+
+        # B 偶奇 -> side
+        side = (
+            "left"
+            if B % 2 == 0
+            else "right"
+        )
+
+        # C -> 上下機構高さ
+        if C not in self.HEIGHT_MAP:
+            raise ValueError(
+                f"Invalid C value: {C}"
+            )
+
+        height = float(
+            self.HEIGHT_MAP[C]
+        )
+
+        tcp_z_offset = float(
+            self.TCP_Z_OFFSET_MAP.get(
+                C,
+                0.0,
+            )
+        )
+
+        return (
+            side,
+            height,
+            tcp_z_offset,
+        )
+
+    # ==========================
     # Getter
     # ==========================
     def get_side(self):

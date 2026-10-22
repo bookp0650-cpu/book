@@ -19,7 +19,7 @@ from xarm7.control.xarm7 import XArm7
 BOOK_BARCODE_1 = [52.4, -82, 178, 78, 204, 4.6, -61.2]
 BOOK_BARCODE_2 = [-36.9, -75.2, 159.3, 80.5, 83.8, 18.8, -34.9]
 
-CONFIG_DIR = "/home/book/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
+CONFIG_DIR = "/home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
 
 def decoded_to_dict_safe(d) -> dict:
     raw_data = getattr(d, "data", None)

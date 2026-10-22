@@ -13,7 +13,7 @@ def barcode_to_robot_base_mm(
     image_path: Union[str, Path],
     *,
     depth_m: float = 0.3,
-    handeye_json_path: Union[str, Path] = "/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260107_124544.json",
+    handeye_json_path: Union[str, Path] = "/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260107_124544.json",
     dy_adj_mm: float = 0.0,
     fx: float = 1362.24267578125,
     fy: float = 1359.7244873046875,

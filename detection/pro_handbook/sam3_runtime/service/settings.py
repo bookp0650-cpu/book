@@ -4,7 +4,11 @@ import os
 from pathlib import Path
 
 RUNTIME_DIR = Path(__file__).resolve().parents[1]
-MODEL_PATH = Path(os.getenv("SAM3_MODEL_PATH", RUNTIME_DIR / "models" / "inference_best.pt"))
+MODEL_PATH = Path(os.getenv(
+    "SAM3_MODEL_PATH",
+    RUNTIME_DIR / "models" / "candidates" / "sam3_bookspine_expE_ck16"
+    / "sam3_bookspine_expE_ck16_inference.pt",
+))
 BOOK_SPINE_MODEL_PATH = MODEL_PATH
 BOOK_END_MODEL_PATH = Path(
     os.getenv(
@@ -12,8 +16,9 @@ BOOK_END_MODEL_PATH = Path(
         RUNTIME_DIR / "models" / "checkpoint_50_modelonly.pt",
     )
 )
-BOOK_SPINE_EXPECTED_SHA256 = (
-    "d8b297b0a9a8a81c7926541a0f8fb08f7a15ee7d53d210b9827190aa21b16bce"
+BOOK_SPINE_EXPECTED_SHA256 = os.getenv(
+    "SAM3_BOOK_SPINE_EXPECTED_SHA256",
+    "1b43d2906da3f11d9e49c056b169f567762fb96cf91579df0110f66fa27afcdd",
 )
 BOOK_END_EXPECTED_SHA256 = (
     "a1a0c32fc6f2e2f9d10612ac55d6e851566b0a26c8dc2d83b9e6ae0ac1a3e83c"

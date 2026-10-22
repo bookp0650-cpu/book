@@ -18,6 +18,7 @@ multi-view imports in this offline-only script.
 from __future__ import annotations
 
 import argparse
+import contextvars
 import gc
 import hashlib
 import json
@@ -25,7 +26,8 @@ import logging
 import sys
 import time
 import traceback
-from dataclasses import dataclass
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -89,7 +91,7 @@ MIN_STORAGE_SPACE_WIDTH_PX = 30
 # is the physical top side.  Final selection evaluates each candidate's own
 # image-top/image-bottom bands with that mapping made explicit.
 CANDIDATE_SHAPE_BAND_RATIO = 0.20
-FINAL_SELECTION_MIN_HEIGHT_PX = 30
+FINAL_SELECTION_MIN_HEIGHT_PX = 241
 FINAL_SELECTION_MIN_HEIGHT_RATIO = 0.10
 
 # A boundary may be extended only through a short, continuous missing tail at
@@ -131,7 +133,12 @@ for import_path in (OWNER_REPO, SAM3_SOURCE):
 
 from core.checkpoint_export import _fresh_model  # noqa: E402
 from core.mask_nms import apply_mask_nms  # noqa: E402
-from core.npz_io import InstanceSet, empty_instances, load_npz, save_npz  # noqa: E402
+from core.npz_io import (  # noqa: E402
+    InstanceSet,
+    empty_instances,
+    load_npz,
+    save_npz as _core_save_npz,
+)
 from core.sam3_adapter import Sam3Adapter  # noqa: E402
 
 
@@ -174,6 +181,7 @@ class StorageRecognitionResult:
     held_pair_space_before_occlusion: np.ndarray
     held_pair_space_after_occlusion: np.ndarray
     held_book_occlusion_metadata: dict[str, Any]
+    timings_ms: dict[str, float] = field(default_factory=dict)
 
 
 SPINE_MODEL = ModelSpec(
@@ -241,11 +249,40 @@ def jsonable(value: Any) -> Any:
     return value
 
 
+_ACTIVE_RECOGNITION_TIMINGS: contextvars.ContextVar[
+    dict[str, float] | None
+] = contextvars.ContextVar("active_storage_recognition_timings", default=None)
+
+
+def _add_active_timing(name: str, elapsed_seconds: float) -> None:
+    sink = _ACTIVE_RECOGNITION_TIMINGS.get()
+    if sink is not None:
+        sink[name] = sink.get(name, 0.0) + elapsed_seconds * 1000.0
+
+
+@contextmanager
+def collect_recognition_file_timings(timing_sink: dict[str, float]):
+    """Collect output-write wall times without changing recognition results."""
+    token = _ACTIVE_RECOGNITION_TIMINGS.set(timing_sink)
+    try:
+        yield
+    finally:
+        _ACTIVE_RECOGNITION_TIMINGS.reset(token)
+
+
 def write_json(path: Path, value: Any) -> None:
+    started = time.perf_counter()
     path.write_text(
         json.dumps(jsonable(value), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    _add_active_timing("json_metadata_save_ms", time.perf_counter() - started)
+
+
+def save_npz(path: Path, instances: InstanceSet) -> None:
+    started = time.perf_counter()
+    _core_save_npz(path, instances)
+    _add_active_timing("binary_file_save_ms", time.perf_counter() - started)
 
 
 def make_run_dir(output_root: Path) -> Path:
@@ -295,6 +332,13 @@ def discover_cases(input_root: Path, selected: list[int] | None) -> list[tuple[i
 
 
 def read_rgb(path: Path) -> np.ndarray:
+    if path.suffix.lower() == ".npy":
+        image = np.load(path, allow_pickle=False)
+        if image.ndim != 3 or image.shape[2] != 3 or image.dtype != np.uint8:
+            raise ValueError(
+                f"expected RGB uint8 HxWx3 array, got {image.shape} {image.dtype}"
+            )
+        return image
     with Image.open(path) as opened:
         image = ImageOps.exif_transpose(opened).convert("RGB")
         return np.asarray(image, dtype=np.uint8)
@@ -428,10 +472,12 @@ def overlay_masks(
 
 
 def save_png(path: Path, array: np.ndarray) -> None:
+    started = time.perf_counter()
     if array.ndim == 2:
         Image.fromarray(array.astype(np.uint8), mode="L").save(path)
     else:
         Image.fromarray(array.astype(np.uint8), mode="RGB").save(path)
+    _add_active_timing("png_jpg_save_ms", time.perf_counter() - started)
 
 
 def predict_instances(
@@ -605,13 +651,34 @@ def select_book_end_pair(
     if spine_bbox is None:
         return None, None, {"status": "failed", "reason": "empty_spine_union"}
     candidates = instance_records(book_end_instances)
-    if len(candidates) < 2:
+    if len(candidates) == 0:
         return None, None, {
             "status": "failed",
             "reason": "fewer_than_two_book_end_masks",
             "candidate_count": len(candidates),
             "spine_group_bbox_xyxy": spine_bbox,
         }
+    if len(candidates) == 1:
+        image_width = int(spine_masks.shape[2])
+        candidate = candidates[0]
+        side = (
+            "left"
+            if float(candidate["center_x"]) < image_width / 2.0
+            else "right"
+        )
+        return (
+            candidate if side == "left" else None,
+            candidate if side == "right" else None,
+            {
+                "status": "success",
+                "strategy": "single_book_end_to_opposite_image_edge",
+                "candidate_count": 1,
+                "single_book_end_side": side,
+                "single_book_end_center_x": float(candidate["center_x"]),
+                "image_width": image_width,
+                "spine_group_bbox_xyxy": spine_bbox,
+            },
+        )
 
     spine_x1, _, spine_x2, _ = spine_bbox
     spine_center_x = 0.5 * (spine_x1 + spine_x2 - 1)
@@ -735,38 +802,72 @@ def create_roi(
         ),
         "coordinate_convention": "xyxy_half_open",
     }
-    if left_book_end is None or right_book_end is None:
+    if left_book_end is None and right_book_end is None:
         return None, "left_or_right_book_end_not_selected", details
     if len(spine_masks) == 0:
         return None, "no_book_spine_masks", details
     height, width = image_shape
-    left_index = int(left_book_end["index"])
-    right_index = int(right_book_end["index"])
-    left_bbox = left_book_end["bbox_xyxy"]
-    right_bbox = right_book_end["bbox_xyxy"]
-    # bbox_xyxy is half-open: bbox x2 is the boundary immediately after the
-    # left book-end's maximum occupied x; bbox x1 is the right book-end minimum x.
-    left_x = int(left_bbox[2])
-    right_x = int(right_bbox[0])
-    details["left_book_end_boundary"] = {
-        "book_end_index": left_index,
-        "method": "selected_book_end_mask_right_edge",
-        "bbox_xyxy": left_bbox,
-        "selected_x": left_x,
-    }
-    details["right_book_end_boundary"] = {
-        "book_end_index": right_index,
-        "method": "selected_book_end_mask_left_edge",
-        "bbox_xyxy": right_bbox,
-        "selected_x": right_x,
-    }
+    if left_book_end is not None:
+        left_index = int(left_book_end["index"])
+        left_bbox = left_book_end["bbox_xyxy"]
+        # bbox_xyxy is half-open: x2 is immediately after the maximum mask x.
+        left_x = int(left_bbox[2])
+        details["left_book_end_boundary"] = {
+            "book_end_index": left_index,
+            "method": "selected_book_end_mask_right_edge",
+            "bbox_xyxy": left_bbox,
+            "selected_x": left_x,
+        }
+    else:
+        left_x = 0
+        details["left_image_boundary"] = {
+            "method": "image_left_edge",
+            "selected_x": left_x,
+        }
+    if right_book_end is not None:
+        right_index = int(right_book_end["index"])
+        right_bbox = right_book_end["bbox_xyxy"]
+        # bbox_xyxy is half-open: x1 is the minimum occupied mask x.
+        right_x = int(right_bbox[0])
+        details["right_book_end_boundary"] = {
+            "book_end_index": right_index,
+            "method": "selected_book_end_mask_left_edge",
+            "bbox_xyxy": right_bbox,
+            "selected_x": right_x,
+        }
+    else:
+        right_x = width
+        details["right_image_boundary"] = {
+            "method": "image_right_edge",
+            "selected_x": right_x,
+        }
     x1 = int(np.clip(left_x, 0, width))
     x2 = int(np.clip(right_x, 0, width))
     details["horizontal_roi_x"] = [x1, x2]
     details["x_left"] = x1
     details["x_right"] = x2
-    details["left_book_end_x_boundary"] = x1
-    details["right_book_end_x_boundary"] = x2
+    details["left_book_end_x_boundary"] = (
+        x1 if left_book_end is not None else None
+    )
+    details["right_book_end_x_boundary"] = (
+        x2 if right_book_end is not None else None
+    )
+    if left_book_end is None or right_book_end is None:
+        side = "left" if left_book_end is not None else "right"
+        details["horizontal_boundary_method"] = (
+            "single book-end inner edge to opposite image edge"
+        )
+        details["single_book_end_crop"] = {
+            "book_end_count": 1,
+            "side": side,
+            "image_width": width,
+            "crop_x_half_open": [x1, x2],
+        }
+        print("\n[SINGLE BOOK END CROP]")
+        print("book_end_count = 1")
+        print(f"side = {side}")
+        print(f"image_width = {width}")
+        print(f"crop_x = {x1} to {x2}")
     if x2 <= x1:
         return None, f"invalid_horizontal_extent:{x1}>={x2}", details
 
@@ -2170,21 +2271,35 @@ def recognize_storage_space(
     blocked_book_spine_indices: set[int] | None = None,
 ) -> StorageRecognitionResult:
     """Run the completed storage recognition flow without changing its policy."""
+    timings_ms: dict[str, float] = {}
+    started = time.perf_counter()
     left, right, selection = select_book_end_pair(
         spine_instances.masks,
         end_instances,
     )
+    timings_ms["book_end_selection_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     roi, roi_error, roi_determination = create_roi(
         spine_instances.masks,
         left,
         right,
         rgb.shape[:2],
     )
+    timings_ms["roi_generation_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     _, residual = residual_from_roi(
         rgb.shape[:2],
         roi,
         spine_instances.masks,
     )
+    timings_ms["residual_generation_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     (
         held_book_front_mask,
         held_book_left_occlusion_band,
@@ -2196,6 +2311,10 @@ def recognize_storage_space(
         blocked_book_spine_indices,
         roi,
     )
+    timings_ms["held_book_occlusion_mask_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     obstacles, obstacle_order = build_obstacle_sequence(
         spine_instances.masks,
         end_instances.masks,
@@ -2203,6 +2322,10 @@ def recognize_storage_space(
         left,
         right,
     )
+    timings_ms["obstacle_sequence_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     (
         spaces,
         rejected_spaces,
@@ -2218,11 +2341,18 @@ def recognize_storage_space(
             held_book_occlusion_mask=held_book_occlusion_mask,
         )
     )
+    timings_ms["space_candidate_generation_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
+    started = time.perf_counter()
     selected_space, final_space_selection = select_final_space(
         spaces,
         final_labels,
         roi,
     )
+    timings_ms["candidate_selection_ms"] = (
+        time.perf_counter() - started
+    ) * 1000.0
     selected_space_id = (
         int(selected_space["space_id"])
         if selected_space is not None
@@ -2261,6 +2391,7 @@ def recognize_storage_space(
             "pair_space_after_occlusion"
         ],
         held_book_occlusion_metadata=held_book_occlusion_metadata,
+        timings_ms=timings_ms,
     )
 
 
@@ -2271,9 +2402,8 @@ def save_storage_recognition_debug(
     end_instances: InstanceSet,
     result: StorageRecognitionResult,
 ) -> None:
-    """Save the same recognition debug artifacts used by the offline runner."""
+    """Save only the five normal-operation recognition visualizations."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    save_png(output_dir / "input.png", rgb)
     save_png(
         output_dir / "book_spine_overlay.png",
         overlay_masks(rgb, spine_instances.masks),
@@ -2287,61 +2417,13 @@ def save_storage_recognition_debug(
             result.right_book_end,
         ),
     )
-    save_png(output_dir / "roi.png", draw_roi(rgb, result.roi))
-    residual_u8 = result.residual.astype(np.uint8) * 255
-    save_png(output_dir / "residual_mask.png", residual_u8)
-    save_png(output_dir / "residual_mask_before_split.png", residual_u8)
-    save_png(
-        output_dir / "held_book_front_mask.png",
-        result.held_book_front_mask.astype(np.uint8) * 255,
-    )
-    save_png(
-        output_dir / "held_book_left_occlusion_band.png",
-        result.held_book_left_occlusion_band.astype(np.uint8) * 255,
-    )
-    save_png(
-        output_dir / "held_book_occlusion_mask.png",
-        result.held_book_occlusion_mask.astype(np.uint8) * 255,
-    )
-    save_png(
-        output_dir / "pair_space_before_occlusion.png",
-        result.held_pair_space_before_occlusion.astype(np.uint8) * 255,
-    )
-    save_png(
-        output_dir / "pair_space_after_occlusion.png",
-        result.held_pair_space_after_occlusion.astype(np.uint8) * 255,
-    )
-    all_candidate_mask = result.final_labels > 0
-    candidate_mask_image = all_candidate_mask.astype(np.uint8) * 255
     candidate_overlay = draw_all_space_candidates(
         rgb,
         result.spaces,
         result.final_labels,
         result.roi,
     )
-    save_png(output_dir / "space_candidates_mask.png", candidate_mask_image)
-    save_png(output_dir / "space_candidates_overlay.png", candidate_overlay)
-    save_png(
-        output_dir / "candidate_overlay_after_occlusion.png",
-        candidate_overlay,
-    )
-    save_png(
-        output_dir / "boundary_extrapolation_debug.png",
-        draw_boundary_extrapolation_debug(
-            rgb,
-            result.residual,
-            result.roi,
-            result.obstacles,
-            result.obstacle_pairs,
-            result.final_labels,
-        ),
-    )
-    save_png(output_dir / "all_space_candidates_mask.png", candidate_mask_image)
     save_png(output_dir / "all_space_candidates_overlay.png", candidate_overlay)
-    save_png(
-        output_dir / "final_space_mask.png",
-        result.selected_space_mask.astype(np.uint8) * 255,
-    )
     save_png(
         output_dir / "final_space_overlay.png",
         draw_selected_space(
@@ -2351,14 +2433,60 @@ def save_storage_recognition_debug(
             result.roi,
         ),
     )
-    candidate_mask_dir = output_dir / "candidate_masks"
-    candidate_mask_dir.mkdir(parents=True, exist_ok=True)
-    for space in result.spaces:
-        space_id = int(space["space_id"])
-        save_png(
-            candidate_mask_dir / f"space_{space_id:02d}.png",
-            (result.final_labels == space_id).astype(np.uint8) * 255,
-        )
+
+
+def save_storage_recognition_masks(
+    output_dir: Path,
+    result: StorageRecognitionResult,
+    spine_instances: InstanceSet,
+    held_book_indices: set[int],
+) -> Path:
+    """Save the minimal exact masks that are not in the SAM3 instance NPZs."""
+    image_shape = result.residual.shape
+    roi_mask = np.zeros(image_shape, dtype=bool)
+    if result.roi is not None:
+        x0, y0, x1, y1 = (int(value) for value in result.roi)
+        roi_mask[y0:y1, x0:x1] = True
+    valid_held_indices = sorted(
+        index
+        for index in held_book_indices
+        if 0 <= index < spine_instances.count
+    )
+    held_book_spine_mask = (
+        np.any(spine_instances.masks[valid_held_indices], axis=0)
+        if valid_held_indices
+        else np.zeros(image_shape, dtype=bool)
+    )
+    candidate_ids = np.asarray(
+        [int(space["space_id"]) for space in result.spaces],
+        dtype=np.int32,
+    )
+    path = output_dir / "storage_masks.npz"
+    started = time.perf_counter()
+    np.savez_compressed(
+        path,
+        residual_mask=result.residual.astype(bool, copy=False),
+        roi_mask=roi_mask,
+        held_book_spine_mask=held_book_spine_mask,
+        held_book_front_mask=result.held_book_front_mask.astype(bool, copy=False),
+        held_book_left_occlusion_band=(
+            result.held_book_left_occlusion_band.astype(bool, copy=False)
+        ),
+        held_book_occlusion_mask=(
+            result.held_book_occlusion_mask.astype(bool, copy=False)
+        ),
+        held_pair_space_before_occlusion=(
+            result.held_pair_space_before_occlusion.astype(bool, copy=False)
+        ),
+        held_pair_space_after_occlusion=(
+            result.held_pair_space_after_occlusion.astype(bool, copy=False)
+        ),
+        final_labels=result.final_labels.astype(np.int32, copy=False),
+        candidate_ids=candidate_ids,
+        selected_space_mask=result.selected_space_mask.astype(bool, copy=False),
+    )
+    _add_active_timing("binary_file_save_ms", time.perf_counter() - started)
+    return path
 
 
 def read_inference_status(case_dir: Path, spec: ModelSpec) -> dict[str, Any]:
@@ -2404,6 +2532,12 @@ def process_case(
         spine_instances,
         end_instances,
         recognition,
+    )
+    save_storage_recognition_masks(
+        case_dir,
+        recognition,
+        spine_instances,
+        set(),
     )
 
     errors: list[str] = []
@@ -2671,18 +2805,7 @@ def main() -> None:
             case_dir = run_dir / str(case_id)
             try:
                 rgb = read_rgb(image_path)
-                zero = np.zeros(rgb.shape[:2], dtype=np.uint8)
                 for name in (
-                    "residual_mask.png",
-                    "residual_mask_before_split.png",
-                    "space_candidates_mask.png",
-                    "all_space_candidates_mask.png",
-                    "final_space_mask.png",
-                ):
-                    save_png(case_dir / name, zero)
-                for name in (
-                    "roi.png",
-                    "space_candidates_overlay.png",
                     "all_space_candidates_overlay.png",
                     "final_space_overlay.png",
                 ):

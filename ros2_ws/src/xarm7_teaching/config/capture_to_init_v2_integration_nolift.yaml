@@ -1,0 +1,56 @@
+joint_order:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+
+waypoints:
+# - name: p0
+#   q:
+#   - 94.0
+#   - -9.3
+#   - 160.8
+#   - 54.6
+#   - 6.6
+#   - 43.3
+#   - 69.6
+#   wait: true
+#   sleep: 0.0
+
+- name: p1
+  q:
+  - 90.0
+  - 0.0
+  - 177.0
+  - 97.11
+  - 180.0
+  - 140.0
+  - 180.0
+  wait: true
+  sleep: 0.0
+
+- name: p2
+  q:
+  - 90.0
+  - 0.0
+  - 90.0
+  - 150.67
+  - 180.0
+  - 115.0
+  - 210.0
+  wait: true
+  sleep: 0.0
+
+- name: p3
+  q:
+  - 0.0
+  - -4.3
+  - 95.7
+  - 164.6
+  - 263.1
+  - 96.7
+  - 210.0
+  wait: true

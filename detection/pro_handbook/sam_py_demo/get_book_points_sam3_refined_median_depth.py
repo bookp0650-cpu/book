@@ -27,7 +27,7 @@ from .modules.grip_point import (
 from .modules.pca_vector import pca_axes_fix_dir
 from .modules.pointcloud_utils import save_ply_ascii
 from .sam3_mask_refinement import refine_selected_sam3_mask
-
+import os
 
 VARIANT = "sam3_refined_median_depth"
 MODES = {
@@ -38,7 +38,12 @@ MODES = {
 }
 DEFAULT_MODE = "refine_and_median_flatten"
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-CAPTURES_DIR = PROJECT_ROOT / "captures"
+CAPTURES_DIR = Path(
+    os.environ.get(
+        "BOOK_CAPTURE_ROOT",
+        str(PROJECT_ROOT / "captures" / "retrieval"),
+    )
+)
 
 
 def _write_json(path: Path, value) -> None:
@@ -518,6 +523,7 @@ def run_capture_and_pca_offline_sam3_refined_median_depth(
     intr=None,
     depth_scale=None,
     depth_merge_tolerance_raw=30,
+    selected_mask_override=None,
 ):
     """Run one comparison mode on an existing RGB-D directory."""
     if mode not in MODES:
@@ -574,6 +580,10 @@ def run_capture_and_pca_offline_sam3_refined_median_depth(
         )
     selected_index = int(merged["sel_idx"])
     raw_mask = np.asarray(merged["mask01"], bool)
+    cv2.imwrite(
+        str(shot_dir / "original_prediction_mask.png"),
+        raw_mask.astype(np.uint8) * 255,
+    )
     score = float(sam_data[selected_index - 1]["score"])
     polygon, ocr_info = _selected_ocr_geometry(
         raw_mask, merged, color_np.shape[:2], shot_dir, query
@@ -589,6 +599,42 @@ def run_capture_and_pca_offline_sam3_refined_median_depth(
         mode=mode,
     )
     used_mask = refined if use_refinement else raw_mask.copy()
+    if selected_mask_override is not None:
+        override = np.asarray(selected_mask_override, dtype=bool)
+        if override.shape != raw_mask.shape:
+            raise ValueError(
+                "selected_mask_override shape mismatch: "
+                f"{override.shape} / {raw_mask.shape}"
+            )
+        if not np.any(override):
+            raise ValueError("selected_mask_override is empty")
+        used_mask = override.copy()
+        cv2.imwrite(
+            str(shot_dir / "artificial_mask_used_for_depth.png"),
+            used_mask.astype(np.uint8) * 255,
+        )
+        # The existing SAM2-compatible terminal width stage reads this stable
+        # filename.  In ROC mode it must see the same artificial mask as the
+        # depth/PCA stage; the untouched SAM3 selection remains separately in
+        # original_prediction_mask.png.
+        cv2.imwrite(
+            str(shot_dir / "selected_mask_refined.png"),
+            used_mask.astype(np.uint8) * 255,
+        )
+        overlay = color_np.copy()
+        green = color_np.copy()
+        green[used_mask] = (0, 255, 0)
+        overlay = cv2.addWeighted(overlay, 0.65, green, 0.35, 0)
+        cv2.imwrite(
+            str(shot_dir / "selected_mask_refined_overlay.png"), overlay
+        )
+        refinement = dict(refinement)
+        refinement.update({
+            "roc_artificial_mask_override": True,
+            "refinement_applied_to_artificial_mask": False,
+            "final_mask_area_px": int(used_mask.sum()),
+        })
+        _write_json(shot_dir / "mask_refinement_result.json", refinement)
     if not use_refinement:
         refinement["mode"] = mode
         refinement["refinement_enabled"] = False
@@ -619,10 +665,13 @@ def run_capture_and_pca_offline_sam3_refined_median_depth(
         cv2.imwrite(str(shot_dir / "selected_mask_refined_overlay.png"), overlay)
         _write_json(shot_dir / "mask_refinement_result.json", refinement)
 
+    anchor_source = used_mask if selected_mask_override is not None else raw_mask
     labels_count, labels = cv2.connectedComponents(
-        raw_mask.astype(np.uint8), connectivity=8
+        anchor_source.astype(np.uint8), connectivity=8
     )
-    anchor_mask = labels == int(refinement["anchor_component_id"])
+    component_areas = [int(np.count_nonzero(labels == i)) for i in range(1, labels_count)]
+    anchor_id = int(np.argmax(component_areas) + 1) if component_areas else 0
+    anchor_mask = labels == anchor_id
     compute = _depth_and_pca(
         mode=mode,
         shot_dir=shot_dir,
@@ -656,6 +705,7 @@ def run_capture_and_pca_offline_sam3_refined_median_depth(
         "kept_component_ids": refinement["kept_component_ids"],
         "removed_component_ids": refinement["removed_component_ids"],
         "raw_and_refined_mask_equal": bool(np.array_equal(raw_mask, used_mask)),
+        "roc_artificial_mask_override": selected_mask_override is not None,
         "fallback": refinement["fallback_to_raw_mask"],
         "mask_refinement": refinement,
         **{key: value for key, value in compute.items() if key != "final_depth"},

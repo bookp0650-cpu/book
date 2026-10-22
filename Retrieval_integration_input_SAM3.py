@@ -1,13 +1,30 @@
+from typing import Any
+import os
+
+# ============================================================
+# GPUメモリ管理
+# ============================================================
+
+# PaddleOCRを常駐させない。
+# 1回の認識が終わったらOCR workerを終了し、
+# OCRモデルが使用していたGPUメモリを解放する。
+os.environ["BOOK_OCR_RELOAD_EACH_SEQUENCE"] = "1"
+
+
 from xarm7.control.xarm7 import XArm7, CAPTURE_RIGHT
+
 from rs_d435i.get_book_position import GetBookSpinePosition
-import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval 
+
+import Dynamixel_win_pro_hand_book.HandBook_Retrieval as HandBook_retrieval
 import Dynamixel_win_pro_hand_book.HandBook_Storage as HandBook_storage
+
 from pathlib import Path
+
 from detection.pro_handbook.sam3_runtime.integration_service_manager import (
     Sam3ServiceSession,
 )
-from detection.pro_handbook.sam_py_demo.get_book_points_no_mask_merge_no_side_filter import (
-    run_capture_and_pca_no_mask_merge_no_side_filter,
+from detection.pro_handbook.sam_py_demo.get_book_points_sam3_refined_sam2_width import (
+    run_capture_and_pca_sam3_refined_sam2_width,
 )
 from xarm7.control.move_to_container_test import Move_to_Container
 from xarm7.control.shelf_id_manager import ShelfIDManager
@@ -26,7 +43,7 @@ import traceback
 import time
 from rclpy.executors import MultiThreadedExecutor
 from xarm7.control.xarm_init_to_capture_integration import WaypointPlayerNode
-import signal, os
+import signal
 import math
 import sys
 from xarm7.control.xarm_monitor import XArmMonitor, safe_motion
@@ -49,13 +66,19 @@ from rclpy.qos import (
 from std_msgs.msg import Bool
 
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
-CONFIG_PATH = SCRIPT_DIR / "Retrieval_integration.yaml"
+CONFIG_PATH = "/home/book/pro_book_SAM3/pro_hand_book_python/Retrieval_integration.yaml"
 
 # J1電流閾値を検知した場合の最大試行回数（初回を含む）
 # 4回すべて失敗した場合は、その本を失敗扱いにして次の本へ進む。
+
+# ===== 実験設定：同じ本を繰り返し取る =====
+TARGET_BOOK_NAME = "簡単実践ロボットシミュレーション 出村公成"  # master の book_name と完全一致させる
+NUM_TRIALS = 50  # 繰り返し回数（途中で止めたいときは Ctrl+C）
+
 MAX_CURRENT_INSERT_ATTEMPTS = 4
+
+EXPERIMENT_J1_THRESHOLD = 4.0  # 実験用。上限を先輩に確認してから決める
 
 LOG_HEADER = [
     "timestamp",
@@ -318,7 +341,14 @@ def write_log(
 def load_config(config_path):
     config_path = Path(config_path).expanduser().resolve()
     with config_path.open("r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
+        loaded = yaml.safe_load(f)
+
+    if not isinstance(loaded, dict):
+        raise ValueError(
+            f"Invalid YAML config: {config_path}"
+        )
+
+    config: dict[str, Any] = loaded
     config["_config_path"] = str(config_path)
     config["_config_dir"] = str(config_path.parent)
     return config
@@ -362,12 +392,13 @@ def main_sequence(
     master_book_width_mm: float | None,
     tp: TargetPublisher,
     node,
-    arm: XArm7,                     
+    arm: XArm7,
     executor,
-    waypoint_node: WaypointPlayerNode,
     shelf_manager: ShelfIDManager,
     monitor: XArmMonitor,
     done_pub,
+    capture_home_pose,
+    HandMotors_retrieval,
 ):
     # Values below are updated as the sequence progresses. The abnormal-motion
     # callback reads this state so a safe_stop row contains the latest result.
@@ -387,25 +418,75 @@ def main_sequence(
     roll = None
     p_xmax = None
     book_width = None
-    HandMotors_retrieval = None
+    def return_to_capture_pose(reason: str):
+        target_pose = np.asarray(
+            capture_home_pose,
+            dtype=np.float64,
+        ).reshape(6).tolist()
+
+        node.get_logger().info(
+            "[CAPTURE RETURN] "
+            f"reason={reason} -> saved capture pose"
+        )
+
+        safe_motion(
+            lambda: arm._moveL(
+                target_pose,
+                velocity=80.0,
+                acceleration=40.0,
+                asynchronous=False,
+            ),
+            monitor,
+            f"return_capture_{reason}",
+        )
+
+        actual_pose = np.asarray(
+            arm.get_tcp_pose(is_radian=True),
+            dtype=np.float64,
+        ).reshape(6)
+
+        position_error_mm = float(
+            np.linalg.norm(
+                actual_pose[:3]
+                - np.asarray(target_pose[:3], dtype=np.float64)
+            )
+        )
+
+        node.get_logger().info(
+            "[CAPTURE RETURN] "
+            f"position_error={position_error_mm:.2f} mm"
+        )
+
+        if position_error_mm > 5.0:
+            raise RuntimeError(
+                "撮影姿勢への復帰誤差が大きいです: "
+                f"{position_error_mm:.2f} mm"
+            )
 
     try:
-        print('start sequence')
-        shelf_manager.received = False
-        waypoint_node.reset()
-        # ==============================
-        # shelf_id 受信待ち
-        # ==============================
-        node.get_logger().info("Waiting for /shelf_id ...")
+        print("start sequence")
 
+        # ==================================================
+        # 書架情報はmaster JSONのbookshelf_IDから直接解決する。
+        # /shelf_id や /navigation_goal_final は待たない。
+        # ==================================================
+        (
+            side,
+            height,
+            tcp_offset,
+        ) = shelf_manager.resolve_shelf_id(
+            bookshelf_ID
+        )
 
-        while rclpy.ok() and not shelf_manager.is_received():
-            executor.spin_once(timeout_sec=0.1)
+        shelf_id = bookshelf_ID
 
-        side = shelf_manager.get_side()
-        height = shelf_manager.get_height()
-        shelf_id = shelf_manager.get_shelf_id()
-        tcp_offset = shelf_manager.get_tcp_z_offset()
+        node.get_logger().info(
+            "[CAPTURE LOOP SHELF] "
+            f"id={shelf_id}, "
+            f"side={side}, "
+            f"height={height:.1f} mm, "
+            f"tcp_offset={tcp_offset:.1f} mm"
+        )
 
         def on_abnormal(msg):
             # Some motion errors can call the callback more than once.
@@ -432,139 +513,50 @@ def main_sequence(
                 runtime_log["safe_stop_logged"] = True
                 runtime_log["error_logged"] = True
             except Exception as log_exc:
-                print(f"[CSV LOG ERROR] safe_stop logging failed: {log_exc}")
+                print(
+                    f"[CSV LOG ERROR] "
+                    f"safe_stop logging failed: {log_exc}"
+                )
 
         monitor.on_abnormal = on_abnormal
 
         print("Shelf side:", side)
-        print("Lift height:", height)
-        # ==============================
-        HandMotors_retrieval = HandBook_retrieval.init_dynamixels() 
+        print("Lift height metadata:", height)
         print("xarm ready")
-        safe_motion(lambda: arm.moveJ_to_init_Q_DEG(), monitor, "init_pose")
-        bar_dir = Path(config["paths"]["capture"]["bookshelf_barcode"])
-        bar_dir.mkdir(parents=True, exist_ok=True)
+        print(
+            "[CAPTURE LOOP] "
+            "init pose / init->capture waypoint are disabled"
+        )
 
-        wall_watcher = WallDistanceWatcher(node)
+        # 実験版ではリフトもhomeへ戻さない。
+        # 現在のリフト高さを維持したまま連続処理する。
+        # height はログ・棚情報としてのみ使用する。
 
-        # 少し待って最新値を受信
-        timeout_sec = 2.0
-        start = time.time()
-        while rclpy.ok() and wall_watcher.get_distance() is None:
-            executor.spin_once(timeout_sec=0.1)
-            if time.time() - start > timeout_sec:
-                break
+        # 毎冊開始時に基準撮影姿勢へ揃える
+        return_to_capture_pose("book_start")
 
-        wall_distance = wall_watcher.get_distance()
-
-        if wall_distance is None:
-            node.get_logger().warn("wall_distance not received. Using default 0.25m")
-            wall_distance = 0.25
-
-        # ==============================
-        # self-localization
-        # ==============================
-        # detected2, code_str, info = capture_barcode_and_x_offset(
-        #     node=node,
-        #     executor=executor,
-        #     shot_dir=bar_dir,
-        #     barcode_number=None,
-        #     fx_px=2500.0,
-        #     depth_m= 0.8 - wall_distance - 0.13 , # 0.8 : 通路幅， 0.13 : AMR中心からカメラまでの距離
-        #     v_x=0.01,        # 好きな低速
-        #     cmd_sign_x=1.0,  # 逆なら -1.0
-        # )
-
-        # ==============================
-        # wall_distance watcher
-        # ==============================
-        wall_watcher = WallDistanceWatcher(node)
-
-        # ==============================
-        # navigation_goal / navigation_goal_final watchers
-        # ==============================
-        nav_goal_pulse = BoolPulseWatcher(node, "/navigation_goal")
-        final_goal = BoolLatchWatcher(node, "/navigation_goal_final")
-
-        node.get_logger().info("Start self-localization loop: wait /navigation_goal pulses until /navigation_goal_final==True")
-
-        # デバッグ上書き回避したいならサブディレクトリを毎回作るのがおすすめ
-        # 例: bar_dir / time.strftime("%Y%m%d_%H%M%S")
-        bar_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode")
-        bar_dir.mkdir(parents=True, exist_ok=True)
-
-        detected2 = False
-        label_str = None
-        info = None
-
-        # while rclpy.ok() and not final_goal.is_true():
-        #     executor.spin_once(timeout_sec=0.1)
-
-        #     # /navigation_goal=True を受けるまで待つ
-        #     if not nav_goal_pulse.consume():
-        #         continue
-
-        #     node.get_logger().info(
-        #         "[bookshelf barcode] /navigation_goal received -> start self-localization"
-        #     )
-
-        #     wall_distance = wall_watcher.get_distance()
-        #     if wall_distance is None:
-        #         node.get_logger().warn("wall_distance not received. Using default 0.25m")
-        #         wall_distance = 0.25
-
-        #     detected2, label_str, info = capture_barcode_and_x_offset(
-        #         node=node,
-        #         executor=executor,
-        #         shot_dir=bar_dir,
-        #         fx_px=2500.0,
-        #         depth_m=0.8 - wall_distance - 0.13,
-        #         v_x=0.05,
-        #         min_search_vx=0.02,
-        #         max_search_vx=0.07,
-        #         k_p_search=0.00008,
-        #         cmd_sign_x=1.0,
-        #         align_thresh_px=10.0,
-        #         wait_navigation_goal=False,   # 外で待っているので False
-        #         total_timeout_sec=1000.0,
-        #         ocr_interval_sec=0.25,
-        #         bbox_lost_grace_sec=0.5,
-        #     )
-
-        #     if detected2 and info is not None:
-        #         node.get_logger().info(
-        #             f"[bookshelf barcode] self-localization OK: X_offset={info['X_m']:.3f} [m]"
-        #         )
-        #     else:
-        #         node.get_logger().warn(
-        #             "[bookshelf barcode] self-localization failed"
-        #         )
-
-        # ==============================
-        # init → capture 姿勢へ（Waypoint）
-        node.get_logger().info("Waiting for manual /navigation_goal_final")
-
-        while rclpy.ok() and not waypoint_node.is_finished():
-            executor.spin_once(timeout_sec=0.1)
-            
-        if waypoint_node.is_failed():
-            raise RuntimeError(
-                f"Waypoint failed: {waypoint_node.error_message()}"
-            )
-
-        node.get_logger().info("Waypoint succeeded → start recognition")
+        # 連続実験なので手動の「本に傾きをつける」待ちは行わない。
 
         try:
+            # ===== 実験用：本に手動で傾きをつける =====
+            # Ctrl+D でこの試行をスキップできるよう、try の中に置く
+            input("本に傾きをつけてください。準備ができたらEnterを押してください: ")
+            # =========================================
+
             # 右側書架では、電流閾値を検知した場合に撮影姿勢へ戻り、
-            # 同じ本の認識からやり直す。
+            # 同じ本の認識からやり直す。w
             for insert_attempt in range(1, MAX_CURRENT_INSERT_ATTEMPTS + 1):
                 print(
                     f"[RETRIEVAL] recognition/insert attempt "
                     f"{insert_attempt}/{MAX_CURRENT_INSERT_ATTEMPTS}"
                 )
 
-                # 電流検知後はCAPTURE_RIGHTへ戻るため、
-                # 初回・再試行のどちらでもTCP高さ補正を適用する。
+                # 毎回、基準撮影姿勢へ一度揃えてからTCP offsetを適用する。
+                # これでリトライ時にtcp_offsetが累積しない。
+                return_to_capture_pose(
+                    f"before_recognition_attempt_{insert_attempt}"
+                )
+
                 print("TCP調整開始")
                 safe_motion(
                     lambda: arm.moveL_tcp_z_offset(tcp_offset),
@@ -586,7 +578,7 @@ def main_sequence(
 
                 try:
                     roll, p_xmax, book_width, shot_dir = (
-                        run_capture_and_pca_no_mask_merge_no_side_filter(
+                        run_capture_and_pca_sam3_refined_sam2_width(
                             query=book_name,
                             sam_device="gpu",
                         )
@@ -650,22 +642,10 @@ def main_sequence(
                     )
                     traceback.print_exc()
 
-                    # 認識失敗時は初期姿勢へ戻して次の本へ進む
-                    tp.publish_target_mm(
-                        config["linear_lift"]["home_mm"]
-                    )
-                    waypoint_node.reset()
-
-                    waypoint_path = config["paths"]["waypoint"][
-                        "capture_to_init"
-                    ][side]
-                    waypoint_node.play_direct(waypoint_path)
-
-                    while (
-                        rclpy.ok()
-                        and not waypoint_node.is_finished()
-                    ):
-                        executor.spin_once(timeout_sec=0.1)
+                    # 認識失敗でも初期姿勢へは戻さない。
+                    # 基準撮影姿勢へ戻して次の本へ進む。
+                    return_to_capture_pose("recognition_fail")
+                    shelf_manager.received = False
 
                     done_msg = Bool()
                     done_msg.data = True
@@ -729,10 +709,22 @@ def main_sequence(
                     dtype=np.float64,
                 ).reshape(3).copy()
 
+                capture_pose_before_insert = arm.get_tcp_pose(is_radian=True)
+                
+                if roll is None:
+                
+                    raise RuntimeError("roll is None before arm movement")
+
+                
+                if roll is None:
+                    raise RuntimeError("roll is None")
+
+                validated_roll: float = float(roll)
+
                 safe_motion(
                     lambda: arm.move_to_target_xyz_and_roll(
                         p_robot_mm=p_robot_mm,
-                        d_roll_rad=roll,
+                        d_roll_rad=validated_roll,
                         side=side,
                     ),
                     monitor,
@@ -745,17 +737,27 @@ def main_sequence(
                     gravity=False,
                 )
 
+                input(
+                    "位置ずれ測定後 Enter: 挿入 / "
+                    "Ctrl+D: この本をスキップして撮影姿勢へ戻る / "
+                    "Ctrl+C: 終了\n"
+                )
+
+
                 # ================== 挿入・取り出し ==================
-                input("insert: Enter / ""return to capture: Ctrl+D / ""exit: Ctrl+C")
-                #time.sleep(3.0)
+                # 連続実験なので手動Enter待ちは行わない
+                time.sleep(1.0)
                 if side == "right":
                     # この関数内で通常と同じmoveL挿入を開始し、
                     # 挿入中だけJ1電流を監視する。
-                    insert_result = (
-                        arm.moveL_to_insert_right_with_current_monitor(
-                            return_joint_angles=CAPTURE_RIGHT,
-                        )
-                    )
+                    insert_result = arm.moveL_to_insert_right_with_current_monitor(
+                        side=side,
+                        retry_capture_pose=capture_pose_before_insert,      # 撮影姿勢
+                        retry_capture_y_mm=p_robot_mm[1],      # 1回目認識のp_robot_mm[1]
+                        log_dir=shot_dir,             # ログ保存先（認識時に使ったshot_dirを流用）
+                        roll_deg=runtime_log["roll_deg"],  # 記録済みのroll角
+                        j1_threshold=EXPERIMENT_J1_THRESHOLD,
+)    
 
                     if not insert_result["ok"]:
                         reason = insert_result.get(
@@ -766,6 +768,7 @@ def main_sequence(
                         if reason == "current_threshold":
                             print(
                                 "[RETRY] J1電流閾値を検知。"
+                                
                                 "撮影姿勢へ戻ったため、"
                                 "同じ本を再認識します。"
                             )
@@ -805,32 +808,11 @@ def main_sequence(
                                     "この本を失敗扱いにして次の本へ進みます。"
                                 )
 
-                                # moveL_to_insert_right_with_current_monitor()により
-                                # アームはCAPTURE_RIGHTへ戻っている。
-                                # リフトをホームへ戻し、capture_to_initを再生して
-                                # 次の本を処理できる初期状態へ戻す。
-                                tp.publish_target_mm(
-                                    config["linear_lift"]["home_mm"]
+                                # 監視付き挿入関数の復帰先に依存せず、
+                                # 次の本へ行く前に必ず基準撮影姿勢へ揃える。
+                                return_to_capture_pose(
+                                    "current_threshold_fail"
                                 )
-                                rclpy.spin_once(tp, timeout_sec=0.1)
-
-                                waypoint_node.reset()
-                                waypoint_path = config["paths"]["waypoint"][
-                                    "capture_to_init"
-                                ][side]
-                                waypoint_node.play_direct(waypoint_path)
-
-                                while (
-                                    rclpy.ok()
-                                    and not waypoint_node.is_finished()
-                                ):
-                                    executor.spin_once(timeout_sec=0.1)
-
-                                if waypoint_node.is_failed():
-                                    raise RuntimeError(
-                                        "電流閾値失敗後の初期姿勢復帰に失敗: "
-                                        f"{waypoint_node.error_message()}"
-                                    )
 
                                 shelf_manager.received = False
 
@@ -856,7 +838,7 @@ def main_sequence(
                                     memo=(
                                         "J1 current threshold detected "
                                         f"{MAX_CURRENT_INSERT_ATTEMPTS} times; "
-                                        "skip this book"
+                                        "return to capture and skip this book"
                                     ),
                                 )
 
@@ -865,8 +847,6 @@ def main_sequence(
                                 done_pub.publish(done_msg)
                                 rclpy.spin_once(node, timeout_sec=0.1)
 
-                                # 0.0を返すことでmain()は停止せず、
-                                # retrieved_book_width_listへ0.0を追加して次の本へ進む。
                                 return 0.0
 
                             # forループの先頭へ戻り、
@@ -878,13 +858,26 @@ def main_sequence(
                             f"{insert_result}"
                         )
                     
-                    HandBook_retrieval.grasp(HandMotors_retrieval)
-                    
-                    safe_motion(
-                        lambda: arm.moveL_post_grasp_right(),
-                        monitor,
-                        "retreave_right",
+                    # 把持・取り出し中の全関節電流を記録
+                    # （xArm本体の保護停止が起きても1行ごとに保存される）
+                    joint_logger = arm.start_joint_current_log(
+                        log_dir=shot_dir,
+                        roll_deg=runtime_log["roll_deg"],
                     )
+                    joint_log_result = "exception"
+                    try:
+                        joint_logger.set_phase("grasp")
+                        HandBook_retrieval.grasp(HandMotors_retrieval)
+
+                        joint_logger.set_phase("retreave")
+                        safe_motion(
+                            lambda: arm.moveL_post_grasp_right(),
+                            monitor,
+                            "retreave_right",
+                        )
+                        joint_log_result = "completed"
+                    finally:
+                        joint_logger.stop(joint_log_result)
                     
                     
 
@@ -894,14 +887,25 @@ def main_sequence(
                         monitor,
                         "insert_left",
                     )
-                    HandBook_retrieval.grasp(
-                        HandMotors_retrieval
+                    joint_logger = arm.start_joint_current_log(
+                        log_dir=shot_dir,
+                        roll_deg=runtime_log["roll_deg"],
                     )
-                    safe_motion(
-                        lambda: arm.moveL_post_grasp_left(),
-                        monitor,
-                        "retreave_left",
-                    )
+                    joint_log_result = "exception"
+                    try:
+                        joint_logger.set_phase("grasp")
+                        HandBook_retrieval.grasp(
+                            HandMotors_retrieval
+                        )
+                        joint_logger.set_phase("retreave")
+                        safe_motion(
+                            lambda: arm.moveL_post_grasp_left(),
+                            monitor,
+                            "retreave_left",
+                        )
+                        joint_log_result = "completed"
+                    finally:
+                        joint_logger.stop(joint_log_result)
 
                 # 挿入・取り出し成功
                 break
@@ -915,28 +919,26 @@ def main_sequence(
                 HandMotors_retrieval
             )
 
+            # 本を離したら、次の本のため撮影基準姿勢へ戻す
+            return_to_capture_pose("after_retrieval")
+
 
         except EOFError:
-            #ctrl + D によってその書籍出庫はスキップし初期姿勢に戻る
-            print("Ctrl+D detected → return to capture")
-    
-            if side == "right":
-                safe_motion(lambda: arm.moveL_post_grasp_right() , monitor, "retreave_right")   #書籍を引き抜く   
-            else:
-                safe_motion(lambda: arm.moveL_post_grasp_left() , monitor, "retreave_left")   #書籍を引き抜く
-
-            HandBook_retrieval.grasp(HandMotors_retrieval)
-            tp.publish_target_mm(config["linear_lift"]["home_mm"])
-            #初期姿勢へ戻る
-            waypoint_node.reset()
-
-            waypoint_node.play_direct(
-                config["paths"]["waypoint"]["capture_to_init"][side]
+            print(
+                "\n[Ctrl+D] この本をスキップ -> 撮影姿勢へ戻ります"
             )
 
-            while rclpy.ok() and not waypoint_node.is_finished():
-                executor.spin_once(timeout_sec=0.1)
-            memo = 0#input("メモあれば入力(Enterで次の本へ): ")
+            # 挿入前なので、そのまま基準撮影姿勢へ戻す
+            return_to_capture_pose("ctrl_d")
+
+            # 次の認識に備えてハンドを閉じる
+            HandBook_retrieval.grasp(
+                HandMotors_retrieval
+            )
+
+            shelf_manager.received = False
+            memo = 0
+
             write_log(
                 config=config,
                 book_name=book_name,
@@ -954,14 +956,16 @@ def main_sequence(
                 shot_dir=runtime_log["shot_dir"],
                 memo=memo,
             )
-            rclpy.spin_once(tp, timeout_sec=0.1)
 
             done_msg = Bool()
             done_msg.data = True
             done_pub.publish(done_msg)
-            rclpy.spin_once(node, timeout_sec=0.1)
+            rclpy.spin_once(
+                node,
+                timeout_sec=0.1,
+            )
 
-            return 0.0   # ← 次の本へ
+            return 0.0
 
 
         except Exception as e:
@@ -987,27 +991,10 @@ def main_sequence(
                 runtime_log["error_logged"] = True
             raise
         
-        rclpy.spin_once(tp, timeout_sec=0.1)
-        
-        waypoint_node.reset()
-        waypoint_node.play_direct(
-            config["paths"]["waypoint"]["capture_to_init"][side]
-        )
-
-        wait_start_time = time.time()
-        while rclpy.ok() and (time.time() - wait_start_time) < 1.5:  # 待つ（この間にアームの移動が終わることが多い）
-            executor.spin_once(timeout_sec=0.1)  # ROSの通信を維持
-            #もしアームの移動が終わってしまったら待機を終了
-            if waypoint_node.is_finished():
-                break
-
-        tp.publish_target_mm(config["linear_lift"]["home_mm"])
-        rclpy.spin_once(tp, timeout_sec=0.1)
-        while rclpy.ok() and not waypoint_node.is_finished():
-            executor.spin_once(timeout_sec=0.1)
-
+        # after_retrieval で既に撮影姿勢へ復帰済み
         shelf_manager.received = False
-        memo = 0#input("メモあれば入力(Enterで次の本へ): ")
+        memo = 0
+
         write_log(
             config=config,
             book_name=book_name,
@@ -1025,14 +1012,18 @@ def main_sequence(
             shot_dir=runtime_log["shot_dir"],
             memo=memo,
         )
-        print('sequence done')
+
+        print(
+            "[CAPTURE LOOP] sequence done "
+            "-> capture pose restored -> next book"
+        )
 
         done_msg = Bool()
         done_msg.data = True
         done_pub.publish(done_msg)
         rclpy.spin_once(node, timeout_sec=0.1)
 
-        return book_width   
+        return book_width
 
     except Exception as e:
         print("Abort sequence due to exception")
@@ -1091,6 +1082,18 @@ def main():
     print(f"[MASTER] loaded: {master_file}")
     with master_file.open("r", encoding="utf-8") as f:
         books_master = json.load(f)
+    
+    # ===== 実験用：指定した1冊だけを NUM_TRIALS 回繰り返す =====
+    target_books = [
+        b for b in books_master
+        if b["book_name"] == TARGET_BOOK_NAME
+    ]
+    if not target_books:
+        raise RuntimeError(
+            f"TARGET_BOOK_NAME がマスターに見つかりません: {TARGET_BOOK_NAME}"
+        )
+    books_master = target_books * NUM_TRIALS
+    # ==========================================================
 
     retrieved_book_width_list = [0.0]
 
@@ -1149,20 +1152,71 @@ def main():
     tp = TargetPublisher()
     executor.add_node(tp)
 
-    # ==============================
-    # WaypointPlayerNode（初期姿勢・撮影姿勢）
-    # ==============================
-    waypoint_node = WaypointPlayerNode(
-        node_name="xarm_init_to_capture",
-        arm=arm,
-        monitor=monitor,
-        yaml_path=config["paths"]["waypoint"]["init_to_capture"],
-        speed=1.0,
-        accel=1.0,
+    # ==================================================
+    # 撮影姿勢固定ループ用
+    # WaypointPlayerNodeは作らない。
+    # → /navigation_goal_final が来てもxArmを動かさない。
+    # ==================================================
+    shelf_manager = ShelfIDManager(node)
+
+    # Dynamixelは全書籍で1回だけ初期化
+    HandMotors_retrieval = HandBook_retrieval.init_dynamixels()
+    print("[DXL] initialized for capture-loop mode")
+
+    # 起動時の現在TCP姿勢を「撮影基準姿勢」として固定
+    print("")
+    print("========================================")
+    print("[CAPTURE LOOP MODE]")
+    print("xArmを撮影姿勢に置いた状態で起動してください。")
+    print("この現在姿勢を全書籍共通の撮影基準姿勢として使用します。")
+    print("========================================")
+    input("撮影姿勢になっていますか？ Enter: ")
+
+    capture_home_pose = np.asarray(
+        arm.get_tcp_pose(is_radian=True),
+        dtype=np.float64,
+    ).reshape(6).tolist()
+
+    print(
+        "[CAPTURE HOME] "
+        f"X={capture_home_pose[0]:.2f}, "
+        f"Y={capture_home_pose[1]:.2f}, "
+        f"Z={capture_home_pose[2]:.2f} mm, "
+        f"Roll={np.degrees(capture_home_pose[3]):.2f}, "
+        f"Pitch={np.degrees(capture_home_pose[4]):.2f}, "
+        f"Yaw={np.degrees(capture_home_pose[5]):.2f} deg"
     )
 
-    executor.add_node(waypoint_node)
+    # ==================================================
+    # 固定撮影姿勢モード
+    # lift height は無視する。
+    # xArmも上下機構も現在位置を基準として使用する。
+    # sideだけは全書籍で同一か確認する。
+    # ==================================================
+    resolved_shelves = [
+        (
+            b["bookshelf_ID"],
+            *shelf_manager.resolve_shelf_id(b["bookshelf_ID"]),
+        )
+        for b in books_master
+    ]
 
+    unique_sides = {
+        item[1]
+        for item in resolved_shelves
+    }
+
+    if len(unique_sides) != 1:
+        raise RuntimeError(
+            "CAPTURE LOOP MODEでは全書籍を同一sideにしてください。 "
+            f"sides={sorted(unique_sides)}"
+        )
+
+    print(
+        "[CAPTURE LOOP CHECK] "
+        f"side={next(iter(unique_sides))}, "
+        "lift height = IGNORE"
+    )
     # ==============================
     # 出庫システム READY
     # ==============================
@@ -1182,7 +1236,7 @@ def main():
     )
 
     node.get_logger().info(
-        "Ready to receive /shelf_id"
+        "Capture-loop system READY"
     )
 
     node.get_logger().info(
@@ -1193,9 +1247,19 @@ def main():
     # メインループ
     # ==============================
     try:
-        for b in books_master:
-            waypoint_node.reset()
+        for book_index, b in enumerate(books_master):
             book_width_offset = sum(retrieved_book_width_list)
+
+            node.get_logger().info(
+                "========================================"
+            )
+            node.get_logger().info(
+                f"[CAPTURE LOOP] book={book_index + 1}/{len(books_master)} "
+                f"name={b.get('book_name')!r}"
+            )
+            node.get_logger().info(
+                "========================================"
+            )
 
             retrieved_book_width = main_sequence(
                 config=config,
@@ -1206,12 +1270,13 @@ def main():
                 master_book_width_mm=_optional_float(b.get("book_width")),
                 tp=tp,
                 node=node,
-                arm=arm, 
-                monitor=monitor,
+                arm=arm,
                 executor=executor,
-                waypoint_node=waypoint_node,   
-                shelf_manager=waypoint_node.shelf_manager,
+                shelf_manager=shelf_manager,
+                monitor=monitor,
                 done_pub=done_pub,
+                capture_home_pose=capture_home_pose,
+                HandMotors_retrieval=HandMotors_retrieval,
             )
 
             if retrieved_book_width is None:
@@ -1232,7 +1297,14 @@ def main():
         node.get_logger().info("Shutting down nodes...")
 
         try:
-            waypoint_node.destroy_node()
+            HandMotors_retrieval.disable_torque(
+                HandBook_retrieval.GRIPPER_ID
+            )
+        except Exception:
+            pass
+
+        try:
+            HandMotors_retrieval.close_port()
         except Exception:
             pass
 
@@ -1253,3 +1325,4 @@ if __name__ == '__main__':
     _sam3_service_session = Sam3ServiceSession()
     with _sam3_service_session:
         main()
+

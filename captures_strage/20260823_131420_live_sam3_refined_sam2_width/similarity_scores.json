@@ -1,0 +1,26 @@
+{
+  "query": "簡単実践ロボットシミュレーション",
+  "threshold": 40,
+  "scores": [
+    {
+      "name": "mask_1",
+      "score": 0,
+      "text": "44  一 川 飞口"
+    },
+    {
+      "name": "mask_2",
+      "score": 0,
+      "text": "房   口"
+    },
+    {
+      "name": "mask_3",
+      "score": 0,
+      "text": "）三   E"
+    },
+    {
+      "name": "mask_4",
+      "score": 0,
+      "text": "  斗口  回  口"
+    }
+  ]
+}

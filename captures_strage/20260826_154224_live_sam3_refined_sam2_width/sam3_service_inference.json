@@ -1,0 +1,110 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 8,
+  "nms_mask_count": 8,
+  "service_metadata": {
+    "request_id": "99fc0b08-d19a-48cd-9c47-0458b8251985",
+    "output_npz": "/dev/shm/sam3-e48cdjk6/output.npz",
+    "count": 8,
+    "raw_count": 8,
+    "nms_count": 8,
+    "inference_seconds": 0.2964686650002477,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.9609375,
+      "box": {
+        "x1": 345.0,
+        "y1": 50.0,
+        "x2": 408.0,
+        "y2": 547.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.9609375,
+      "box": {
+        "x1": 379.0,
+        "y1": 39.0,
+        "x2": 445.0,
+        "y2": 532.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.9609375,
+      "box": {
+        "x1": 283.0,
+        "y1": 51.0,
+        "x2": 340.0,
+        "y2": 552.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.95703125,
+      "box": {
+        "x1": 131.0,
+        "y1": 63.0,
+        "x2": 201.0,
+        "y2": 584.0
+      }
+    },
+    {
+      "name": "book5",
+      "score": 0.95703125,
+      "box": {
+        "x1": 181.0,
+        "y1": 78.0,
+        "x2": 236.0,
+        "y2": 578.0
+      }
+    },
+    {
+      "name": "book6",
+      "score": 0.95703125,
+      "box": {
+        "x1": 256.0,
+        "y1": 83.0,
+        "x2": 314.0,
+        "y2": 581.0
+      }
+    },
+    {
+      "name": "book7",
+      "score": 0.95703125,
+      "box": {
+        "x1": 311.0,
+        "y1": 47.0,
+        "x2": 373.0,
+        "y2": 575.0
+      }
+    },
+    {
+      "name": "book8",
+      "score": 0.953125,
+      "box": {
+        "x1": 212.0,
+        "y1": 63.0,
+        "x2": 282.0,
+        "y2": 596.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    15482,
+    16068,
+    11592,
+    20053,
+    13126,
+    14131,
+    15665,
+    19525
+  ]
+}

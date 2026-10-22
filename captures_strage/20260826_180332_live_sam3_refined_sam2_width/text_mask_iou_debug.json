@@ -1,0 +1,1044 @@
+{
+  "forced_angle": 90,
+  "num_masks": 7,
+  "num_ocr_boxes": 17,
+  "assignments": [
+    {
+      "ocr_index": 1,
+      "text": "電気推進ロケツト入門",
+      "matched": "mask_7",
+      "best_iou": 0.4957959797316109,
+      "best_intersection": 8904,
+      "best_union": 17959,
+      "best_text_cover": 0.9724770642201835,
+      "text_area": 9156,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20557,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 25057,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 27633,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 22580,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 26046,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 23224,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.4957959797316109,
+          "intersection": 8904,
+          "union": 17959,
+          "text_cover": 0.9724770642201835
+        }
+      ]
+    },
+    {
+      "ocr_index": 2,
+      "text": "-",
+      "matched": "mask_5",
+      "best_iou": 0.04085257548845471,
+      "best_intersection": 690,
+      "best_union": 16890,
+      "best_text_cover": 1.0,
+      "text_area": 690,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12091,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16591,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19167,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14114,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.04085257548845471,
+          "intersection": 690,
+          "union": 16890,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14758,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18397,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 3,
+      "text": "有本",
+      "matched": "mask_5",
+      "best_iou": 0.04813499111900533,
+      "best_intersection": 813,
+      "best_union": 16890,
+      "best_text_cover": 1.0,
+      "text_area": 813,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12214,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16714,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19290,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14237,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.04813499111900533,
+          "intersection": 813,
+          "union": 16890,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14881,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18520,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 4,
+      "text": "新版ロツトの力学と制御",
+      "matched": "mask_5",
+      "best_iou": 0.3014801657785672,
+      "best_intersection": 5092,
+      "best_union": 16890,
+      "best_text_cover": 1.0,
+      "text_area": 5092,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16493,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20993,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 23569,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18516,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.3014801657785672,
+          "intersection": 5092,
+          "union": 16890,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19160,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 22799,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 5,
+      "text": "松原望善",
+      "matched": "mask_4",
+      "best_iou": 0.1091314031180401,
+      "best_intersection": 1470,
+      "best_union": 13470,
+      "best_text_cover": 0.9696569920844327,
+      "text_area": 1516,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12917,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17417,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19993,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.1091314031180401,
+          "intersection": 1470,
+          "union": 13470,
+          "text_cover": 0.9696569920844327
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18406,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15584,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19223,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 6,
+      "text": "入門ベイズ統計",
+      "matched": "mask_4",
+      "best_iou": 0.2862944162436548,
+      "best_intersection": 3948,
+      "best_union": 13790,
+      "best_text_cover": 0.9151599443671766,
+      "text_area": 4314,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15715,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20215,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 22791,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.2862944162436548,
+          "intersection": 3948,
+          "union": 13790,
+          "text_cover": 0.9151599443671766
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 21204,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18382,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 22021,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 7,
+      "text": "重思決定の理論と",
+      "matched": "mask_4",
+      "best_iou": 0.104365315852205,
+      "best_intersection": 1401,
+      "best_union": 13424,
+      "best_text_cover": 1.0,
+      "text_area": 1401,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12802,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17302,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19878,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.104365315852205,
+          "intersection": 1401,
+          "union": 13424,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18291,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15469,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19108,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 8,
+      "text": "富岗亮太",
+      "matched": "mask_1",
+      "best_iou": 0.07043241820892904,
+      "best_intersection": 803,
+      "best_union": 11401,
+      "best_text_cover": 1.0,
+      "text_area": 803,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.07043241820892904,
+          "intersection": 803,
+          "union": 11401,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16704,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19280,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14227,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17693,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14871,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18510,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 9,
+      "text": "スパース性基づく械学",
+      "matched": "mask_1",
+      "best_iou": 0.25137855579868706,
+      "best_intersection": 2872,
+      "best_union": 11425,
+      "best_text_cover": 0.9917127071823204,
+      "text_area": 2896,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.25137855579868706,
+          "intersection": 2872,
+          "union": 11425,
+          "text_cover": 0.9917127071823204
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18797,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 21373,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16320,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19786,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16964,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20603,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 10,
+      "text": "出村公成著",
+      "matched": "mask_3",
+      "best_iou": 0.09341343291659901,
+      "best_intersection": 1726,
+      "best_union": 18477,
+      "best_text_cover": 1.0,
+      "text_area": 1726,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13127,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17627,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.09341343291659901,
+          "intersection": 1726,
+          "union": 18477,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15150,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18616,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15794,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19433,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 11,
+      "text": "9",
+      "matched": "mask_3",
+      "best_iou": 0.054554310764734534,
+      "best_intersection": 1008,
+      "best_union": 18477,
+      "best_text_cover": 1.0,
+      "text_area": 1008,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12409,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16909,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.054554310764734534,
+          "intersection": 1008,
+          "union": 18477,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14432,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17898,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15076,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18715,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 12,
+      "text": "簡单/実践口ボツ#一ション",
+      "matched": "mask_3",
+      "best_iou": 0.5173032555754935,
+      "best_intersection": 10090,
+      "best_union": 19505,
+      "best_text_cover": 0.9075373268573484,
+      "text_area": 11118,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.003878388017118402,
+          "intersection": 87,
+          "union": 22432,
+          "text_cover": 0.007825148407987047
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 27019,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.5173032555754935,
+          "intersection": 10090,
+          "union": 19505,
+          "text_cover": 0.9075373268573484
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 24542,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 28008,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 25186,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 28825,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 13,
+      "text": "青木弘",
+      "matched": "mask_2",
+      "best_iou": 0.047203565375682634,
+      "best_intersection": 752,
+      "best_union": 15931,
+      "best_text_cover": 0.9616368286445013,
+      "text_area": 782,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12183,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.047203565375682634,
+          "intersection": 752,
+          "union": 15931,
+          "text_cover": 0.9616368286445013
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19259,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14206,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17672,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14850,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18489,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 14,
+      "text": "204",
+      "matched": "mask_2",
+      "best_iou": 0.0090560342116848,
+      "best_intersection": 144,
+      "best_union": 15901,
+      "best_text_cover": 1.0,
+      "text_area": 144,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11545,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0090560342116848,
+          "intersection": 144,
+          "union": 15901,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18621,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13568,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17034,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14212,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17851,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 15,
+      "text": "工業力学",
+      "matched": "mask_2",
+      "best_iou": 0.16207495656490445,
+      "best_intersection": 2612,
+      "best_union": 16116,
+      "best_text_cover": 0.9239476476830563,
+      "text_area": 2827,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 14228,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.16207495656490445,
+          "intersection": 2612,
+          "union": 16116,
+          "text_cover": 0.9239476476830563
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 21304,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16251,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19717,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16895,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20534,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 16,
+      "text": "ネットフーク最通化とアルコリスム",
+      "matched": "mask_6",
+      "best_iou": 0.40194420963651734,
+      "best_intersection": 5706,
+      "best_union": 14196,
+      "best_text_cover": 0.9780596503256771,
+      "text_area": 5834,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17235,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 21735,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 24311,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19258,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 22724,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.40194420963651734,
+          "intersection": 5706,
+          "union": 14196,
+          "text_cover": 0.9780596503256771
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 23541,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 17,
+      "text": "応用最通化乡4",
+      "matched": "mask_6",
+      "best_iou": 0.14492137696557586,
+      "best_intersection": 2046,
+      "best_union": 14118,
+      "best_text_cover": 0.976145038167939,
+      "text_area": 2096,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13497,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17997,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20573,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15520,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_5",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18986,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_6",
+          "iou": 0.14492137696557586,
+          "intersection": 2046,
+          "union": 14118,
+          "text_cover": 0.976145038167939
+        },
+        {
+          "name": "mask_7",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19803,
+          "text_cover": 0.0
+        }
+      ]
+    }
+  ]
+}

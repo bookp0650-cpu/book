@@ -152,7 +152,7 @@ def barcode_inference(barcode_number, image_path): #写真読み込む&バーコ
     #sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
     #sobel_combined = cv2.convertScaleAbs(cv2.magnitude(sobelx, sobely))
     #canny = cv2.Canny(img, 100, 200)
-    _path = "/home/book/pro_book/pro_hand_book_python/captures/20260119_134439/bbox.png"
+    _path = "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260119_134439/bbox.png"
     # 解码图像　写真を解析（元コード同様 binary を使う）
     decode_data = decode(img)
     print("decode_data list", decode_data)
@@ -212,8 +212,8 @@ def barcode_perception(barcode_number, img): #写真読み込む&バーコード
 #     self.color_frame
 
 # if __name__ == '__main__':
-#     image_path = Path("/home/book/pro_book/pro_hand_book_python/captures/20260119_134439/book_barcode_capture_20260119_134520.png")
-#     #image_path = "/home/book/pro_book/pro_hand_book_python/captures/20251224_155932/before_init_rgb.png"
+#     image_path = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260119_134439/book_barcode_capture_20260119_134520.png")
+#     #image_path = "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20251224_155932/before_init_rgb.png"
 #     bar_code = "15 14"
 #     barcode_inference(bar_code, image_path)
 
@@ -363,7 +363,7 @@ def main():
         barcode_number = input("読み取りたいバーコード番号を入力してください: ").strip()
 
         # 2. 撮影した画像の保存ディレクトリ
-        shot_dir = Path("/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode_test")
+        shot_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode_test")
         shot_dir.mkdir(parents=True, exist_ok=True)
 
         # 3. Depstech で1枚撮影

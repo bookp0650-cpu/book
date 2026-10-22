@@ -1,0 +1,110 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 8,
+  "nms_mask_count": 8,
+  "service_metadata": {
+    "request_id": "06616351-9e7d-46a9-a6f1-72ca8f2be25a",
+    "output_npz": "/dev/shm/sam3-r6c_3bxu/output.npz",
+    "count": 8,
+    "raw_count": 8,
+    "nms_count": 8,
+    "inference_seconds": 0.4175015219998386,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.9609375,
+      "box": {
+        "x1": 344.0,
+        "y1": 65.0,
+        "x2": 407.0,
+        "y2": 562.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.9609375,
+      "box": {
+        "x1": 244.0,
+        "y1": 56.0,
+        "x2": 305.0,
+        "y2": 557.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.9609375,
+      "box": {
+        "x1": 268.0,
+        "y1": 31.0,
+        "x2": 340.0,
+        "y2": 563.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.95703125,
+      "box": {
+        "x1": 383.0,
+        "y1": 56.0,
+        "x2": 445.0,
+        "y2": 550.0
+      }
+    },
+    {
+      "name": "book5",
+      "score": 0.95703125,
+      "box": {
+        "x1": 179.0,
+        "y1": 83.0,
+        "x2": 244.0,
+        "y2": 583.0
+      }
+    },
+    {
+      "name": "book6",
+      "score": 0.95703125,
+      "box": {
+        "x1": 216.0,
+        "y1": 87.0,
+        "x2": 278.0,
+        "y2": 585.0
+      }
+    },
+    {
+      "name": "book7",
+      "score": 0.95703125,
+      "box": {
+        "x1": 305.0,
+        "y1": 37.0,
+        "x2": 372.0,
+        "y2": 566.0
+      }
+    },
+    {
+      "name": "book8",
+      "score": 0.94921875,
+      "box": {
+        "x1": 128.0,
+        "y1": 70.0,
+        "x2": 201.0,
+        "y2": 590.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    16468,
+    11006,
+    17231,
+    16489,
+    16414,
+    13265,
+    15698,
+    17425
+  ]
+}

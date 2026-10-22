@@ -131,7 +131,7 @@ def main():
     ap.add_argument("--pix", default="MJPG")      # v4l2-ctl用
     ap.add_argument("--fourcc", default="MJPG")   # OpenCV用
     ap.add_argument("--fps", type=int, default=30)
-    ap.add_argument("--outdir", default="/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode/scan4k")
+    ap.add_argument("--outdir", default="/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode/scan4k")
 
     # 10枚固定：gain 2通り × exposure 5通り
     ap.add_argument("--gains", default="0,8")

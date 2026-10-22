@@ -1,0 +1,48 @@
+{
+  "capture_timestamp": "2026-08-23T15:23:49.283278+09:00",
+  "capture_count": 1,
+  "warmup_frame_count": 10,
+  "rgb_shape": [
+    720,
+    1280,
+    3
+  ],
+  "rgb_dtype": "uint8",
+  "depth_shape": [
+    720,
+    1280
+  ],
+  "depth_dtype": "uint16",
+  "rgb_format": "bgr8",
+  "depth_format": "z16",
+  "depth_unit": "meter per Z16 count",
+  "depth_scale": 0.0010000000474974513,
+  "camera_intrinsics": {
+    "width": 1280,
+    "height": 720,
+    "fx": 912.4371948242188,
+    "fy": 912.258056640625,
+    "ppx": 651.935302734375,
+    "ppy": 373.01776123046875,
+    "model": "distortion.inverse_brown_conrady",
+    "coeffs": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "depth_scale": 0.0010000000474974513
+  },
+  "aligned_depth_to_color": true,
+  "realsense_device_name": "Intel RealSense D435I",
+  "serial_number": "420122071084",
+  "firmware_version": "5.13.0.55",
+  "requested_stream": {
+    "width": 1280,
+    "height": 720,
+    "fps": 6,
+    "color": "bgr8",
+    "depth": "z16"
+  }
+}

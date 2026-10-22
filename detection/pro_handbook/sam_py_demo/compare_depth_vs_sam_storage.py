@@ -642,8 +642,8 @@ def run_compare_experiment(
         height=height,
         fps=fps,
         sam_device="gpu",
-        encoder_path="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-        decoder_path="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+        encoder_path="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+        decoder_path="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
         interactive=False,
     )
 

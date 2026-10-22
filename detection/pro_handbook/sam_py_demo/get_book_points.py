@@ -45,6 +45,10 @@ from modules.pca_vector import pca_axes_fix_dir
 from modules.book_width import estimate_book_width
 from modules.grip_point import find_target_point
 from modules.open3d_view import visualize_points_and_target_open3d
+from detection.pro_handbook.sam_py_demo.ocr_worker_client import (
+    start_book_ocr,
+    wait_book_ocr,
+)
 
 ALLOWABLE_RANGE_Z = 0.07
 
@@ -407,40 +411,30 @@ def run_ocr_subprocess(shot_dir: Path):
     print(f"✔ OCR done: {shot_dir / 'ocr_result.json'}")
 
 
-def start_ocr_subprocess(shot_dir: Path):
+def start_ocr_subprocess(
+    shot_dir: Path,
+):
     """
-    OCR を非同期で開始して Popen を返す．
-    後で communicate() / wait() して終了を待つ．
+    常駐OCR workerへ非同期要求を送る。
+    呼び出し側APIは従来と同じ。
     """
-    OCR_PY, OCR_SCRIPT = _resolve_ocr_subprocess_paths()
-    env = _build_offline_ocr_env()
-
-    proc = subprocess.Popen(
-        [OCR_PY, OCR_SCRIPT, str(shot_dir)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        env=env,
+    return start_book_ocr(
+        shot_dir
     )
-    return proc
 
 
-def wait_ocr_subprocess(proc: subprocess.Popen, *, timeout: float | None = None) -> str:
+def wait_ocr_subprocess(
+    proc,
+    *,
+    timeout: float | None = None,
+) -> str:
     """
-    OCR サブプロセスの終了待ち。
-    正常終了しなければ例外を投げる。
+    常駐OCR workerの完了待ち。
     """
-    try:
-        stdout, _ = proc.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        stdout, _ = proc.communicate()
-        raise RuntimeError(f"OCR subprocess timeout.\n{stdout}")
-
-    if proc.returncode != 0:
-        raise RuntimeError(f"OCR subprocess failed (code={proc.returncode}).\n{stdout}")
-
-    return stdout or ""
+    return wait_book_ocr(
+        proc,
+        timeout=timeout,
+    )
 
 
 def merge_ocr_and_masks(
@@ -9491,8 +9485,8 @@ def run_capture_and_pca(
     height: int = 720,
     fps: int = 6,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     use_persistent_runtime: bool = True,
     sam_pts_side: tuple[int, int] = (32, 8),
@@ -9568,8 +9562,8 @@ def run_capture_and_pca_offline(
     query: str,
     shot_dir: str | Path,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
     use_persistent_runtime: bool = True,
     sam_pts_side: tuple[int, int] = (32, 8),
@@ -9730,11 +9724,11 @@ def main():
 #     ap.add_argument("--sam_device", choices=["gpu", "cpu", "auto"], default="gpu")
 #     ap.add_argument(
 #         "--encoder",
-#         default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+#         default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
 #     )
 #     ap.add_argument(
 #         "--decoder",
-#         default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+#         default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
 #     )
 #     args = ap.parse_args()
 

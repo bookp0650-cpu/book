@@ -200,6 +200,27 @@ class Dynamixel:
             context=context,
         )
 
+
+    def _write2(
+        self,
+        dxl_id: int,
+        addr: int,
+        data: int,
+        context="",
+    ):
+        comm, err = self.__packetHandler.write2ByteTxRx(
+            self.__portHandler,
+            dxl_id,
+            addr,
+            int(data),
+        )
+
+        self._check_write(
+            comm,
+            err,
+            context=context,
+        )
+
     def _write4(
         self,
         dxl_id: int,
@@ -256,6 +277,22 @@ class Dynamixel:
             self.__TORQUE_DISABLE,
             "disable_torque",
         )
+
+    def read_torque_enable(self, dxl_id: int) -> int:
+        """Torque Enableレジスタ(64)を読み取る。0=OFF、1=ON。"""
+        value, comm, err = self.__packetHandler.read1ByteTxRx(
+            self.__portHandler,
+            dxl_id,
+            self.__ADDR_TORQUE_ENABLE,
+        )
+
+        self._check_write(
+            comm,
+            err,
+            context=f"read_torque_enable(ID={dxl_id})",
+        )
+
+        return int(value)
 
     def close_port(self):
         self.__portHandler.closePort()
@@ -461,3 +498,16 @@ class Dynamixel:
         )
 
         return float(raw_voltage) * 0.1
+
+
+    def read_pwm_limit(self, dxl_id: int) -> int:
+        return self._read2(dxl_id, 36, "read_pwm_limit")
+
+    def write_pwm_limit(self, dxl_id: int, value: int) -> None:
+        self._write2(dxl_id, 36, value, "write_pwm_limit")
+
+    def read_profile_velocity(self, dxl_id: int) -> int:
+        return self._read4(dxl_id, 112, "read_profile_velocity")
+
+    def write_profile_velocity(self, dxl_id: int, value: int) -> None:
+        self._write4(dxl_id, 112, value, "write_profile_velocity")

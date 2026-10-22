@@ -1,0 +1,18 @@
+{
+  "width": 1280,
+  "height": 720,
+  "fx": 912.4371948242188,
+  "fy": 912.258056640625,
+  "ppx": 651.935302734375,
+  "ppy": 373.01776123046875,
+  "model": "distortion.inverse_brown_conrady",
+  "coeffs": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "depth_scale": 0.0010000000474974513,
+  "legacy_depth_ignore_applied": false
+}

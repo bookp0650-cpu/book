@@ -1,0 +1,3294 @@
+{
+  "line_p0": [
+    797,
+    287
+  ],
+  "line_p1": [
+    853,
+    507
+  ],
+  "sub_line_p0": [
+    797,
+    287
+  ],
+  "sub_line_p1": [
+    853,
+    507
+  ],
+  "right_is_tilted": false,
+  "is_right_half": false,
+  "pair_indices": null,
+  "centers": null,
+  "guide_side": "left",
+  "guide_info": {
+    "left_points": 221,
+    "right_points": 221,
+    "left_tilt_from_vertical_deg": 14.391575034829927,
+    "right_tilt_from_vertical_deg": 2.684876337029692
+  },
+  "left_tilt_from_vertical_deg": 14.391575034829927,
+  "right_tilt_from_vertical_deg": 2.684876337029692,
+  "angle_rad": 1.321544185409683,
+  "angle_deg": 75.71890426402918,
+  "space_bbox": [
+    794,
+    288,
+    82,
+    221
+  ],
+  "space_center_px": [
+    844.2109751203852,
+    379.10914927768863
+  ],
+  "space_area": 9968,
+  "space_aspect_w_h": 0.37104072398190047,
+  "first_target_px": [
+    848,
+    488
+  ],
+  "first_target_px_selected": [
+    848,
+    488
+  ],
+  "first_target_px_projected": [
+    848,
+    488
+  ],
+  "first_target_cam_raw": [
+    0.08767113089561462,
+    0.05142487585544586,
+    0.40800002217292786
+  ],
+  "first_target_cam": [
+    0.08767113089561462,
+    0.05142487585544586,
+    0.40800002217292786
+  ],
+  "final_target_cam": [
+    0.08767113089561462,
+    0.05142487585544586,
+    0.40800002217292786
+  ],
+  "depth_ref_method": "roi_median_0p25m_to_0p5m",
+  "depth_ref_m": 0.40800002217292786,
+  "depth_ref_valid_pixel_count": 266966,
+  "depth_ref_roi": [
+    277,
+    37,
+    1280,
+    509
+  ],
+  "target_depth_m": 0.40800002217292786,
+  "target_3d_mode": "depth_ref",
+  "delta_depth_m": 0.03,
+  "crop_y_min": 120,
+  "crop_y_max": 400,
+  "target_y_from_space_top_px": 200,
+  "target_y_reference": "image_top_of_selected_space_equals_physical_book_bottom_side",
+  "use_plane_correction": true,
+  "plane_correction_used": false,
+  "plane": [
+    -0.05199453979730606,
+    0.03268178552389145,
+    0.9981124401092529,
+    -0.39671072363853455
+  ],
+  "ransac_source": "non_held_book_spine_masks",
+  "ransac_point_count": 26667,
+  "ransac_inlier_count": 26361,
+  "ransac_point_stats": {
+    "source": "non_held_book_spine_masks",
+    "held_book_spine_indices": [
+      11
+    ],
+    "shelf_book_spine_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "crop_y_range_half_open": [
+      120,
+      400
+    ],
+    "stride": 2,
+    "z_min_m": 0.1,
+    "z_max_m": 1.5,
+    "source_mask_pixel_count": 308075,
+    "held_overlap_removed_pixel_count": 10,
+    "sampled_source_pixel_count": 45929,
+    "valid_point_count": 26667,
+    "invalid_zero_count_before_stride": 0,
+    "invalid_65535_count_before_stride": 0,
+    "invalid_out_of_range_count_before_stride": 77044
+  },
+  "target_3d_source": "depth_ref",
+  "fallback_used": false,
+  "fallback_reason": null,
+  "held_book_spine_indices": [
+    11
+  ],
+  "held_book_spine_index": 11,
+  "held_book_detection_reason": "full_image_vertical_occupancy_rule",
+  "held_book_detection": [
+    {
+      "instance_index": 0,
+      "instance_id": 1,
+      "score": 0.9765625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        516,
+        28,
+        662,
+        498
+      ],
+      "mask_height_px": 470,
+      "image_height_px": 720,
+      "height_ratio": 0.6527777777777778,
+      "top_margin_px": 28,
+      "top_margin_ratio": 0.03888888888888889,
+      "bottom_margin_px": 222,
+      "bottom_margin_ratio": 0.30833333333333335,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 1,
+      "instance_id": 2,
+      "score": 0.97265625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        482,
+        26,
+        628,
+        497
+      ],
+      "mask_height_px": 471,
+      "image_height_px": 720,
+      "height_ratio": 0.6541666666666667,
+      "top_margin_px": 26,
+      "top_margin_ratio": 0.03611111111111111,
+      "bottom_margin_px": 223,
+      "bottom_margin_ratio": 0.30972222222222223,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 2,
+      "instance_id": 3,
+      "score": 0.97265625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        359,
+        22,
+        549,
+        502
+      ],
+      "mask_height_px": 480,
+      "image_height_px": 720,
+      "height_ratio": 0.6666666666666666,
+      "top_margin_px": 22,
+      "top_margin_ratio": 0.030555555555555555,
+      "bottom_margin_px": 218,
+      "bottom_margin_ratio": 0.30277777777777776,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 3,
+      "instance_id": 4,
+      "score": 0.96875,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        324,
+        26,
+        471,
+        497
+      ],
+      "mask_height_px": 471,
+      "image_height_px": 720,
+      "height_ratio": 0.6541666666666667,
+      "top_margin_px": 26,
+      "top_margin_ratio": 0.03611111111111111,
+      "bottom_margin_px": 223,
+      "bottom_margin_ratio": 0.30972222222222223,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 4,
+      "instance_id": 5,
+      "score": 0.96484375,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        423,
+        25,
+        597,
+        501
+      ],
+      "mask_height_px": 476,
+      "image_height_px": 720,
+      "height_ratio": 0.6611111111111111,
+      "top_margin_px": 25,
+      "top_margin_ratio": 0.034722222222222224,
+      "bottom_margin_px": 219,
+      "bottom_margin_ratio": 0.30416666666666664,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 5,
+      "instance_id": 6,
+      "score": 0.95703125,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        562,
+        31,
+        731,
+        418
+      ],
+      "mask_height_px": 387,
+      "image_height_px": 720,
+      "height_ratio": 0.5375,
+      "top_margin_px": 31,
+      "top_margin_ratio": 0.043055555555555555,
+      "bottom_margin_px": 302,
+      "bottom_margin_ratio": 0.41944444444444445,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 6,
+      "instance_id": 7,
+      "score": 0.94921875,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        935,
+        39,
+        992,
+        513
+      ],
+      "mask_height_px": 474,
+      "image_height_px": 720,
+      "height_ratio": 0.6583333333333333,
+      "top_margin_px": 39,
+      "top_margin_ratio": 0.05416666666666667,
+      "bottom_margin_px": 207,
+      "bottom_margin_ratio": 0.2875,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 7,
+      "instance_id": 8,
+      "score": 0.94921875,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        896,
+        39,
+        952,
+        511
+      ],
+      "mask_height_px": 472,
+      "image_height_px": 720,
+      "height_ratio": 0.6555555555555556,
+      "top_margin_px": 39,
+      "top_margin_ratio": 0.05416666666666667,
+      "bottom_margin_px": 209,
+      "bottom_margin_ratio": 0.2902777777777778,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 8,
+      "instance_id": 9,
+      "score": 0.9453125,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1055,
+        46,
+        1117,
+        512
+      ],
+      "mask_height_px": 466,
+      "image_height_px": 720,
+      "height_ratio": 0.6472222222222223,
+      "top_margin_px": 46,
+      "top_margin_ratio": 0.06388888888888888,
+      "bottom_margin_px": 208,
+      "bottom_margin_ratio": 0.28888888888888886,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 9,
+      "instance_id": 10,
+      "score": 0.94140625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        975,
+        41,
+        1038,
+        512
+      ],
+      "mask_height_px": 471,
+      "image_height_px": 720,
+      "height_ratio": 0.6541666666666667,
+      "top_margin_px": 41,
+      "top_margin_ratio": 0.05694444444444444,
+      "bottom_margin_px": 208,
+      "bottom_margin_ratio": 0.28888888888888886,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 10,
+      "instance_id": 11,
+      "score": 0.94140625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1019,
+        44,
+        1075,
+        511
+      ],
+      "mask_height_px": 467,
+      "image_height_px": 720,
+      "height_ratio": 0.6486111111111111,
+      "top_margin_px": 44,
+      "top_margin_ratio": 0.06111111111111111,
+      "bottom_margin_px": 209,
+      "bottom_margin_ratio": 0.2902777777777778,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 11,
+      "instance_id": 12,
+      "score": 0.9375,
+      "is_held_book": true,
+      "reason": "full_image_vertical_occupancy_rule_matched",
+      "bbox_xyxy": [
+        681,
+        0,
+        786,
+        720
+      ],
+      "mask_height_px": 720,
+      "image_height_px": 720,
+      "height_ratio": 1.0,
+      "top_margin_px": 0,
+      "top_margin_ratio": 0.0,
+      "bottom_margin_px": 0,
+      "bottom_margin_ratio": 0.0,
+      "checks": {
+        "height_ratio_at_least_minimum": true,
+        "top_margin_at_most_maximum": true,
+        "bottom_margin_at_most_maximum": true
+      }
+    },
+    {
+      "instance_index": 12,
+      "instance_id": 13,
+      "score": 0.93359375,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1098,
+        47,
+        1165,
+        514
+      ],
+      "mask_height_px": 467,
+      "image_height_px": 720,
+      "height_ratio": 0.6486111111111111,
+      "top_margin_px": 47,
+      "top_margin_ratio": 0.06527777777777778,
+      "bottom_margin_px": 206,
+      "bottom_margin_ratio": 0.2861111111111111,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 13,
+      "instance_id": 14,
+      "score": 0.93359375,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        854,
+        38,
+        914,
+        509
+      ],
+      "mask_height_px": 471,
+      "image_height_px": 720,
+      "height_ratio": 0.6541666666666667,
+      "top_margin_px": 38,
+      "top_margin_ratio": 0.05277777777777778,
+      "bottom_margin_px": 211,
+      "bottom_margin_ratio": 0.29305555555555557,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 14,
+      "instance_id": 15,
+      "score": 0.92578125,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1202,
+        65,
+        1268,
+        552
+      ],
+      "mask_height_px": 487,
+      "image_height_px": 720,
+      "height_ratio": 0.6763888888888889,
+      "top_margin_px": 65,
+      "top_margin_ratio": 0.09027777777777778,
+      "bottom_margin_px": 168,
+      "bottom_margin_ratio": 0.23333333333333334,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 15,
+      "instance_id": 16,
+      "score": 0.92578125,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1148,
+        69,
+        1224,
+        528
+      ],
+      "mask_height_px": 459,
+      "image_height_px": 720,
+      "height_ratio": 0.6375,
+      "top_margin_px": 69,
+      "top_margin_ratio": 0.09583333333333334,
+      "bottom_margin_px": 192,
+      "bottom_margin_ratio": 0.26666666666666666,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 16,
+      "instance_id": 17,
+      "score": 0.91015625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        267,
+        20,
+        320,
+        512
+      ],
+      "mask_height_px": 492,
+      "image_height_px": 720,
+      "height_ratio": 0.6833333333333333,
+      "top_margin_px": 20,
+      "top_margin_ratio": 0.027777777777777776,
+      "bottom_margin_px": 208,
+      "bottom_margin_ratio": 0.28888888888888886,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 17,
+      "instance_id": 18,
+      "score": 0.90625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        785,
+        288,
+        850,
+        501
+      ],
+      "mask_height_px": 213,
+      "image_height_px": 720,
+      "height_ratio": 0.29583333333333334,
+      "top_margin_px": 288,
+      "top_margin_ratio": 0.4,
+      "bottom_margin_px": 219,
+      "bottom_margin_ratio": 0.30416666666666664,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 18,
+      "instance_id": 19,
+      "score": 0.890625,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        1238,
+        68,
+        1280,
+        539
+      ],
+      "mask_height_px": 471,
+      "image_height_px": 720,
+      "height_ratio": 0.6541666666666667,
+      "top_margin_px": 68,
+      "top_margin_ratio": 0.09444444444444444,
+      "bottom_margin_px": 181,
+      "bottom_margin_ratio": 0.2513888888888889,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 19,
+      "instance_id": 20,
+      "score": 0.859375,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        616,
+        31,
+        670,
+        218
+      ],
+      "mask_height_px": 187,
+      "image_height_px": 720,
+      "height_ratio": 0.25972222222222224,
+      "top_margin_px": 31,
+      "top_margin_ratio": 0.043055555555555555,
+      "bottom_margin_px": 502,
+      "bottom_margin_ratio": 0.6972222222222222,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 20,
+      "instance_id": 21,
+      "score": 0.5546875,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        650,
+        36,
+        675,
+        119
+      ],
+      "mask_height_px": 83,
+      "image_height_px": 720,
+      "height_ratio": 0.11527777777777778,
+      "top_margin_px": 36,
+      "top_margin_ratio": 0.05,
+      "bottom_margin_px": 601,
+      "bottom_margin_ratio": 0.8347222222222223,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    },
+    {
+      "instance_index": 21,
+      "instance_id": 22,
+      "score": 0.3828125,
+      "is_held_book": false,
+      "reason": "full_image_vertical_occupancy_rule_not_matched",
+      "bbox_xyxy": [
+        782,
+        426,
+        805,
+        497
+      ],
+      "mask_height_px": 71,
+      "image_height_px": 720,
+      "height_ratio": 0.09861111111111111,
+      "top_margin_px": 426,
+      "top_margin_ratio": 0.5916666666666667,
+      "bottom_margin_px": 223,
+      "bottom_margin_ratio": 0.30972222222222223,
+      "checks": {
+        "height_ratio_at_least_minimum": false,
+        "top_margin_at_most_maximum": false,
+        "bottom_margin_at_most_maximum": false
+      }
+    }
+  ],
+  "held_book_detection_config": {
+    "enabled": true,
+    "min_height_ratio": 0.9,
+    "max_top_margin_ratio": 0.02,
+    "max_bottom_margin_ratio": 0.1
+  },
+  "held_book_bbox": [
+    681,
+    0,
+    786,
+    720
+  ],
+  "held_book_height_ratio": 1.0,
+  "surface_points_count": 26667,
+  "surface_inliers_count": 26361,
+  "surface_clearance_m": 0.0,
+  "guide_edge_length_m": 0.0996890664100647,
+  "guide_edge_length_mm": 99.6890664100647,
+  "guide_edge_length_source": "ransac_plane",
+  "guide_edge_length_plane_source": "book_spine_ransac_plane",
+  "guide_edge_p0_cam": [
+    0.06391741335391998,
+    -0.03790799900889397,
+    0.4020318388938904
+  ],
+  "guide_edge_p1_cam": [
+    0.08817263692617416,
+    0.05876659229397774,
+    0.40012988448143005
+  ],
+  "selected_space_id": 1,
+  "book_spine_mask_count": 22,
+  "book_end_mask_count": 1,
+  "roi": [
+    277,
+    37,
+    1280,
+    509
+  ],
+  "space_candidate_count": 1,
+  "image_top_width_px": 64.0,
+  "image_bottom_width_px": 25.0,
+  "book_bottom_side_width_px": 64.0,
+  "book_top_side_width_px": 25.0,
+  "real_world_left_neighbor_book_mask_index": 13,
+  "real_world_left_neighbor_book_inner_bottom_px": [
+    859,
+    42
+  ],
+  "real_world_left_neighbor_book_reference_method": "selected_space_obstacle_pair_image_right_book_spine; selected-space-facing image-left mask boundary; Theil-Sen fit over physical-bottom (smallest image-y) rows",
+  "real_world_left_neighbor_book_obstacle_pair_id": 13,
+  "real_world_left_neighbor_book_pair_side": "right",
+  "real_world_left_neighbor_book_selected_space_facing_image_side": "left",
+  "real_world_left_neighbor_book_physical_bottom_image_side": "top",
+  "real_world_left_neighbor_book_bottom_fit_rows_requested": 10,
+  "real_world_left_neighbor_book_bottom_fit_rows_used": 10,
+  "real_world_left_neighbor_book_bottom_fit_y_range": [
+    38,
+    47
+  ],
+  "real_world_left_neighbor_book_boundary_fit_x_per_y": 0.0,
+  "real_world_left_neighbor_book_boundary_fit_intercept_px": 859.0,
+  "real_world_left_neighbor_book_inner_bottom_cam_m": [
+    0.09238799661397934,
+    -0.1477223038673401,
+    0.40711066126823425
+  ],
+  "real_world_left_neighbor_book_geometry_error": null,
+  "real_world_left_neighbor_book_3d_method": "B pixel ray intersection with non-held-book RANSAC shelf-front plane",
+  "sam3_inference_metadata": {
+    "request_id": "774c7b71-00e2-4f98-a2e2-9f2cc329745e",
+    "book_spine_output_npz": "/dev/shm/sam3-storage-gifp6vd9/book_spine.npz",
+    "book_end_output_npz": "/dev/shm/sam3-storage-gifp6vd9/book_end.npz",
+    "inference_order": [
+      "book_spine",
+      "book_end"
+    ],
+    "parallel_inference": false,
+    "book_spine": {
+      "count": 22,
+      "raw_count": 22,
+      "nms_count": 22,
+      "inference_seconds": 0.32179319099941495,
+      "gpu_memory_mb": 8520.61669921875,
+      "score_threshold": 0.3,
+      "processor_confidence_threshold": 0.05,
+      "min_area": 200,
+      "nms_iou_threshold": 0.5
+    },
+    "book_end": {
+      "count": 1,
+      "raw_count": 1,
+      "nms_count": 1,
+      "inference_seconds": 0.23086158399928536,
+      "gpu_memory_mb": 8520.61669921875,
+      "score_threshold": 0.3,
+      "processor_confidence_threshold": 0.05,
+      "min_area": 200,
+      "nms_iou_threshold": 0.5
+    },
+    "total_inference_seconds": 0.5526547749987003,
+    "held_book_detection": {
+      "config": {
+        "enabled": true,
+        "min_height_ratio": 0.9,
+        "max_top_margin_ratio": 0.02,
+        "max_bottom_margin_ratio": 0.1
+      },
+      "held_book_spine_indices": [
+        11
+      ],
+      "instances": [
+        {
+          "instance_index": 0,
+          "instance_id": 1,
+          "score": 0.9765625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            516,
+            28,
+            662,
+            498
+          ],
+          "mask_height_px": 470,
+          "image_height_px": 720,
+          "height_ratio": 0.6527777777777778,
+          "top_margin_px": 28,
+          "top_margin_ratio": 0.03888888888888889,
+          "bottom_margin_px": 222,
+          "bottom_margin_ratio": 0.30833333333333335,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 1,
+          "instance_id": 2,
+          "score": 0.97265625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            482,
+            26,
+            628,
+            497
+          ],
+          "mask_height_px": 471,
+          "image_height_px": 720,
+          "height_ratio": 0.6541666666666667,
+          "top_margin_px": 26,
+          "top_margin_ratio": 0.03611111111111111,
+          "bottom_margin_px": 223,
+          "bottom_margin_ratio": 0.30972222222222223,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 2,
+          "instance_id": 3,
+          "score": 0.97265625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            359,
+            22,
+            549,
+            502
+          ],
+          "mask_height_px": 480,
+          "image_height_px": 720,
+          "height_ratio": 0.6666666666666666,
+          "top_margin_px": 22,
+          "top_margin_ratio": 0.030555555555555555,
+          "bottom_margin_px": 218,
+          "bottom_margin_ratio": 0.30277777777777776,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 3,
+          "instance_id": 4,
+          "score": 0.96875,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            324,
+            26,
+            471,
+            497
+          ],
+          "mask_height_px": 471,
+          "image_height_px": 720,
+          "height_ratio": 0.6541666666666667,
+          "top_margin_px": 26,
+          "top_margin_ratio": 0.03611111111111111,
+          "bottom_margin_px": 223,
+          "bottom_margin_ratio": 0.30972222222222223,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 4,
+          "instance_id": 5,
+          "score": 0.96484375,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            423,
+            25,
+            597,
+            501
+          ],
+          "mask_height_px": 476,
+          "image_height_px": 720,
+          "height_ratio": 0.6611111111111111,
+          "top_margin_px": 25,
+          "top_margin_ratio": 0.034722222222222224,
+          "bottom_margin_px": 219,
+          "bottom_margin_ratio": 0.30416666666666664,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 5,
+          "instance_id": 6,
+          "score": 0.95703125,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            562,
+            31,
+            731,
+            418
+          ],
+          "mask_height_px": 387,
+          "image_height_px": 720,
+          "height_ratio": 0.5375,
+          "top_margin_px": 31,
+          "top_margin_ratio": 0.043055555555555555,
+          "bottom_margin_px": 302,
+          "bottom_margin_ratio": 0.41944444444444445,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 6,
+          "instance_id": 7,
+          "score": 0.94921875,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            935,
+            39,
+            992,
+            513
+          ],
+          "mask_height_px": 474,
+          "image_height_px": 720,
+          "height_ratio": 0.6583333333333333,
+          "top_margin_px": 39,
+          "top_margin_ratio": 0.05416666666666667,
+          "bottom_margin_px": 207,
+          "bottom_margin_ratio": 0.2875,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 7,
+          "instance_id": 8,
+          "score": 0.94921875,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            896,
+            39,
+            952,
+            511
+          ],
+          "mask_height_px": 472,
+          "image_height_px": 720,
+          "height_ratio": 0.6555555555555556,
+          "top_margin_px": 39,
+          "top_margin_ratio": 0.05416666666666667,
+          "bottom_margin_px": 209,
+          "bottom_margin_ratio": 0.2902777777777778,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 8,
+          "instance_id": 9,
+          "score": 0.9453125,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1055,
+            46,
+            1117,
+            512
+          ],
+          "mask_height_px": 466,
+          "image_height_px": 720,
+          "height_ratio": 0.6472222222222223,
+          "top_margin_px": 46,
+          "top_margin_ratio": 0.06388888888888888,
+          "bottom_margin_px": 208,
+          "bottom_margin_ratio": 0.28888888888888886,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 9,
+          "instance_id": 10,
+          "score": 0.94140625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            975,
+            41,
+            1038,
+            512
+          ],
+          "mask_height_px": 471,
+          "image_height_px": 720,
+          "height_ratio": 0.6541666666666667,
+          "top_margin_px": 41,
+          "top_margin_ratio": 0.05694444444444444,
+          "bottom_margin_px": 208,
+          "bottom_margin_ratio": 0.28888888888888886,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 10,
+          "instance_id": 11,
+          "score": 0.94140625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1019,
+            44,
+            1075,
+            511
+          ],
+          "mask_height_px": 467,
+          "image_height_px": 720,
+          "height_ratio": 0.6486111111111111,
+          "top_margin_px": 44,
+          "top_margin_ratio": 0.06111111111111111,
+          "bottom_margin_px": 209,
+          "bottom_margin_ratio": 0.2902777777777778,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 11,
+          "instance_id": 12,
+          "score": 0.9375,
+          "is_held_book": true,
+          "reason": "full_image_vertical_occupancy_rule_matched",
+          "bbox_xyxy": [
+            681,
+            0,
+            786,
+            720
+          ],
+          "mask_height_px": 720,
+          "image_height_px": 720,
+          "height_ratio": 1.0,
+          "top_margin_px": 0,
+          "top_margin_ratio": 0.0,
+          "bottom_margin_px": 0,
+          "bottom_margin_ratio": 0.0,
+          "checks": {
+            "height_ratio_at_least_minimum": true,
+            "top_margin_at_most_maximum": true,
+            "bottom_margin_at_most_maximum": true
+          }
+        },
+        {
+          "instance_index": 12,
+          "instance_id": 13,
+          "score": 0.93359375,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1098,
+            47,
+            1165,
+            514
+          ],
+          "mask_height_px": 467,
+          "image_height_px": 720,
+          "height_ratio": 0.6486111111111111,
+          "top_margin_px": 47,
+          "top_margin_ratio": 0.06527777777777778,
+          "bottom_margin_px": 206,
+          "bottom_margin_ratio": 0.2861111111111111,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 13,
+          "instance_id": 14,
+          "score": 0.93359375,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            854,
+            38,
+            914,
+            509
+          ],
+          "mask_height_px": 471,
+          "image_height_px": 720,
+          "height_ratio": 0.6541666666666667,
+          "top_margin_px": 38,
+          "top_margin_ratio": 0.05277777777777778,
+          "bottom_margin_px": 211,
+          "bottom_margin_ratio": 0.29305555555555557,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 14,
+          "instance_id": 15,
+          "score": 0.92578125,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1202,
+            65,
+            1268,
+            552
+          ],
+          "mask_height_px": 487,
+          "image_height_px": 720,
+          "height_ratio": 0.6763888888888889,
+          "top_margin_px": 65,
+          "top_margin_ratio": 0.09027777777777778,
+          "bottom_margin_px": 168,
+          "bottom_margin_ratio": 0.23333333333333334,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 15,
+          "instance_id": 16,
+          "score": 0.92578125,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1148,
+            69,
+            1224,
+            528
+          ],
+          "mask_height_px": 459,
+          "image_height_px": 720,
+          "height_ratio": 0.6375,
+          "top_margin_px": 69,
+          "top_margin_ratio": 0.09583333333333334,
+          "bottom_margin_px": 192,
+          "bottom_margin_ratio": 0.26666666666666666,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 16,
+          "instance_id": 17,
+          "score": 0.91015625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            267,
+            20,
+            320,
+            512
+          ],
+          "mask_height_px": 492,
+          "image_height_px": 720,
+          "height_ratio": 0.6833333333333333,
+          "top_margin_px": 20,
+          "top_margin_ratio": 0.027777777777777776,
+          "bottom_margin_px": 208,
+          "bottom_margin_ratio": 0.28888888888888886,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 17,
+          "instance_id": 18,
+          "score": 0.90625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            785,
+            288,
+            850,
+            501
+          ],
+          "mask_height_px": 213,
+          "image_height_px": 720,
+          "height_ratio": 0.29583333333333334,
+          "top_margin_px": 288,
+          "top_margin_ratio": 0.4,
+          "bottom_margin_px": 219,
+          "bottom_margin_ratio": 0.30416666666666664,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 18,
+          "instance_id": 19,
+          "score": 0.890625,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            1238,
+            68,
+            1280,
+            539
+          ],
+          "mask_height_px": 471,
+          "image_height_px": 720,
+          "height_ratio": 0.6541666666666667,
+          "top_margin_px": 68,
+          "top_margin_ratio": 0.09444444444444444,
+          "bottom_margin_px": 181,
+          "bottom_margin_ratio": 0.2513888888888889,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 19,
+          "instance_id": 20,
+          "score": 0.859375,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            616,
+            31,
+            670,
+            218
+          ],
+          "mask_height_px": 187,
+          "image_height_px": 720,
+          "height_ratio": 0.25972222222222224,
+          "top_margin_px": 31,
+          "top_margin_ratio": 0.043055555555555555,
+          "bottom_margin_px": 502,
+          "bottom_margin_ratio": 0.6972222222222222,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 20,
+          "instance_id": 21,
+          "score": 0.5546875,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            650,
+            36,
+            675,
+            119
+          ],
+          "mask_height_px": 83,
+          "image_height_px": 720,
+          "height_ratio": 0.11527777777777778,
+          "top_margin_px": 36,
+          "top_margin_ratio": 0.05,
+          "bottom_margin_px": 601,
+          "bottom_margin_ratio": 0.8347222222222223,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        },
+        {
+          "instance_index": 21,
+          "instance_id": 22,
+          "score": 0.3828125,
+          "is_held_book": false,
+          "reason": "full_image_vertical_occupancy_rule_not_matched",
+          "bbox_xyxy": [
+            782,
+            426,
+            805,
+            497
+          ],
+          "mask_height_px": 71,
+          "image_height_px": 720,
+          "height_ratio": 0.09861111111111111,
+          "top_margin_px": 426,
+          "top_margin_ratio": 0.5916666666666667,
+          "bottom_margin_px": 223,
+          "bottom_margin_ratio": 0.30972222222222223,
+          "checks": {
+            "height_ratio_at_least_minimum": false,
+            "top_margin_at_most_maximum": false,
+            "bottom_margin_at_most_maximum": false
+          }
+        }
+      ]
+    },
+    "held_book_occlusion": {
+      "enabled": true,
+      "held_book_spine_indices": [
+        11
+      ],
+      "side_mapping": "real held-book right side equals image-left side of held mask",
+      "left_occlusion_width_px": 45,
+      "left_occlusion_method": "per-row held-mask minimum x minus fixed width; image-left only",
+      "roi_clip_xyxy": [
+        277,
+        37,
+        1280,
+        509
+      ],
+      "held_book_front_pixel_count": 60624,
+      "held_book_left_occlusion_band_pixel_count": 21240,
+      "held_book_occlusion_pixel_count": 81864,
+      "instances": [
+        {
+          "instance_index": 11,
+          "status": "processed",
+          "image_side": "left",
+          "configured_width_px": 45,
+          "rows_with_held_mask_in_roi": 472,
+          "rows_with_left_occlusion_band": 472,
+          "left_boundary_points_xy": [
+            [
+              690,
+              37
+            ],
+            [
+              690,
+              38
+            ],
+            [
+              690,
+              39
+            ],
+            [
+              690,
+              40
+            ],
+            [
+              690,
+              41
+            ],
+            [
+              690,
+              42
+            ],
+            [
+              690,
+              43
+            ],
+            [
+              690,
+              44
+            ],
+            [
+              690,
+              45
+            ],
+            [
+              690,
+              46
+            ],
+            [
+              690,
+              47
+            ],
+            [
+              689,
+              48
+            ],
+            [
+              690,
+              49
+            ],
+            [
+              691,
+              50
+            ],
+            [
+              692,
+              51
+            ],
+            [
+              693,
+              52
+            ],
+            [
+              693,
+              53
+            ],
+            [
+              694,
+              54
+            ],
+            [
+              694,
+              55
+            ],
+            [
+              695,
+              56
+            ],
+            [
+              696,
+              57
+            ],
+            [
+              696,
+              58
+            ],
+            [
+              696,
+              59
+            ],
+            [
+              696,
+              60
+            ],
+            [
+              696,
+              61
+            ],
+            [
+              696,
+              62
+            ],
+            [
+              696,
+              63
+            ],
+            [
+              696,
+              64
+            ],
+            [
+              696,
+              65
+            ],
+            [
+              696,
+              66
+            ],
+            [
+              696,
+              67
+            ],
+            [
+              696,
+              68
+            ],
+            [
+              696,
+              69
+            ],
+            [
+              696,
+              70
+            ],
+            [
+              696,
+              71
+            ],
+            [
+              696,
+              72
+            ],
+            [
+              696,
+              73
+            ],
+            [
+              696,
+              74
+            ],
+            [
+              696,
+              75
+            ],
+            [
+              696,
+              76
+            ],
+            [
+              696,
+              77
+            ],
+            [
+              696,
+              78
+            ],
+            [
+              696,
+              79
+            ],
+            [
+              696,
+              80
+            ],
+            [
+              696,
+              81
+            ],
+            [
+              696,
+              82
+            ],
+            [
+              696,
+              83
+            ],
+            [
+              696,
+              84
+            ],
+            [
+              696,
+              85
+            ],
+            [
+              696,
+              86
+            ],
+            [
+              696,
+              87
+            ],
+            [
+              697,
+              88
+            ],
+            [
+              697,
+              89
+            ],
+            [
+              697,
+              90
+            ],
+            [
+              697,
+              91
+            ],
+            [
+              697,
+              92
+            ],
+            [
+              696,
+              93
+            ],
+            [
+              696,
+              94
+            ],
+            [
+              696,
+              95
+            ],
+            [
+              696,
+              96
+            ],
+            [
+              697,
+              97
+            ],
+            [
+              697,
+              98
+            ],
+            [
+              697,
+              99
+            ],
+            [
+              697,
+              100
+            ],
+            [
+              697,
+              101
+            ],
+            [
+              697,
+              102
+            ],
+            [
+              697,
+              103
+            ],
+            [
+              697,
+              104
+            ],
+            [
+              696,
+              105
+            ],
+            [
+              696,
+              106
+            ],
+            [
+              696,
+              107
+            ],
+            [
+              696,
+              108
+            ],
+            [
+              696,
+              109
+            ],
+            [
+              696,
+              110
+            ],
+            [
+              696,
+              111
+            ],
+            [
+              696,
+              112
+            ],
+            [
+              696,
+              113
+            ],
+            [
+              696,
+              114
+            ],
+            [
+              696,
+              115
+            ],
+            [
+              696,
+              116
+            ],
+            [
+              696,
+              117
+            ],
+            [
+              696,
+              118
+            ],
+            [
+              696,
+              119
+            ],
+            [
+              696,
+              120
+            ],
+            [
+              696,
+              121
+            ],
+            [
+              695,
+              122
+            ],
+            [
+              695,
+              123
+            ],
+            [
+              695,
+              124
+            ],
+            [
+              695,
+              125
+            ],
+            [
+              695,
+              126
+            ],
+            [
+              695,
+              127
+            ],
+            [
+              695,
+              128
+            ],
+            [
+              694,
+              129
+            ],
+            [
+              694,
+              130
+            ],
+            [
+              694,
+              131
+            ],
+            [
+              694,
+              132
+            ],
+            [
+              694,
+              133
+            ],
+            [
+              694,
+              134
+            ],
+            [
+              694,
+              135
+            ],
+            [
+              694,
+              136
+            ],
+            [
+              694,
+              137
+            ],
+            [
+              694,
+              138
+            ],
+            [
+              695,
+              139
+            ],
+            [
+              695,
+              140
+            ],
+            [
+              695,
+              141
+            ],
+            [
+              696,
+              142
+            ],
+            [
+              696,
+              143
+            ],
+            [
+              696,
+              144
+            ],
+            [
+              696,
+              145
+            ],
+            [
+              696,
+              146
+            ],
+            [
+              696,
+              147
+            ],
+            [
+              696,
+              148
+            ],
+            [
+              696,
+              149
+            ],
+            [
+              696,
+              150
+            ],
+            [
+              696,
+              151
+            ],
+            [
+              696,
+              152
+            ],
+            [
+              695,
+              153
+            ],
+            [
+              694,
+              154
+            ],
+            [
+              693,
+              155
+            ],
+            [
+              692,
+              156
+            ],
+            [
+              691,
+              157
+            ],
+            [
+              691,
+              158
+            ],
+            [
+              691,
+              159
+            ],
+            [
+              691,
+              160
+            ],
+            [
+              691,
+              161
+            ],
+            [
+              691,
+              162
+            ],
+            [
+              692,
+              163
+            ],
+            [
+              692,
+              164
+            ],
+            [
+              693,
+              165
+            ],
+            [
+              693,
+              166
+            ],
+            [
+              693,
+              167
+            ],
+            [
+              693,
+              168
+            ],
+            [
+              692,
+              169
+            ],
+            [
+              692,
+              170
+            ],
+            [
+              692,
+              171
+            ],
+            [
+              692,
+              172
+            ],
+            [
+              691,
+              173
+            ],
+            [
+              691,
+              174
+            ],
+            [
+              691,
+              175
+            ],
+            [
+              691,
+              176
+            ],
+            [
+              692,
+              177
+            ],
+            [
+              692,
+              178
+            ],
+            [
+              693,
+              179
+            ],
+            [
+              693,
+              180
+            ],
+            [
+              694,
+              181
+            ],
+            [
+              694,
+              182
+            ],
+            [
+              694,
+              183
+            ],
+            [
+              694,
+              184
+            ],
+            [
+              694,
+              185
+            ],
+            [
+              694,
+              186
+            ],
+            [
+              694,
+              187
+            ],
+            [
+              694,
+              188
+            ],
+            [
+              694,
+              189
+            ],
+            [
+              694,
+              190
+            ],
+            [
+              694,
+              191
+            ],
+            [
+              695,
+              192
+            ],
+            [
+              695,
+              193
+            ],
+            [
+              695,
+              194
+            ],
+            [
+              695,
+              195
+            ],
+            [
+              695,
+              196
+            ],
+            [
+              695,
+              197
+            ],
+            [
+              695,
+              198
+            ],
+            [
+              695,
+              199
+            ],
+            [
+              695,
+              200
+            ],
+            [
+              695,
+              201
+            ],
+            [
+              694,
+              202
+            ],
+            [
+              694,
+              203
+            ],
+            [
+              694,
+              204
+            ],
+            [
+              694,
+              205
+            ],
+            [
+              694,
+              206
+            ],
+            [
+              694,
+              207
+            ],
+            [
+              693,
+              208
+            ],
+            [
+              693,
+              209
+            ],
+            [
+              693,
+              210
+            ],
+            [
+              693,
+              211
+            ],
+            [
+              693,
+              212
+            ],
+            [
+              694,
+              213
+            ],
+            [
+              694,
+              214
+            ],
+            [
+              694,
+              215
+            ],
+            [
+              694,
+              216
+            ],
+            [
+              695,
+              217
+            ],
+            [
+              695,
+              218
+            ],
+            [
+              696,
+              219
+            ],
+            [
+              696,
+              220
+            ],
+            [
+              696,
+              221
+            ],
+            [
+              695,
+              222
+            ],
+            [
+              695,
+              223
+            ],
+            [
+              695,
+              224
+            ],
+            [
+              694,
+              225
+            ],
+            [
+              694,
+              226
+            ],
+            [
+              694,
+              227
+            ],
+            [
+              694,
+              228
+            ],
+            [
+              694,
+              229
+            ],
+            [
+              694,
+              230
+            ],
+            [
+              694,
+              231
+            ],
+            [
+              693,
+              232
+            ],
+            [
+              693,
+              233
+            ],
+            [
+              693,
+              234
+            ],
+            [
+              693,
+              235
+            ],
+            [
+              692,
+              236
+            ],
+            [
+              692,
+              237
+            ],
+            [
+              688,
+              238
+            ],
+            [
+              682,
+              239
+            ],
+            [
+              682,
+              240
+            ],
+            [
+              692,
+              241
+            ],
+            [
+              693,
+              242
+            ],
+            [
+              694,
+              243
+            ],
+            [
+              694,
+              244
+            ],
+            [
+              694,
+              245
+            ],
+            [
+              694,
+              246
+            ],
+            [
+              694,
+              247
+            ],
+            [
+              694,
+              248
+            ],
+            [
+              694,
+              249
+            ],
+            [
+              693,
+              250
+            ],
+            [
+              693,
+              251
+            ],
+            [
+              693,
+              252
+            ],
+            [
+              694,
+              253
+            ],
+            [
+              694,
+              254
+            ],
+            [
+              694,
+              255
+            ],
+            [
+              694,
+              256
+            ],
+            [
+              694,
+              257
+            ],
+            [
+              694,
+              258
+            ],
+            [
+              694,
+              259
+            ],
+            [
+              694,
+              260
+            ],
+            [
+              694,
+              261
+            ],
+            [
+              694,
+              262
+            ],
+            [
+              694,
+              263
+            ],
+            [
+              694,
+              264
+            ],
+            [
+              693,
+              265
+            ],
+            [
+              693,
+              266
+            ],
+            [
+              692,
+              267
+            ],
+            [
+              682,
+              268
+            ],
+            [
+              682,
+              269
+            ],
+            [
+              682,
+              270
+            ],
+            [
+              682,
+              271
+            ],
+            [
+              681,
+              272
+            ],
+            [
+              681,
+              273
+            ],
+            [
+              682,
+              274
+            ],
+            [
+              683,
+              275
+            ],
+            [
+              684,
+              276
+            ],
+            [
+              685,
+              277
+            ],
+            [
+              688,
+              278
+            ],
+            [
+              690,
+              279
+            ],
+            [
+              691,
+              280
+            ],
+            [
+              692,
+              281
+            ],
+            [
+              692,
+              282
+            ],
+            [
+              693,
+              283
+            ],
+            [
+              692,
+              284
+            ],
+            [
+              692,
+              285
+            ],
+            [
+              692,
+              286
+            ],
+            [
+              692,
+              287
+            ],
+            [
+              692,
+              288
+            ],
+            [
+              693,
+              289
+            ],
+            [
+              693,
+              290
+            ],
+            [
+              693,
+              291
+            ],
+            [
+              693,
+              292
+            ],
+            [
+              694,
+              293
+            ],
+            [
+              694,
+              294
+            ],
+            [
+              694,
+              295
+            ],
+            [
+              694,
+              296
+            ],
+            [
+              694,
+              297
+            ],
+            [
+              694,
+              298
+            ],
+            [
+              695,
+              299
+            ],
+            [
+              695,
+              300
+            ],
+            [
+              695,
+              301
+            ],
+            [
+              694,
+              302
+            ],
+            [
+              694,
+              303
+            ],
+            [
+              694,
+              304
+            ],
+            [
+              694,
+              305
+            ],
+            [
+              694,
+              306
+            ],
+            [
+              694,
+              307
+            ],
+            [
+              694,
+              308
+            ],
+            [
+              694,
+              309
+            ],
+            [
+              694,
+              310
+            ],
+            [
+              694,
+              311
+            ],
+            [
+              694,
+              312
+            ],
+            [
+              694,
+              313
+            ],
+            [
+              694,
+              314
+            ],
+            [
+              694,
+              315
+            ],
+            [
+              694,
+              316
+            ],
+            [
+              693,
+              317
+            ],
+            [
+              693,
+              318
+            ],
+            [
+              693,
+              319
+            ],
+            [
+              693,
+              320
+            ],
+            [
+              693,
+              321
+            ],
+            [
+              693,
+              322
+            ],
+            [
+              693,
+              323
+            ],
+            [
+              693,
+              324
+            ],
+            [
+              693,
+              325
+            ],
+            [
+              693,
+              326
+            ],
+            [
+              693,
+              327
+            ],
+            [
+              693,
+              328
+            ],
+            [
+              693,
+              329
+            ],
+            [
+              693,
+              330
+            ],
+            [
+              693,
+              331
+            ],
+            [
+              693,
+              332
+            ],
+            [
+              693,
+              333
+            ],
+            [
+              693,
+              334
+            ],
+            [
+              693,
+              335
+            ],
+            [
+              693,
+              336
+            ],
+            [
+              692,
+              337
+            ],
+            [
+              692,
+              338
+            ],
+            [
+              692,
+              339
+            ],
+            [
+              692,
+              340
+            ],
+            [
+              693,
+              341
+            ],
+            [
+              693,
+              342
+            ],
+            [
+              693,
+              343
+            ],
+            [
+              694,
+              344
+            ],
+            [
+              694,
+              345
+            ],
+            [
+              694,
+              346
+            ],
+            [
+              694,
+              347
+            ],
+            [
+              694,
+              348
+            ],
+            [
+              695,
+              349
+            ],
+            [
+              695,
+              350
+            ],
+            [
+              695,
+              351
+            ],
+            [
+              695,
+              352
+            ],
+            [
+              694,
+              353
+            ],
+            [
+              694,
+              354
+            ],
+            [
+              694,
+              355
+            ],
+            [
+              694,
+              356
+            ],
+            [
+              694,
+              357
+            ],
+            [
+              694,
+              358
+            ],
+            [
+              694,
+              359
+            ],
+            [
+              693,
+              360
+            ],
+            [
+              693,
+              361
+            ],
+            [
+              693,
+              362
+            ],
+            [
+              693,
+              363
+            ],
+            [
+              693,
+              364
+            ],
+            [
+              693,
+              365
+            ],
+            [
+              693,
+              366
+            ],
+            [
+              693,
+              367
+            ],
+            [
+              692,
+              368
+            ],
+            [
+              692,
+              369
+            ],
+            [
+              692,
+              370
+            ],
+            [
+              692,
+              371
+            ],
+            [
+              692,
+              372
+            ],
+            [
+              691,
+              373
+            ],
+            [
+              691,
+              374
+            ],
+            [
+              691,
+              375
+            ],
+            [
+              691,
+              376
+            ],
+            [
+              691,
+              377
+            ],
+            [
+              691,
+              378
+            ],
+            [
+              691,
+              379
+            ],
+            [
+              692,
+              380
+            ],
+            [
+              692,
+              381
+            ],
+            [
+              692,
+              382
+            ],
+            [
+              692,
+              383
+            ],
+            [
+              692,
+              384
+            ],
+            [
+              693,
+              385
+            ],
+            [
+              693,
+              386
+            ],
+            [
+              693,
+              387
+            ],
+            [
+              693,
+              388
+            ],
+            [
+              693,
+              389
+            ],
+            [
+              693,
+              390
+            ],
+            [
+              693,
+              391
+            ],
+            [
+              694,
+              392
+            ],
+            [
+              694,
+              393
+            ],
+            [
+              694,
+              394
+            ],
+            [
+              693,
+              395
+            ],
+            [
+              693,
+              396
+            ],
+            [
+              694,
+              397
+            ],
+            [
+              694,
+              398
+            ],
+            [
+              694,
+              399
+            ],
+            [
+              694,
+              400
+            ],
+            [
+              694,
+              401
+            ],
+            [
+              694,
+              402
+            ],
+            [
+              694,
+              403
+            ],
+            [
+              694,
+              404
+            ],
+            [
+              694,
+              405
+            ],
+            [
+              693,
+              406
+            ],
+            [
+              693,
+              407
+            ],
+            [
+              693,
+              408
+            ],
+            [
+              693,
+              409
+            ],
+            [
+              693,
+              410
+            ],
+            [
+              693,
+              411
+            ],
+            [
+              693,
+              412
+            ],
+            [
+              693,
+              413
+            ],
+            [
+              693,
+              414
+            ],
+            [
+              693,
+              415
+            ],
+            [
+              693,
+              416
+            ],
+            [
+              693,
+              417
+            ],
+            [
+              693,
+              418
+            ],
+            [
+              693,
+              419
+            ],
+            [
+              693,
+              420
+            ],
+            [
+              693,
+              421
+            ],
+            [
+              693,
+              422
+            ],
+            [
+              693,
+              423
+            ],
+            [
+              693,
+              424
+            ],
+            [
+              693,
+              425
+            ],
+            [
+              693,
+              426
+            ],
+            [
+              694,
+              427
+            ],
+            [
+              694,
+              428
+            ],
+            [
+              694,
+              429
+            ],
+            [
+              694,
+              430
+            ],
+            [
+              694,
+              431
+            ],
+            [
+              695,
+              432
+            ],
+            [
+              695,
+              433
+            ],
+            [
+              695,
+              434
+            ],
+            [
+              695,
+              435
+            ],
+            [
+              695,
+              436
+            ],
+            [
+              694,
+              437
+            ],
+            [
+              694,
+              438
+            ],
+            [
+              694,
+              439
+            ],
+            [
+              694,
+              440
+            ],
+            [
+              694,
+              441
+            ],
+            [
+              694,
+              442
+            ],
+            [
+              693,
+              443
+            ],
+            [
+              693,
+              444
+            ],
+            [
+              693,
+              445
+            ],
+            [
+              693,
+              446
+            ],
+            [
+              693,
+              447
+            ],
+            [
+              693,
+              448
+            ],
+            [
+              693,
+              449
+            ],
+            [
+              693,
+              450
+            ],
+            [
+              693,
+              451
+            ],
+            [
+              693,
+              452
+            ],
+            [
+              693,
+              453
+            ],
+            [
+              692,
+              454
+            ],
+            [
+              692,
+              455
+            ],
+            [
+              692,
+              456
+            ],
+            [
+              692,
+              457
+            ],
+            [
+              692,
+              458
+            ],
+            [
+              692,
+              459
+            ],
+            [
+              692,
+              460
+            ],
+            [
+              692,
+              461
+            ],
+            [
+              692,
+              462
+            ],
+            [
+              692,
+              463
+            ],
+            [
+              693,
+              464
+            ],
+            [
+              693,
+              465
+            ],
+            [
+              693,
+              466
+            ],
+            [
+              693,
+              467
+            ],
+            [
+              693,
+              468
+            ],
+            [
+              693,
+              469
+            ],
+            [
+              692,
+              470
+            ],
+            [
+              692,
+              471
+            ],
+            [
+              692,
+              472
+            ],
+            [
+              692,
+              473
+            ],
+            [
+              692,
+              474
+            ],
+            [
+              692,
+              475
+            ],
+            [
+              691,
+              476
+            ],
+            [
+              692,
+              477
+            ],
+            [
+              692,
+              478
+            ],
+            [
+              692,
+              479
+            ],
+            [
+              692,
+              480
+            ],
+            [
+              692,
+              481
+            ],
+            [
+              692,
+              482
+            ],
+            [
+              693,
+              483
+            ],
+            [
+              693,
+              484
+            ],
+            [
+              693,
+              485
+            ],
+            [
+              693,
+              486
+            ],
+            [
+              693,
+              487
+            ],
+            [
+              693,
+              488
+            ],
+            [
+              693,
+              489
+            ],
+            [
+              693,
+              490
+            ],
+            [
+              693,
+              491
+            ],
+            [
+              693,
+              492
+            ],
+            [
+              693,
+              493
+            ],
+            [
+              693,
+              494
+            ],
+            [
+              693,
+              495
+            ],
+            [
+              693,
+              496
+            ],
+            [
+              693,
+              497
+            ],
+            [
+              692,
+              498
+            ],
+            [
+              692,
+              499
+            ],
+            [
+              692,
+              500
+            ],
+            [
+              692,
+              501
+            ],
+            [
+              692,
+              502
+            ],
+            [
+              692,
+              503
+            ],
+            [
+              692,
+              504
+            ],
+            [
+              692,
+              505
+            ],
+            [
+              692,
+              506
+            ],
+            [
+              692,
+              507
+            ],
+            [
+              692,
+              508
+            ]
+          ],
+          "left_occlusion_band_pixel_count": 21240
+        }
+      ]
+    }
+  },
+  "shot_dir": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711",
+  "selected_mask_target_overlay_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/selected_mask_target_overlay.png",
+  "surface_points_overlay_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/surface_points_overlay.png",
+  "book_spine_ransac_points_overlay_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/book_spine_ransac_points_overlay.png",
+  "book_spine_ransac_points_npz_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/book_spine_ransac_points.npz",
+  "final_space_guide_boundary_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/final_space_guide_boundary.png",
+  "final_space_target_point_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/final_space_target_point.png",
+  "angle_calculation_line_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures/strage/cycle_0008_20260915_172700_1789460820592164765/2nd/20260915_172711/angle_calculation_line.png"
+}

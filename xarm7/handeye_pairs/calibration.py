@@ -67,7 +67,7 @@ import numpy as np
 # ============================================================
 
 INPUT_JSON = Path(
-"/home/book/pro_book/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json"
+"/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/handeye_pairs/handeye_T_tcp_cam_20260717_223007 copy.json"
 )
 
 # TCP（ハンド）座標系の各軸まわりの補正角 [deg]

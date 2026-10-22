@@ -6,6 +6,46 @@ import json
 import os
 import signal
 import sys
+import threading
+
+# ============================================================
+# 複数スレッドの標準出力を1行単位で排他制御する
+# ============================================================
+class ThreadSafeStdout:
+    def __init__(self, original):
+        self.original = original
+        self.lock = threading.RLock()
+        self.local = threading.local()
+
+    def write(self, text):
+        text = str(text)
+        pending = getattr(self.local, "pending", "") + text
+
+        while "\n" in pending:
+            line, pending = pending.split("\n", 1)
+
+            with self.lock:
+                self.original.write(line + "\n")
+                self.original.flush()
+
+        self.local.pending = pending
+        return len(text)
+
+    def flush(self):
+        pending = getattr(self.local, "pending", "")
+
+        with self.lock:
+            if pending:
+                self.original.write(pending)
+                self.local.pending = ""
+
+            self.original.flush()
+
+    def __getattr__(self, name):
+        return getattr(self.original, name)
+
+
+sys.stdout = ThreadSafeStdout(sys.stdout)
 
 from . import HandBook_Retrieval as HandBook
 from . import HandBook_Storage as StorageHandBook
@@ -14,6 +54,35 @@ from . import HandBook_Storage as StorageHandBook
 RESPONSE_PREFIX = "__DXL_WORKER_JSON__"
 PR_SET_PDEATHSIG = 1
 
+# ============================================================
+# Dynamixel通信の排他制御
+# ============================================================
+
+DXL_IO_LOCK = threading.RLock()
+
+# SP_LINバックグラウンド動作用の状態
+SP_LIN_TASK_LOCK = threading.Lock()
+SP_LIN_ABORT_EVENT = StorageHandBook.SP_LIN_ABORT_EVENT
+
+SP_LIN_TASK = {
+    "running": False,
+    "completed": False,
+    "failed": False,
+    "error": None,
+}
+# 安全確認が終わるまでバックグラウンド駆動を禁止
+ENABLE_SP_LIN_BACKGROUND = True
+# SP_LINバックグラウンドスレッド本体を保持する
+SP_LIN_THREAD: threading.Thread | None = None
+
+
+def _sp_lin_thread_alive() -> bool:
+    """SP_LINスレッドが実際に動作中か確認する。"""
+    with SP_LIN_TASK_LOCK:
+        return (
+            SP_LIN_THREAD is not None
+            and SP_LIN_THREAD.is_alive()
+        )
 
 def _prepare_storage_axes(dxl) -> None:
     """同じworkerが所有するDynamixel接続で入庫用2軸を初期化する。"""
@@ -163,7 +232,50 @@ def _is_restartable_communication_error(
     )
 
 
+def _run_sp_lin_background(dxl, timeout_sec: float) -> None:
+    """SP_LIN収縮とPWM監視をバックグラウンドで実行する。"""
+
+    try:
+        StorageHandBook._check_sp_lin_abort()
+        result = StorageHandBook.contract_sp_lin_2(
+            dxl,
+            asynchronous=False,
+            timeout_sec=timeout_sec,
+        )
+
+        if result is not True:
+            raise RuntimeError(
+                f"Unexpected SP_LIN result: {result!r}"
+            )
+
+        with SP_LIN_TASK_LOCK:
+            SP_LIN_TASK["running"] = False
+
+            # 他スレッドで異常が記録されていた場合は
+            # 正常終了しても異常状態を上書きしない
+            if not SP_LIN_TASK["failed"] and not SP_LIN_ABORT_EVENT.is_set():
+                SP_LIN_TASK["completed"] = True
+                SP_LIN_TASK["error"] = None
+            else:
+                SP_LIN_TASK["completed"] = False
+
+    except Exception as exc:
+        with SP_LIN_TASK_LOCK:
+            SP_LIN_TASK["running"] = False
+            SP_LIN_TASK["completed"] = False
+            SP_LIN_TASK["failed"] = True
+            SP_LIN_TASK["error"] = (
+                f"{type(exc).__name__}: {exc}"
+            )
+
+        print(
+            f"[SP_LIN BACKGROUND ERROR] {exc!r}",
+            flush=True,
+        )
+
 def main() -> None:
+    global SP_LIN_THREAD
+
     _set_parent_death_signal()
 
     dxl = None
@@ -175,6 +287,9 @@ def main() -> None:
         )
 
         dxl = HandBook.init_dynamixels()
+        # HandBook_Storage.pyと通信ロックを共有する
+        HandBook.set_dxl_io_lock(DXL_IO_LOCK)
+        StorageHandBook.set_dxl_io_lock(DXL_IO_LOCK)
 
         HandBook._verify_dynamixel_bus_on_object(
             dxl
@@ -243,7 +358,83 @@ def main() -> None:
             )
         )
 
+        # SP_LIN動作中は、同じ軸への追加指令を禁止する
+        SP_LIN_COMMANDS = {
+            "expand_sp_lin",
+            "expand_sp_lin_right_tilted",
+            "contract_sp_lin_1",
+            "contract_sp_lin_2",
+            "contract_sp_lin_pwm_home",
+            "contract_sp_lin_2_start",
+        }
+
+        with SP_LIN_TASK_LOCK:
+            sp_lin_thread_alive = (
+                SP_LIN_THREAD is not None
+                and SP_LIN_THREAD.is_alive()
+            )
+            sp_lin_busy = SP_LIN_TASK["running"] or sp_lin_thread_alive
+            sp_lin_failed = SP_LIN_TASK["failed"]
+
+        if command in SP_LIN_COMMANDS and (sp_lin_busy or sp_lin_failed):
+            _emit({
+                "type": "result",
+                "ok": False,
+                "cmd": command,
+                "error": (
+                    "SP_LIN command rejected: "
+                    f"running={sp_lin_busy}, failed={sp_lin_failed}"
+                ),
+                "restart_worker": False,
+                "worker_will_exit": False,
+            })
+            continue
+
+        if command == "emergency_stop_sp_lin":
+            # Sticky stop request: do not allow any further SP_LIN operation.
+            SP_LIN_ABORT_EVENT.set()
+            with SP_LIN_TASK_LOCK:
+                SP_LIN_TASK["failed"] = True
+                SP_LIN_TASK["completed"] = False
+                SP_LIN_TASK["error"] = "Emergency stop requested"
+            try:
+                with DXL_IO_LOCK:
+                    dxl.disable_torque(StorageHandBook.SP_LIN_ID)
+                    value = int(dxl.read_torque_enable(StorageHandBook.SP_LIN_ID))
+                    if value != 0:
+                        raise RuntimeError(f"SP_LIN torque still enabled: {value}")
+                _emit({"type": "result", "ok": True, "cmd": command,
+                       "data": {"torque_off_verified": True}})
+            except Exception as exc:
+                _emit({"type": "result", "ok": False, "cmd": command,
+                       "error": "SP_LIN motor stop NOT verified: " + str(exc),
+                       "restart_worker": False, "worker_will_exit": False})
+            continue
+
         if command == "shutdown":
+
+            with SP_LIN_TASK_LOCK:
+                sp_lin_running = SP_LIN_TASK["running"]
+                sp_lin_failed = SP_LIN_TASK["failed"]
+                sp_lin_thread_alive = (
+                    SP_LIN_THREAD is not None
+                    and SP_LIN_THREAD.is_alive()
+                )
+
+            if sp_lin_running or sp_lin_failed or sp_lin_thread_alive:
+                _emit({
+                    "type": "result",
+                    "ok": False,
+                    "cmd": command,
+                    "error": (
+                        "SP_LIN background task is running or failed. "
+                        "Shutdown rejected."
+                    ),
+                    "restart_worker": False,
+                    "worker_will_exit": False,
+                })
+                continue
+
             _cleanup_storage_axes(dxl)
 
             try:
@@ -269,7 +460,15 @@ def main() -> None:
             return
 
         try:
-            if command == "open_until_width":
+            if command == "sp_lin_task_status":
+                with SP_LIN_TASK_LOCK:
+                    data = SP_LIN_TASK.copy()
+                    data["thread_alive"] = (
+                        SP_LIN_THREAD is not None
+                        and SP_LIN_THREAD.is_alive()
+                    )
+
+            elif command == "open_until_width":
 
                 dxl = HandBook.open_until_width(
                     dxl,
@@ -318,6 +517,29 @@ def main() -> None:
 
                 data = None
 
+            elif command == "open_for_storage_release":
+
+                data = StorageHandBook.open_for_storage_release(
+                    dxl,
+                    timeout_sec=float(
+                        request.get(
+                            "timeout_sec",
+                            StorageHandBook.STORAGE_RELEASE_TIMEOUT_SEC,
+                        )
+                    ),
+                )
+
+            elif command == "open_for_storage_release_partial":
+
+                data = StorageHandBook.open_for_storage_release_partial(
+                    dxl,
+                    offset_steps=int(request.get("offset_steps", 2000)),
+                    timeout_sec=float(request.get(
+                        "timeout_sec",
+                        StorageHandBook.STORAGE_RELEASE_TIMEOUT_SEC,
+                    )),
+                )
+
             elif command == "ping_all":
 
                 HandBook._verify_dynamixel_bus_on_object(
@@ -340,6 +562,18 @@ def main() -> None:
                     ),
                 )
 
+            elif command == "expand_sp_lin_right_tilted":
+
+                data = StorageHandBook.expand_sp_lin_right_tilted(
+                    dxl,
+                    asynchronous=bool(
+                        request.get(
+                            "asynchronous",
+                            False,
+                        )
+                    ),
+                )
+
             elif command == "contract_sp_lin_1":
 
                 data = StorageHandBook.contract_sp_lin_1(
@@ -352,17 +586,100 @@ def main() -> None:
                     ),
                 )
 
+            elif command == "contract_sp_lin_2_start":
+
+                if SP_LIN_ABORT_EVENT.is_set():
+                    raise RuntimeError("SP_LIN emergency stop latched")
+                if not ENABLE_SP_LIN_BACKGROUND:
+                    raise RuntimeError(
+                        "SP_LIN background operation is disabled "
+                        "until safety verification is completed"
+                    )
+
+ 
+                with SP_LIN_TASK_LOCK:
+                    if (
+                        SP_LIN_TASK["running"]
+                        or SP_LIN_TASK["failed"]
+                        or (
+                            SP_LIN_THREAD is not None
+                            and SP_LIN_THREAD.is_alive()
+                        )
+                    ):
+                        raise RuntimeError(
+                            "SP_LIN background task is busy or failed"
+                        )
+
+                    SP_LIN_TASK.update({
+                        "running": True,
+                        "completed": False,
+                        "failed": False,
+                        "error": None,
+                    })
+
+                    try:
+                        SP_LIN_THREAD = threading.Thread(
+                            target=_run_sp_lin_background,
+                            args=(
+                                dxl,
+                                float(request.get("timeout_sec", 20.0)),
+                            ),
+                            name="sp_lin_background",
+                            daemon=False,
+                        )
+                        SP_LIN_THREAD.start()
+
+                    except Exception as exc:
+                        SP_LIN_TASK["running"] = False
+                        SP_LIN_TASK["completed"] = False
+                        SP_LIN_TASK["failed"] = True
+                        SP_LIN_TASK["error"] = str(exc)
+                        raise
+
+                data = {"started": True}
+
             elif command == "contract_sp_lin_2":
 
-                data = StorageHandBook.contract_sp_lin_2(
-                    dxl,
-                    asynchronous=bool(
+                contract_sp_lin_2_kwargs = {
+                    "asynchronous": bool(
                         request.get(
                             "asynchronous",
                             False,
                         )
                     ),
+                }
+                if "timeout_sec" in request:
+                    contract_sp_lin_2_kwargs["timeout_sec"] = float(
+                        request["timeout_sec"]
+                    )
+
+                data = StorageHandBook.contract_sp_lin_2(
+                    dxl,
+                    **contract_sp_lin_2_kwargs,
                 )
+
+
+            elif command == "contract_sp_lin_pwm_home":
+
+                print(
+                    "[DXL WORKER] SP_LIN PWM homing start",
+                    flush=True,
+                )
+
+                data = StorageHandBook.home_sp_lin_stop_test(
+                    dxl,
+                    timeout_sec=float(
+                        request.get("timeout_sec", 100.0)
+                    ),
+                )
+
+                print(
+                    "[DXL WORKER] SP_LIN PWM homing result:",
+                    data,
+                    flush=True,
+                )
+
+
 
             elif command == "rotate_spacer":
 
@@ -415,6 +732,55 @@ def main() -> None:
             error_text = (
                 f"{type(exc).__name__}: {exc}"
             )
+
+            # SP_LIN動作中・異常状態では、
+            # 通信異常によるworker自動再起動を禁止する
+            if restart_worker:
+                with SP_LIN_TASK_LOCK:
+                    sp_lin_running = SP_LIN_TASK["running"]
+                    sp_lin_failed = SP_LIN_TASK["failed"]
+                    sp_lin_thread_alive = (
+                        SP_LIN_THREAD is not None
+                        and SP_LIN_THREAD.is_alive()
+                    )
+
+                    sp_lin_protected = (
+                        sp_lin_running
+                        or sp_lin_failed
+                        or sp_lin_thread_alive
+                    )
+
+                    if sp_lin_protected:
+                        SP_LIN_TASK["failed"] = True
+                        SP_LIN_TASK["completed"] = False
+                        SP_LIN_TASK["error"] = (
+                            "Communication failure during SP_LIN operation: "
+                            + error_text
+                        )
+
+                if sp_lin_protected:
+                    print(
+                        "[DXL WORKER][DANGER] "
+                        "Communication failure during SP_LIN operation. "
+                        "Automatic restart prohibited. "
+                        f"{error_text}",
+                        flush=True,
+                    )
+
+                    _emit({
+                        "type": "result",
+                        "ok": False,
+                        "cmd": command,
+                        "error": (
+                            "SP_LIN fault state. "
+                            "Motor stop is not confirmed. "
+                            + error_text
+                        ),
+                        "restart_worker": False,
+                        "worker_will_exit": False,
+                    })
+
+                    continue
 
             if restart_worker:
 

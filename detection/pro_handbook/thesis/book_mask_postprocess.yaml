@@ -1,0 +1,18 @@
+postprocess:
+  enabled: true
+  method:
+    - baseline
+    # 8-connected component cleanup only. The OCR-linked main component is
+    # preserved bit-for-bit; only fully disconnected components are removed.
+    # GT is used by the evaluator for metrics, never by this method.
+    - remove_islands
+
+  # A scalar runs one setting. A YAML list expands a Cartesian parameter sweep
+  # for methods that use that parameter.
+  ocr_aspect_ratio_min: 1.5
+  orientation_outlier_deg: 15
+  boundary_margin_ratio: 0.10
+  median_window: 31
+  min_area_retention: 0.8
+  min_width_retention: 0.85
+  save_debug_images: true

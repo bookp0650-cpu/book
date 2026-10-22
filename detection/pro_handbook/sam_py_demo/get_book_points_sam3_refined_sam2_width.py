@@ -58,6 +58,7 @@ def run_capture_and_pca_offline_sam3_refined_sam2_width(
     depth_scale=None,
     depth_merge_tolerance_raw=30,
     mask_width_mode=DEFAULT_MASK_PCA_WIDTH_MODE,
+    selected_mask_override=None,
 ):
     """Run current refine-only recognition, replacing only its returned width."""
     shot_dir = Path(shot_dir).expanduser().resolve()
@@ -69,6 +70,7 @@ def run_capture_and_pca_offline_sam3_refined_sam2_width(
         intr=intr,
         depth_scale=depth_scale,
         depth_merge_tolerance_raw=depth_merge_tolerance_raw,
+        selected_mask_override=selected_mask_override,
     )
 
     mask_path = shot_dir / "selected_mask_refined.png"
@@ -185,6 +187,10 @@ def run_capture_and_pca_sam3_refined_sam2_width(
     _, _, intr, depth_scale, _ = (
         stable.capture_rgbd_once_no_mask_merge_no_side_filter(shot_dir)
     )
+    selected_mask_override = None
+    from detection.pro_handbook.thesis import roc_live
+    if roc_live.active("retrieval"):
+        selected_mask_override = roc_live.prepare_retrieval_override(shot_dir)
     result = run_capture_and_pca_offline_sam3_refined_sam2_width(
         query,
         shot_dir,
@@ -192,7 +198,10 @@ def run_capture_and_pca_sam3_refined_sam2_width(
         intr=intr,
         depth_scale=depth_scale,
         mask_width_mode=mask_width_mode,
+        selected_mask_override=selected_mask_override,
     )
+    if roc_live.active("retrieval"):
+        roc_live.set_retrieval_result_context(shot_dir)
     return (
         float(result["roll_rad"]),
         np.asarray(result["point_3d"], dtype=float),

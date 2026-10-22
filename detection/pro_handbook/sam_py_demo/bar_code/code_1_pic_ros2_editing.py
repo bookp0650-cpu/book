@@ -1237,7 +1237,7 @@ def main():
         executor = SingleThreadedExecutor()
         executor.add_node(node)
 
-        outdir = Path("/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode/_selfloc_test")
+        outdir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode/_selfloc_test")
         outdir.mkdir(parents=True, exist_ok=True)
 
         nav_pub = node.create_publisher(Bool, "/navigation_goal", 10)

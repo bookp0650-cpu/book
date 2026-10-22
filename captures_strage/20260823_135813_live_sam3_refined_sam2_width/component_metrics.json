@@ -1,0 +1,39 @@
+[
+  {
+    "component_id": 1,
+    "area_px": 16115,
+    "raw_mask_area_ratio": 1.0,
+    "anchor_area_ratio": 1.0,
+    "bbox_xyxy": [
+      249,
+      151,
+      287,
+      639
+    ],
+    "centroid_uv": [
+      268.05082221532734,
+      399.3728824076947
+    ],
+    "ocr_overlap_px": 7975,
+    "ocr_overlap_ratio": 1.0,
+    "contains_ocr_center": true,
+    "anchor_min_distance_px": 0.0,
+    "a_axis_gap_px": 0.0,
+    "b_axis_distance_px": 0.0,
+    "valid_depth_count": 16115,
+    "depth_median_raw": 413.0,
+    "depth_mad_raw": 1.0,
+    "touches_image_boundary": false,
+    "evidence": {
+      "very_small": false,
+      "clearly_separated": false,
+      "outside_a_extension": false,
+      "large_b_axis_distance": false,
+      "depth_different": false,
+      "outside_anchor_bbox": false
+    },
+    "evidence_count": 0,
+    "decision": "keep",
+    "reason": "anchor_component"
+  }
+]

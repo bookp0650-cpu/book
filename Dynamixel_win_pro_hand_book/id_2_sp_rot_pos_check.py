@@ -43,10 +43,17 @@ POSITION_THRESHOLD = cfg.thresh.pos
 
 try:
 
-    dxl = Dynamixel("/dev/ttyUSB0", 57600) #インスタンス化
-    kb = kbhit.KBHit() #キーボード入力のクラス立ち上げ
-    time.sleep(0.5)  #通信が確立するまでちょっと待つ（待たなくても良いが高速すぎるとバッファが溢れ命令実行漏れが発生する）
-    dxl.set_mode_ex_position(2) # 拡張位置制御モードに設定
+    dxl = Dynamixel("/dev/ttyUSB0", 57600)
+    kb = kbhit.KBHit()
+    time.sleep(0.5)
+
+    # 制御モード変更前にトルクをOFF
+    dxl.disable_torque(2)
+    time.sleep(0.2)
+
+    # 拡張位置制御モードに変更
+    dxl.set_mode_ex_position(2)
+    time.sleep(0.2)
 
     init_pos  = int(dxl.read_position(2)) #現在の位置を取得し目標値の初期値として代入
     print("current position = ", init_pos)

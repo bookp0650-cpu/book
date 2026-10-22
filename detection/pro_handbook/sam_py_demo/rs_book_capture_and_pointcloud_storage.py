@@ -122,8 +122,8 @@ def run_capture_and_pca(
     height: int = 720,
     fps: int = 6,
     sam_device: str = "gpu",
-    encoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
-    decoder_path: str = "/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+    encoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+    decoder_path: str = "/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     interactive: bool = True,
 ) -> tuple[float, np.ndarray, np.ndarray, dict]:
     """
@@ -981,11 +981,11 @@ def main():
     ap.add_argument("--sam_device", choices=["gpu", "cpu", "auto"], default="gpu")
     ap.add_argument(
         "--encoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx",
     )
     ap.add_argument(
         "--decoder",
-        default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx",
     )
     args = ap.parse_args()
 

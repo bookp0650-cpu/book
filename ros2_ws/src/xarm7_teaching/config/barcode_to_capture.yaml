@@ -1,0 +1,47 @@
+joint_order:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+waypoints:
+- name: move_relative_1
+  type: movel_relative
+  pose:
+  - 80.0
+  - -610.0
+  - -55.0
+  - 0.0
+  - 0.0
+  - 0.0
+  speed: 150.0
+  accel: 300.0
+  wait: true
+
+- name: p1
+  q:
+  - 52.4
+  - -82.0
+  - 178.0
+  - 78.0
+  - 204.0
+  - 4.6
+  - -61.2
+  speed: 1.0
+  accel: 2.0
+  wait: true
+
+- name: p2
+  q:
+  - 88.2
+  - -55.2
+  - 171.3
+  - 65.1
+  - 40.1
+  - 11.6
+  - 44.4
+  speed: 1.0
+  accel: 2.0
+  wait: true

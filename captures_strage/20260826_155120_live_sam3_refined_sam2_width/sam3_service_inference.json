@@ -1,0 +1,110 @@
+{
+  "prompt": "book spine",
+  "raw_mask_count": 8,
+  "nms_mask_count": 8,
+  "service_metadata": {
+    "request_id": "22bf57ef-3481-4993-a704-804c5b31ee3f",
+    "output_npz": "/dev/shm/sam3-q70d1z24/output.npz",
+    "count": 8,
+    "raw_count": 8,
+    "nms_count": 8,
+    "inference_seconds": 0.8177779119996558,
+    "gpu_memory_mb": 5094.10009765625,
+    "score_threshold": 0.3,
+    "processor_confidence_threshold": 0.05,
+    "min_area": 200,
+    "nms_iou_threshold": 0.5
+  },
+  "instances": [
+    {
+      "name": "book1",
+      "score": 0.96484375,
+      "box": {
+        "x1": 245.0,
+        "y1": 56.0,
+        "x2": 304.0,
+        "y2": 558.0
+      }
+    },
+    {
+      "name": "book2",
+      "score": 0.9609375,
+      "box": {
+        "x1": 376.0,
+        "y1": 46.0,
+        "x2": 445.0,
+        "y2": 540.0
+      }
+    },
+    {
+      "name": "book3",
+      "score": 0.9609375,
+      "box": {
+        "x1": 344.0,
+        "y1": 66.0,
+        "x2": 407.0,
+        "y2": 562.0
+      }
+    },
+    {
+      "name": "book4",
+      "score": 0.9609375,
+      "box": {
+        "x1": 271.0,
+        "y1": 33.0,
+        "x2": 340.0,
+        "y2": 566.0
+      }
+    },
+    {
+      "name": "book5",
+      "score": 0.95703125,
+      "box": {
+        "x1": 218.0,
+        "y1": 87.0,
+        "x2": 278.0,
+        "y2": 585.0
+      }
+    },
+    {
+      "name": "book6",
+      "score": 0.95703125,
+      "box": {
+        "x1": 309.0,
+        "y1": 38.0,
+        "x2": 373.0,
+        "y2": 568.0
+      }
+    },
+    {
+      "name": "book7",
+      "score": 0.95703125,
+      "box": {
+        "x1": 179.0,
+        "y1": 83.0,
+        "x2": 244.0,
+        "y2": 583.0
+      }
+    },
+    {
+      "name": "book8",
+      "score": 0.94921875,
+      "box": {
+        "x1": 128.0,
+        "y1": 69.0,
+        "x2": 201.0,
+        "y2": 590.0
+      }
+    }
+  ],
+  "mask_areas_px": [
+    11061,
+    16441,
+    15162,
+    17852,
+    13385,
+    15178,
+    17316,
+    17449
+  ]
+}

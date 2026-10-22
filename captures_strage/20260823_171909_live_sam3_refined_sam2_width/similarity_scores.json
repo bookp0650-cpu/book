@@ -1,0 +1,61 @@
+{
+  "query": "簡単実践ロボットシミュレーション",
+  "threshold": 40,
+  "scores": [
+    {
+      "name": "mask_6",
+      "score": 46,
+      "text": "F ション 出公司 "
+    },
+    {
+      "name": "mask_3",
+      "score": 19,
+      "text": "ネツトワーク最適化とアルゴリスム"
+    },
+    {
+      "name": "mask_1",
+      "score": 18,
+      "text": "栗木恭一·荒川姜博 電気推進ロケツト入門"
+    },
+    {
+      "name": "mask_4",
+      "score": 11,
+      "text": "スバース性にく械学 富同亮太"
+    },
+    {
+      "name": "mask_2",
+      "score": 0,
+      "text": "CFD最前"
+    },
+    {
+      "name": "mask_5",
+      "score": 0,
+      "text": ""
+    },
+    {
+      "name": "mask_7",
+      "score": 0,
+      "text": ""
+    },
+    {
+      "name": "mask_8",
+      "score": 0,
+      "text": ""
+    },
+    {
+      "name": "mask_9",
+      "score": 0,
+      "text": ""
+    },
+    {
+      "name": "mask_10",
+      "score": 0,
+      "text": ""
+    },
+    {
+      "name": "mask_11",
+      "score": 0,
+      "text": "ス機"
+    }
+  ]
+}

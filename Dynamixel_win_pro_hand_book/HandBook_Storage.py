@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar
+import csv
 import math
+import os
 import time
+import threading
+from datetime import datetime
 from pathlib import Path
-
+from typing import Callable, TypeVar
+from collections import deque
 from .dynamixel_cross_platform import Dynamixel
 from .util.cfg_dict_loader import DynamixelCfg
 
@@ -45,6 +49,16 @@ SP_ROT_BL = cfg.pos.spacer_rot.backlash
 SP_LIN_BACK = cfg.pos.spacer_lin.back
 SP_LIN_KEEP = -1 * cfg.pos.spacer_lin.keep
 SP_LIN_FRONT = SP_LIN_BACK - cfg.pos.spacer_lin.range
+# Experimental partial expansion for image-left tilt = real-world RIGHT book
+# tilt.  The measured maximum stroke is approximately 240 mm for 160000 step,
+# so 20000 step is approximately 30 mm; this is not a precision calibration.
+RIGHT_TILTED_SP_LIN_REDUCTION_STEPS = 0
+# PWMストッパー検知前の相対収縮量。短い右傾斜伸長(130000 step)にも余裕を残す。
+SP_LIN_RELATIVE_BACK_STEPS =  145000
+SP_LIN_RIGHT_TILTED_FRONT = (
+    SP_LIN_FRONT + RIGHT_TILTED_SP_LIN_REDUCTION_STEPS
+)
+
 
 VELOCITY_THRESHOLD = cfg.thresh.vel
 POSITION_THRESHOLD = cfg.thresh.pos
@@ -62,7 +76,42 @@ DXL_MONITOR_INTERVAL_SEC = 0.05
 GRIPPER_STOP_REQUIRED_COUNT = 4
 GRASP_STOP_REQUIRED_COUNT = 8
 
+# 入庫解放では、既存の位置・速度閾値を同時に満たす状態を連続確認する。
+# これらは新しい実機校正値ではなく既存値の再利用であり、運用前に要実機確認。
+STORAGE_RELEASE_TIMEOUT_SEC = 5.0
+STORAGE_RELEASE_SUCCESS_REQUIRED_COUNT = GRIPPER_STOP_REQUIRED_COUNT
+
 T = TypeVar("T")
+# Workerと共有するDynamixel通信ロック
+_DXL_IO_LOCK = threading.RLock()
+SP_LIN_ABORT_EVENT = threading.Event()
+
+def _check_sp_lin_abort() -> None:
+    if SP_LIN_ABORT_EVENT.is_set():
+        raise RuntimeError("SP_LIN emergency stop requested")
+
+
+def set_dxl_io_lock(lock: threading.RLock) -> None:
+    """Worker側から共有ロックを設定する。"""
+    global _DXL_IO_LOCK
+    _DXL_IO_LOCK = lock
+
+
+SP_LIN_MONITOR_DIR = PKG_DIR.parent / "captures" / "strage"
+_SP_LIN_MONITOR_PATH: Path | None = None
+_SP_LIN_MONITOR_PID: int | None = None
+_SP_LIN_MONITOR_WARNED = False
+
+
+def _log_sp_lin_position(
+    event: str,
+    position: int,
+    target: int,
+    *,
+    note: str = "",
+) -> None:
+    """CSV出力を無効化する。"""
+    return
 
 
 # ============================================================
@@ -93,7 +142,8 @@ def _dxl_retry(
 
     for attempt in range(1, retries + 1):
         try:
-            result = operation()
+            with _DXL_IO_LOCK:
+                result = operation()
 
             if attempt > 1:
                 print(
@@ -121,7 +171,9 @@ def _dxl_retry(
                 print(
                     f"[DXL RETRY] reopening serial port: {PORT}"
                 )
-                dxl.reopen_port(wait_sec=wait_sec)
+                with _DXL_IO_LOCK:
+                    dxl.reopen_port(wait_sec=wait_sec)
+
             except Exception as reopen_exc:
                 print(
                     "[DXL RETRY][WARN] reopen_port failed: "
@@ -186,6 +238,8 @@ def _wait_position(
     last_print = start
 
     while True:
+        if dxl_id == SP_LIN_ID:
+            _check_sp_lin_abort()
         now = time.monotonic()
         elapsed = now - start
 
@@ -354,6 +408,173 @@ def init_dynamixels() -> Dynamixel:
 
         raise
 
+# ============================================================
+# SP_LIN stop-detection trial (ID 3 only)
+# ============================================================
+def home_sp_lin_stop_test(
+    dxl: Dynamixel,
+    *,
+    pwm_cap: int = 885,
+    profile_velocity: int = 500,
+    max_travel_steps: int = 1000000,
+    timeout_sec: float = 100.0,
+) -> dict:
+    """
+    SP_LINを+方向へ1回の位置指令で移動させ、
+    実測速度と位置停滞を監視する。
+
+    短距離検証用。ストッパーの原点確定は行わない。
+    """
+
+    axis = SP_LIN_ID
+    old_pwm = None
+    old_profile = None
+    torque_enabled = False
+
+    # 停止指令に失敗した場合、その情報を保持する
+    torque_off_error = None
+
+    try:
+        with _DXL_IO_LOCK:
+            _check_sp_lin_abort()
+            dxl.disable_torque(axis)
+            dxl.set_mode_ex_position(axis)
+
+            old_pwm = int(dxl.read_pwm_limit(axis))
+            old_profile = int(dxl.read_profile_velocity(axis))
+
+            if not (1 <= pwm_cap <= old_pwm):
+                raise ValueError("Invalid PWM limit")
+
+            if profile_velocity < 0:
+                raise ValueError("Invalid profile velocity")
+
+            if not (0 < max_travel_steps <= 1000000):
+                raise ValueError("Travel limit must be 1..1000000")
+
+            if old_pwm != pwm_cap:
+                dxl.write_pwm_limit(axis, pwm_cap)
+
+            if old_profile != profile_velocity:
+                dxl.write_profile_velocity(axis, profile_velocity)
+
+            initial = int(dxl.read_position(axis))
+            target = initial + max_travel_steps
+
+            _check_sp_lin_abort()
+            dxl.write_position(axis, initial)
+            dxl.enable_torque(axis)
+            torque_enabled = True
+
+            _check_sp_lin_abort()
+            dxl.write_position(axis, target)
+
+        print(
+            f"[SP_LIN TEST] start={initial}, target={target}",
+            flush=True
+        )
+
+        started = time.monotonic()
+        pwm_history = deque(maxlen=5)
+
+        while True:
+            _check_sp_lin_abort()
+            elapsed = time.monotonic() - started
+
+            if elapsed >= timeout_sec:
+                raise TimeoutError("SP_LIN test timeout")
+
+            with _DXL_IO_LOCK:
+                pos = int(dxl.read_position(axis))
+                vel = int(dxl.read_velocity(axis))
+                pwm = int(dxl.read_present_pwm(axis))
+
+            pwm_history.append(abs(pwm))
+
+            if len(pwm_history) == 5:
+                pwm_avg = sum(pwm_history) / 5
+
+                # PWM平均の確認
+                if pwm_avg >= 740:
+                    print(
+                        f"[SP_LIN PWM STOP REQUEST] "
+                        f"pos={pos}, vel={vel}, "
+                        f"pwm={pwm}, pwm_avg={pwm_avg:.1f}",
+                        flush=True
+                    )
+
+                    return {
+                        "position": pos,
+                        "pwm": pwm,
+                        "pwm_avg": pwm_avg,
+                        "velocity": vel,
+                        "reason": "high_pwm_detected",
+                        "retraction_confirmed": False,
+                    }
+
+            print(
+                f"[SP_LIN MONITOR] "
+                f"pos={pos}, vel={vel}, pwm={pwm}, "
+                f"remaining={target - pos}",
+                flush=True
+            )
+
+
+            if pos >= target:
+                raise RuntimeError(
+                    "SP_LIN reached additional travel limit "
+                    "without PWM stop detection: "
+                    f"pos={pos}, target={target}, pwm={pwm}"
+                )
+
+            time.sleep(DXL_MONITOR_INTERVAL_SEC)
+
+    finally:
+        # 正常・異常に関係なく停止指令を送る
+        try:
+            with _DXL_IO_LOCK:
+                dxl.disable_torque(axis)
+
+                torque_state = int(dxl.read_torque_enable(axis))
+
+                if torque_state != 0:
+                    raise RuntimeError(
+                        "SP_LIN torque OFF verification failed: "
+                        f"Torque Enable={torque_state}"
+                    )
+
+            print(
+                "[SP_LIN STOP] torque OFF verified (Torque Enable=0)",
+                flush=True
+            )
+
+        except Exception as exc:
+            torque_off_error = exc
+
+            print(
+                f"[SP_LIN][DANGER] torque OFF failed: {exc}",
+                flush=True
+            )
+
+        if old_pwm is not None and old_pwm != pwm_cap:
+            try:
+                with _DXL_IO_LOCK:
+                    dxl.write_pwm_limit(axis, old_pwm)
+            except Exception as exc:
+                print(f"[SP_LIN][WARN] PWM restore failed: {exc}")
+
+        if old_profile is not None and old_profile != profile_velocity:
+            try:
+                with _DXL_IO_LOCK:
+                    dxl.write_profile_velocity(axis, old_profile)
+            except Exception as exc:
+                print(f"[SP_LIN][WARN] velocity restore failed: {exc}")
+        # 停止命令が失敗していたら正常終了させない
+        if torque_off_error is not None:
+            raise RuntimeError(
+                "SP_LIN torque OFF command failed. "
+                "Motor stop is not confirmed."
+            ) from torque_off_error
 
 # ============================================================
 # Spacer linear axis
@@ -376,11 +597,27 @@ def expand_sp_lin(
 
     time.sleep(0.1)
 
+    # 現在位置を取得
+    current_pos = int(_dxl_retry(
+        "read_position(expand_sp_lin_before)",
+        lambda: dxl.read_position(SP_LIN_ID),
+        dxl=dxl,
+    ))
+
+    # 現在位置から相対的に150000 step伸長（マイナス方向）
+    target_pos = current_pos - cfg.pos.spacer_lin.range
+
+    print(
+        f"[SP_LIN RELATIVE EXPAND] "
+        f"current={current_pos}, "
+        f"delta=-{cfg.pos.spacer_lin.range}, target={target_pos}"
+    )
+
     _dxl_retry(
         "write_position(expand_sp_lin)",
         lambda: dxl.write_position(
             SP_LIN_ID,
-            SP_LIN_FRONT,
+            target_pos,
         ),
         dxl=dxl,
     )
@@ -393,7 +630,7 @@ def expand_sp_lin(
         position = _wait_position(
             dxl,
             SP_LIN_ID,
-            SP_LIN_FRONT,
+            target_pos,
             label="SP_LIN EXPAND",
             timeout_sec=timeout_sec,
             print_interval_sec=0.5,
@@ -415,6 +652,97 @@ def expand_sp_lin(
             dxl,
             SP_LIN_ID,
             label="disable_torque(expand_sp_lin_error)",
+        )
+        raise
+
+
+def expand_sp_lin_right_tilted(
+    dxl: Dynamixel,
+    asynchronous: bool = False,
+    timeout_sec: float = 15.0,
+):
+    """右傾斜用に現在位置から相対的に短く伸長する。"""
+
+    # YAMLから伸長量を取得
+    expand_steps = int(cfg.pos.spacer_lin.range)
+    reduction_steps = RIGHT_TILTED_SP_LIN_REDUCTION_STEPS
+
+    relative_steps = expand_steps - reduction_steps
+
+    if relative_steps <= 0:
+        raise ValueError(
+            f"Invalid right-tilted extension: "
+            f"range={expand_steps}, reduction={reduction_steps}"
+        )
+
+    # 現在位置を取得
+    current_pos = int(_dxl_retry(
+        "read_position(expand_sp_lin_right_tilted_before)",
+        lambda: dxl.read_position(SP_LIN_ID),
+        dxl=dxl,
+    ))
+
+    # 現在位置から相対的に伸長
+    target_pos = current_pos - relative_steps
+
+    print(
+        "[SP_LIN RIGHT-TILTED RELATIVE EXPAND] "
+        f"current={current_pos}, "
+        f"delta=-{relative_steps}, "
+        f"target={target_pos}"
+    )
+
+    _dxl_retry(
+        "enable_torque(expand_sp_lin_right_tilted)",
+        lambda: dxl.enable_torque(SP_LIN_ID),
+        dxl=dxl,
+    )
+
+    time.sleep(0.1)
+
+    _dxl_retry(
+        "write_position(expand_sp_lin_right_tilted)",
+        lambda: dxl.write_position(
+            SP_LIN_ID,
+            target_pos,
+        ),
+        dxl=dxl,
+    )
+
+    if asynchronous:
+        print(
+            "[SP_LIN RIGHT-TILTED PARTIAL EXPAND] "
+            "command sent asynchronously"
+        )
+        return True
+
+    try:
+        position = _wait_position(
+            dxl,
+            SP_LIN_ID,
+            target_pos,
+            label="SP_LIN RIGHT-TILTED PARTIAL EXPAND",
+            timeout_sec=timeout_sec,
+            print_interval_sec=0.5,
+        )
+
+        print(
+            "[SP_LIN RIGHT-TILTED PARTIAL EXPAND] "
+            f"done: current={position}"
+        )
+
+        _safe_disable_torque(
+            dxl,
+            SP_LIN_ID,
+            label="disable_torque(expand_sp_lin_right_tilted)",
+        )
+        return True
+
+    except Exception:
+        _safe_disable_torque(
+            dxl,
+            SP_LIN_ID,
+            label="disable_torque(expand_sp_lin_right_tilted_error)",
         )
         raise
 
@@ -485,11 +813,10 @@ def contract_sp_lin_2(
     asynchronous: bool = False,
     timeout_sec: float = 15.0,
 ):
-    """スペーサ直動軸をSP_LIN_BACKまで収縮させる。"""
-    print(
-        f"[SP_LIN BACK] start: target={SP_LIN_BACK}"
-    )
+    """現在位置から相対収縮し、その後PWMによるストッパー検知で終了する。"""
+    print(f"[SP_LIN BACK] start: relative=+{SP_LIN_RELATIVE_BACK_STEPS} steps")
 
+    _check_sp_lin_abort()
     _dxl_retry(
         "enable_torque(contract_sp_lin_2)",
         lambda: dxl.enable_torque(SP_LIN_ID),
@@ -504,15 +831,30 @@ def contract_sp_lin_2(
         dxl=dxl,
     )
 
+    # ここでの位置は固定の原点ではなく、毎サイクル測定した現在位置。
+    target_pos = int(current_pos) + SP_LIN_RELATIVE_BACK_STEPS
+    print(
+        f"[SP_LIN RELATIVE BACK] current={current_pos}, "
+        f"delta=+{SP_LIN_RELATIVE_BACK_STEPS}, target={target_pos}"
+    )
+
+    _log_sp_lin_position(
+        "back_before_command",
+        current_pos,
+        target_pos,
+        note="relative target based on present position",
+    )
+
     print(
         f"[SP_LIN BACK] before command={current_pos}"
     )
 
+    _check_sp_lin_abort()
     _dxl_retry(
         "write_position(contract_sp_lin_2)",
         lambda: dxl.write_position(
             SP_LIN_ID,
-            SP_LIN_BACK,
+            target_pos,
         ),
         dxl=dxl,
     )
@@ -525,21 +867,40 @@ def contract_sp_lin_2(
         position = _wait_position(
             dxl,
             SP_LIN_ID,
-            SP_LIN_BACK,
+            target_pos,
             label="SP_LIN BACK",
             timeout_sec=timeout_sec,
             print_interval_sec=0.2,
+        )
+
+        _log_sp_lin_position(
+            "back_reached_torque_on",
+            position,
+            target_pos,
+            note="relative target reached",
         )
 
         print(
             f"[SP_LIN BACK] done: current={position}"
         )
 
-        _safe_disable_torque(
+        _check_sp_lin_abort()
+        print("[SP_LIN BACK] starting additional PWM detection")
+
+        result = home_sp_lin_stop_test(
             dxl,
-            SP_LIN_ID,
-            label="disable_torque(contract_sp_lin_2)",
+            pwm_cap=885,
+            profile_velocity=500,
+            max_travel_steps=1000000,
+            timeout_sec=20.0,
         )
+
+        if result.get("reason") != "high_pwm_detected":
+            raise RuntimeError(
+                f"SP_LIN PWM detection failed: {result}"
+            )
+
+        print("[SP_LIN BACK] PWM stop confirmed:", result)
         return True
 
     except Exception:
@@ -554,6 +915,230 @@ def contract_sp_lin_2(
 # ============================================================
 # Gripper
 # ============================================================
+def open_for_storage_release_full(
+    dxl: Dynamixel,
+    timeout_sec: float = STORAGE_RELEASE_TIMEOUT_SEC,
+    position_tolerance: int = POSITION_THRESHOLD,
+    velocity_threshold: int = VELOCITY_THRESHOLD,
+    required_count: int = STORAGE_RELEASE_SUCCESS_REQUIRED_COUNT,
+) -> bool:
+    """入庫した書籍を離すため、全開位置到達と停止を同期確認する。"""
+    timeout = float(timeout_sec)
+    position_limit = int(position_tolerance)
+    velocity_limit = int(velocity_threshold)
+    consecutive_required = int(required_count)
+
+    if not math.isfinite(timeout) or timeout <= 0.0:
+        raise ValueError(
+            "storage release timeout_sec must be finite and positive: "
+            f"{timeout_sec}"
+        )
+    if position_limit < 0:
+        raise ValueError(
+            "storage release position_tolerance must be nonnegative: "
+            f"{position_tolerance}"
+        )
+    if velocity_limit < 0:
+        raise ValueError(
+            "storage release velocity_threshold must be nonnegative: "
+            f"{velocity_threshold}"
+        )
+    if consecutive_required <= 0:
+        raise ValueError(
+            "storage release required_count must be positive: "
+            f"{required_count}"
+        )
+
+    print(
+        "[STORAGE RELEASE] gripper full-open confirmation start: "
+        f"target={GRIPPER_FULL_OPEN}, "
+        f"position_tolerance={position_limit}, "
+        f"velocity_threshold={velocity_limit}, "
+        f"required_count={consecutive_required}, "
+        f"timeout={timeout:.2f}s"
+    )
+
+    _dxl_retry(
+        "enable_torque(open_for_storage_release)",
+        lambda: dxl.enable_torque(GRIPPER_ID),
+        dxl=dxl,
+    )
+    _dxl_retry(
+        "write_position(open_for_storage_release)",
+        lambda: dxl.write_position(
+            GRIPPER_ID,
+            GRIPPER_FULL_OPEN,
+        ),
+        dxl=dxl,
+    )
+
+    deadline = time.monotonic() + timeout
+    success_count = 0
+    last_position: int | None = None
+    last_velocity: int | None = None
+    last_position_error: int | None = None
+
+    while True:
+        if time.monotonic() >= deadline:
+            raise TimeoutError(
+                "storage gripper release timeout: "
+                f"target={GRIPPER_FULL_OPEN}, "
+                f"position={last_position}, "
+                f"position_error={last_position_error}, "
+                f"velocity={last_velocity}, "
+                f"success_count={success_count}/{consecutive_required}, "
+                f"timeout={timeout:.2f}s"
+            )
+
+        last_position = int(
+            _dxl_retry(
+                "read_position(open_for_storage_release)",
+                lambda: dxl.read_position(GRIPPER_ID),
+                dxl=dxl,
+            )
+        )
+        last_velocity = int(
+            _dxl_retry(
+                "read_velocity(open_for_storage_release)",
+                lambda: dxl.read_velocity(GRIPPER_ID),
+                dxl=dxl,
+            )
+        )
+        last_position_error = abs(last_position - GRIPPER_FULL_OPEN)
+
+        position_ok = last_position_error <= position_limit
+        velocity_ok = abs(last_velocity) <= velocity_limit
+        if position_ok and velocity_ok:
+            success_count += 1
+        else:
+            success_count = 0
+
+        if success_count >= consecutive_required:
+            print(
+                "[STORAGE RELEASE] gripper release confirmed: "
+                f"position={last_position}, "
+                f"position_error={last_position_error}, "
+                f"velocity={last_velocity}, "
+                f"success_count={success_count}"
+            )
+            print(
+                "[STORAGE RELEASE] gripper torque remains enabled "
+                "through xArm retreat"
+            )
+            return True
+
+        time.sleep(DXL_MONITOR_INTERVAL_SEC)
+
+
+
+# Default for the existing worker command's storage release.
+STORAGE_RELEASE_PARTIAL_OFFSET_STEPS = 5000
+
+
+def open_for_storage_release(
+    dxl: Dynamixel,
+    timeout_sec: float = STORAGE_RELEASE_TIMEOUT_SEC,
+    position_tolerance: int = POSITION_THRESHOLD,
+    velocity_threshold: int = VELOCITY_THRESHOLD,
+    required_count: int = STORAGE_RELEASE_SUCCESS_REQUIRED_COUNT,
+) -> bool:
+    """Worker-compatible release: use measured position +2000, not full opening."""
+    return open_for_storage_release_partial(
+        dxl,
+        offset_steps=STORAGE_RELEASE_PARTIAL_OFFSET_STEPS,
+        timeout_sec=timeout_sec,
+        position_tolerance=position_tolerance,
+        velocity_threshold=velocity_threshold,
+        required_count=required_count,
+    )
+
+
+def open_for_storage_release_partial(
+    dxl: Dynamixel,
+    offset_steps: int = 5000,
+    timeout_sec: float = STORAGE_RELEASE_TIMEOUT_SEC,
+    position_tolerance: int = POSITION_THRESHOLD,
+    velocity_threshold: int = VELOCITY_THRESHOLD,
+    required_count: int = STORAGE_RELEASE_SUCCESS_REQUIRED_COUNT,
+) -> bool:
+    """Open from measured gripper position by offset_steps (not full-open).
+
+    Must confirm the book is free before commanding the robot retreat.
+    Torque intentionally stays ON after successful positioning.
+    """
+    if not isinstance(offset_steps, int) or isinstance(offset_steps, bool) or offset_steps <= 0:
+        raise ValueError(f"offset_steps must be a positive integer: {offset_steps!r}")
+    timeout = float(timeout_sec)
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError(f"invalid release timeout: {timeout_sec}")
+    if position_tolerance < 0 or velocity_threshold < 0 or required_count <= 0:
+        raise ValueError("invalid partial release confirmation thresholds")
+
+    _dxl_retry(
+        "enable_torque(storage_release_partial)",
+        lambda: dxl.enable_torque(GRIPPER_ID),
+        dxl=dxl,
+    )
+    current_pos = int(_dxl_retry(
+        "read_position(storage_release_partial_before)",
+        lambda: dxl.read_position(GRIPPER_ID),
+        dxl=dxl,
+    ))
+    if current_pos > GRIPPER_FULL_OPEN:
+        raise RuntimeError(
+            f"gripper measured position exceeds configured full-open: "
+            f"current={current_pos}, full_open={GRIPPER_FULL_OPEN}"
+        )
+    target_pos = min(current_pos + offset_steps, int(GRIPPER_FULL_OPEN))
+    if target_pos <= current_pos:
+        raise RuntimeError(
+            f"no available gripper opening stroke: current={current_pos}, "
+            f"full_open={GRIPPER_FULL_OPEN}"
+        )
+    print(
+        f"[STORAGE PARTIAL RELEASE] current={current_pos}, "
+        f"offset_requested={offset_steps}, target={target_pos}, "
+        f"actual_command_delta={target_pos - current_pos}"
+    )
+    _dxl_retry(
+        "write_position(storage_release_partial)",
+        lambda: dxl.write_position(GRIPPER_ID, target_pos),
+        dxl=dxl,
+    )
+
+    deadline = time.monotonic() + timeout
+    successes = 0
+    last_pos = current_pos
+    last_vel = 0
+    while time.monotonic() < deadline:
+        last_pos = int(_dxl_retry(
+            "read_position(storage_release_partial)",
+            lambda: dxl.read_position(GRIPPER_ID),
+            dxl=dxl,
+        ))
+        last_vel = int(_dxl_retry(
+            "read_velocity(storage_release_partial)",
+            lambda: dxl.read_velocity(GRIPPER_ID),
+            dxl=dxl,
+        ))
+        if (abs(last_pos - target_pos) <= int(position_tolerance)
+                and abs(last_vel) <= int(velocity_threshold)):
+            successes += 1
+        else:
+            successes = 0
+        if successes >= int(required_count):
+            print(
+                f"[STORAGE PARTIAL RELEASE] target reached: "
+                f"position={last_pos}, target={target_pos}, velocity={last_vel}; "
+                "torque remains enabled"
+            )
+            return True
+        time.sleep(DXL_MONITOR_INTERVAL_SEC)
+    raise TimeoutError(
+        f"storage partial release timeout: current={last_pos}, target={target_pos}, "
+        f"velocity={last_vel}, confirmations={successes}/{required_count}"
+    )
+
 def open_until_full(
     dxl: Dynamixel,
     asynchronous: bool = False,
@@ -659,7 +1244,7 @@ def grasp(
             "write_position(grasp)",
             lambda: dxl.write_position(
                 GRIPPER_ID,
-                GRIPPER_CLOSE,
+                0,
             ),
             dxl=dxl,
         )

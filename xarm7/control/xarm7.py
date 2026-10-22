@@ -5,6 +5,7 @@ from pathlib import Path
 import time
 from xarm7.control.util import convert
 from rclpy.action import ActionClient
+from rclpy.executors import SingleThreadedExecutor
 import rclpy
 from xarm7_moveit_msgs.action import MoveTCP
 
@@ -164,14 +165,14 @@ PLACING_FOR_TEST_Q = [
 
 
 CAPTURE_RIGHT_STRAGE = [
-   66.4,
-   -49.4,
-   187.9,
-   40.9,
-   29.3,
-   -10.9,
-   43.1
-] 
+    88.2,
+    -55.2,
+    171.3,
+    65.1,
+    40.1,
+    11.6,
+    44.4,
+]
 
 DISTANCE_BOOKSHELF = np.radians(60.0)
 INSERT_CONTAINER = -330
@@ -203,7 +204,7 @@ Z_OFFSET = 0.0
 # storage 全部で 420mm 前後
 STORAGE_INSERT = 290
 SPACER_INSERT_DX = 100
-INSERT_BOOK_TIP_DX = 90
+INSERT_BOOK_TIP_DX = 80
 # INSERT_BOOK_FULL_DX = STORAGE_INSERT - SPACER_INSERT_DX - INSERT_BOOK_TIP_DX
 PLACE_BOOK_DZ = -5.0
 INSERT_BOOK_FULL_DX = 100
@@ -211,6 +212,155 @@ INSERT_BOOK_FULL_DX = 100
 def _wrap_to_pi(rad: float) -> float:
         """角度差を [-pi, pi] に正規化（回転の無駄な大回りを避ける）"""
         return float((rad + np.pi) % (2.0 * np.pi) - np.pi)
+
+
+class JointCurrentLogger:
+    """
+    把持・取り出し中の全関節電流をバックグラウンドで記録する。
+
+    xArm本体の保護停止（エラー31など）でプログラムが強制終了されても
+    データが残るよう、1サンプルごとにCSVへ書き込んでflushする。
+    """
+
+    SUMMARY_PATH = (
+        "/home/book/pro_book_SAM3/pro_hand_book_python/captures/"
+        "joint_current_summary.csv"
+    )
+
+    def __init__(self, xarm_api, log_dir, roll_deg=None,
+                 sample_interval: float = 0.02):
+        import threading
+        from datetime import datetime as _datetime
+
+        self.arm = xarm_api
+        self.roll_deg = roll_deg
+        self.sample_interval = sample_interval
+        self.phase = "start"
+        self.ts = _datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.csv_path = None
+        if log_dir is not None:
+            log_dir_path = Path(log_dir)
+            log_dir_path.mkdir(parents=True, exist_ok=True)
+            self.csv_path = log_dir_path / f"joint_current_log_{self.ts}.csv"
+        self.max_abs = [0.0] * 7
+        self.max_phase = [""] * 7
+        self.first_error = None  # (elapsed, phase, error_code)
+        self._stop_event = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+
+    def _read_settings(self):
+        """衝突感度・TCP荷重（読むだけで設定は変えない）"""
+        try:
+            sensitivity = self.arm.collision_sensitivity
+        except Exception as e:
+            sensitivity = f"error:{e}"
+        try:
+            tcp_load = self.arm.tcp_load
+        except Exception as e:
+            tcp_load = f"error:{e}"
+        return sensitivity, tcp_load
+
+    def start(self):
+        self.sensitivity, self.tcp_load = self._read_settings()
+        print(
+            "[JOINT LOG] start: "
+            f"collision_sensitivity={self.sensitivity}, "
+            f"tcp_load={self.tcp_load}"
+        )
+        self._thread.start()
+        return self
+
+    def set_phase(self, phase: str):
+        self.phase = phase
+
+    def _run(self):
+        import csv
+
+        f = None
+        writer = None
+        if self.csv_path is not None:
+            f = self.csv_path.open("w", newline="", encoding="utf-8")
+            writer = csv.writer(f)
+            writer.writerow(["roll_deg", "collision_sensitivity", "tcp_load"])
+            writer.writerow([self.roll_deg, self.sensitivity, self.tcp_load])
+            writer.writerow([])
+            writer.writerow(
+                ["elapsed_sec", "phase", "state", "error_code", "warn_code"]
+                + [f"J{i}_current" for i in range(1, 8)]
+            )
+            f.flush()
+
+        start_time = time.monotonic()
+        try:
+            while not self._stop_event.is_set():
+                elapsed = time.monotonic() - start_time
+                currents = self.arm.currents
+                if currents is None or len(currents) < 7:
+                    currents = [float("nan")] * 7
+                currents = [float(c) for c in currents[:7]]
+                state = self.arm.state
+                error_code = self.arm.error_code
+                warn_code = self.arm.warn_code
+
+                for i, c in enumerate(currents):
+                    if math.isfinite(c) and abs(c) > self.max_abs[i]:
+                        self.max_abs[i] = abs(c)
+                        self.max_phase[i] = self.phase
+
+                if error_code != 0 and self.first_error is None:
+                    self.first_error = (elapsed, self.phase, error_code)
+                    print(
+                        "[JOINT LOG] xArm error detected: "
+                        f"code={error_code}, phase={self.phase}, "
+                        f"currents={[round(c, 3) for c in currents]}"
+                    )
+
+                if writer is not None:
+                    writer.writerow(
+                        [f"{elapsed:.3f}", self.phase, state,
+                         error_code, warn_code] + currents
+                    )
+                    f.flush()
+
+                time.sleep(self.sample_interval)
+        finally:
+            if f is not None:
+                f.close()
+
+    def stop(self, result: str):
+        """記録を止めて、要約CSVへ1行追記する"""
+        import csv
+
+        self._stop_event.set()
+        self._thread.join(timeout=1.0)
+
+        summary_path = Path(self.SUMMARY_PATH)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_exists = summary_path.exists()
+        err_elapsed, err_phase, err_code = (
+            self.first_error if self.first_error else ("", "", 0)
+        )
+        with summary_path.open("a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if not summary_exists:
+                writer.writerow(
+                    ["timestamp", "roll_deg", "result",
+                     "collision_sensitivity", "tcp_load",
+                     "error_code", "error_phase", "error_elapsed_sec"]
+                    + [f"J{i}_max_abs" for i in range(1, 8)]
+                    + [f"J{i}_max_phase" for i in range(1, 8)]
+                    + ["detail_csv_path"]
+                )
+            writer.writerow(
+                [self.ts, self.roll_deg, result,
+                 self.sensitivity, self.tcp_load,
+                 err_code, err_phase, err_elapsed]
+                + [round(v, 4) for v in self.max_abs]
+                + self.max_phase
+                + [str(self.csv_path)]
+            )
+        print(f"[JOINT LOG] saved: {self.csv_path}")
+        print(f"[JOINT SUMMARY] appended: {summary_path}")
 
 
 class XArm7:
@@ -264,8 +414,19 @@ class XArm7:
     def _get_joint_angle(self, is_radian: bool = True):
         code, angles = self.arm.get_servo_angle(is_radian=is_radian)  # angles: list（7軸なら7要素）
         if code != 0:
-            raise RuntimeError(f"get_position failed, code={code}")
-        return angles[:7]
+            raise RuntimeError(f"get_servo_angle failed, code={code}")
+
+        if not isinstance(angles, (list, tuple, np.ndarray)):
+            raise RuntimeError(
+                f"invalid servo angle response: {angles!r}"
+            )
+
+        if len(angles) < 7:
+            raise RuntimeError(
+                f"servo angle response has too few elements: {angles!r}"
+            )
+
+        return list(angles[:7])
         
 
     def _moveJ(self, joints, velocity, acceleration, asynchronous: bool = False):
@@ -511,10 +672,10 @@ class XArm7:
 
         if side == "right":
             roll_micro_calib_mm = 1.5 * max(0.7, abs(d_roll_rad) / np.deg2rad(60))
-            roll_calib_right = -2.6618 * d_roll_rad**2 + 8.2786 * d_roll_rad + 3.7139 - roll_micro_calib_mm
+            roll_calib_right = -2.6618 * d_roll_rad**2 - 1.3218 * d_roll_rad + 2.5725 - roll_micro_calib_mm #-2.6618 * d_roll_rad**2 + 8.2786 * d_roll_rad + 3.7139 - roll_micro_calib_mm
             target_position_calib_right = 0
             calib_rad_roll = 0.0016*d_roll_rad**2 + 0.0036*d_roll_rad - 0.0294  #先こっちやる
-            calib_rad_y = 0#-9e-8 *y**2 - 0.0001 *y - 0.0367 #先こっちやる
+            calib_rad_y = 0 #-9e-8 *y**2 - 0.0001 *y - 0.0367 #先こっちやる
 
 
             x_offset_mm *= right
@@ -533,7 +694,7 @@ class XArm7:
 
         target_pose = [
             float(p_robot_mm[0] + x_offset_mm),
-            float(p_robot_mm[1] + y_offset_mm  ),
+            float(p_robot_mm[1] + y_offset_mm - 2),
             float(p_robot_mm[2]),
             float(curr[3] + d_roll_rad + calib_rad ),
             float(curr[4]),
@@ -596,6 +757,7 @@ class XArm7:
         return ret
 
 
+
     def moveL_to_2nd_pos_with_offset(self,
                                      velocity: float = TCP_VEL_1,
                                      acceleration: float = TCP_ACC_1,
@@ -653,6 +815,8 @@ class XArm7:
         retry_y_offset_mm: float = 0.0,
         retry_move_speed: float = 120.0,
         retry_move_acceleration: float = 80.0,
+        log_dir=None, 
+        roll_deg=None,
     ):
         """
         左右の書架への挿入中にJ1電流を監視する。
@@ -713,6 +877,72 @@ class XArm7:
         import time
 
         arm = self.arm
+        
+        # 電流ログ用リスト
+        current_log = []   
+
+        # ==================================================
+        # 電流ログ保存
+        # ==================================================
+        def save_current_log(result_reason):
+            if log_dir is None:
+                return None
+
+            import csv
+            from pathlib import Path as _Path
+            from datetime import datetime as _datetime
+
+            log_dir_path = _Path(log_dir)
+            log_dir_path.mkdir(parents=True, exist_ok=True)
+
+            ts = _datetime.now().strftime("%Y%m%d_%H%M%S")
+            csv_path = log_dir_path / f"j1_current_log_{ts}.csv"
+
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["roll_deg", "result", "max_j1_current_abs"])
+                writer.writerow([
+                    roll_deg,
+                    result_reason,
+                    max_j1_current_abs,
+                ])
+                writer.writerow([])
+                writer.writerow(["elapsed_sec", "j1_current_raw", "j1_current_abs"])
+                for row in current_log:
+                    writer.writerow(row)
+
+            print(f"[CURRENT LOG] saved: {csv_path}")
+            
+            # ==================================================
+            # サマリーCSVへ追記
+            # ==================================================
+            summary_path = _Path(
+                "/home/book/pro_book_SAM3/pro_hand_book_python/captures/j1_current_summary.csv"
+            )
+            summary_path.parent.mkdir(parents=True, exist_ok=True)
+            summary_exists = summary_path.exists()
+
+            with summary_path.open("a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                if not summary_exists:
+                    writer.writerow([
+                        "timestamp",
+                        "roll_deg",
+                        "result",
+                        "max_j1_current_abs",
+                        "detail_csv_path",
+                    ])
+                writer.writerow([
+                    ts,
+                    roll_deg,
+                    result_reason,
+                    max_j1_current_abs,
+                    str(csv_path),
+                ])
+
+            print(f"[SUMMARY LOG] appended: {summary_path}")
+            
+            return csv_path
 
         # ==================================================
         # 入力値確認
@@ -1057,6 +1287,11 @@ class XArm7:
                 max_j1_current_abs,
                 float(j1_current_abs),
             )
+            
+            # 時系列ログに記録
+            current_log.append(
+                (elapsed, j1_current, j1_current_abs)
+            )
 
             if j1_current_abs > j1_threshold:
                 trigger_count += 1
@@ -1080,6 +1315,8 @@ class XArm7:
                 retry_target_pose = (
                     move_to_retry_recognition_pose()
                 )
+
+                save_current_log("current_threshold")
 
                 return {
                     "ok": False,
@@ -1124,6 +1361,9 @@ class XArm7:
                 moving_detected
                 and moving is False
             ):
+                
+                save_current_log("completed")
+
                 return {
                     "ok": True,
                     "reason": "completed",
@@ -1138,6 +1378,9 @@ class XArm7:
                 and not moving_detected
                 and moving is False
             ):
+
+                save_current_log("completed")
+
                 return {
                     "ok": True,
                     "reason": "completed",
@@ -1148,6 +1391,8 @@ class XArm7:
 
             if elapsed >= timeout:
                 stop_motion()
+
+                save_current_log("timeout")
 
                 return {
                     "ok": False,
@@ -1193,6 +1438,13 @@ class XArm7:
             acceleration=acceleration,
             asynchronous=asynchronous,
         )
+
+    def start_joint_current_log(self, log_dir, roll_deg=None,
+                                sample_interval: float = 0.02):
+        """把持・取り出し中の全関節電流の記録を開始する"""
+        return JointCurrentLogger(
+            self.arm, log_dir, roll_deg, sample_interval
+        ).start()
 
     def moveL_post_grasp_right(self,
                          velocity: float = TCP_VEL_1,
@@ -1408,6 +1660,8 @@ class XArm7:
         retry_x_offset_mm: float = 0.0,
         retry_move_speed: float = 120.0,
         retry_move_acceleration: float = 80.0,
+        log_dir=None,
+        roll_deg=None,
     ):
         """
         入庫用 -Z 挿入 + J1/J2電流監視
@@ -1432,6 +1686,41 @@ class XArm7:
         import time
 
         arm = self.arm
+        
+        current_log = []   # [(経過時間, J1電流(生値), J1電流(絶対値)), ...]
+
+        # ==================================================
+        # 電流ログ保存
+        # ==================================================
+        def save_current_log(result_reason):
+            if log_dir is None:
+                return None
+
+            import csv
+            from pathlib import Path as _Path
+            from datetime import datetime as _datetime
+
+            log_dir_path = _Path(log_dir)
+            log_dir_path.mkdir(parents=True, exist_ok=True)
+
+            ts = _datetime.now().strftime("%Y%m%d_%H%M%S")
+            csv_path = log_dir_path / f"j1_current_log_{ts}.csv"
+
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow(["roll_deg", "result", "max_j1_current_abs"])
+                writer.writerow([
+                    roll_deg,
+                    result_reason,
+                    max_j1_current_abs,
+                ])
+                writer.writerow([])
+                writer.writerow(["elapsed_sec", "j1_current_raw", "j1_current_abs"])
+                for row in current_log:
+                    writer.writerow(row)
+
+            print(f"[CURRENT LOG] saved: {csv_path}")
+            return csv_path
 
         # ==================================================
         # 入力確認
@@ -2020,20 +2309,9 @@ class XArm7:
 
         return self._moveL(next_pose, velocity, acceleration, asynchronous)
 
-
-    def moveL_to_post_storage(self,
-                        velocity: float = TCP_VEL_1,
-                        acceleration: float = TCP_ACC_1,
-                        asynchronous: bool = False):
-        curr_pose = self._get_tcp_pose(is_radian=True)
-        pos_relative = [-STORAGE_INSERT, 0.0, -PLACE_BOOK_DZ, 0.0, 0.0, 0.0]
-        next_pose = [a + b for a, b in zip(curr_pose, pos_relative)]
-
-        return self._moveL(next_pose, velocity, acceleration, asynchronous)
-    
     
     def move_to_target_rpy_only(
-        arm: "XArm7",
+        self,
         *,
         target_pose_mm_rad: np.ndarray | list,  # [x,y,z,roll,pitch,yaw] xyz[mm], rpy[rad]
         sleep_s: float = 0.02,
@@ -2042,6 +2320,7 @@ class XArm7:
         """
         現在の xyz は維持したまま、roll/pitch/yaw だけ target に合わせる
         """
+        arm = self
         target = np.asarray(target_pose_mm_rad, dtype=np.float64).reshape(6)
 
         curr = arm.get_tcp_pose(is_radian=True)  # [mm,mm,mm, roll,pitch,yaw] (想定)
@@ -2064,7 +2343,7 @@ class XArm7:
 
 
     def move_to_target_xyz_only(
-        arm: "XArm7",
+        self,
         *,
         target_pose_mm_rad: np.ndarray | list,  # [x,y,z,roll,pitch,yaw] xyz[mm], rpy[rad]
         sleep_s: float = 0.02,
@@ -2072,6 +2351,7 @@ class XArm7:
         """
         現在の roll/pitch/yaw は維持したまま、xyz だけ target に合わせる
         """
+        arm = self
         target = np.asarray(target_pose_mm_rad, dtype=np.float64).reshape(6)
 
         curr = arm.get_tcp_pose(is_radian=True)  # [mm,mm,mm, roll,pitch,yaw] (想定)
@@ -2160,9 +2440,26 @@ class XArm7:
 
     def get_err_warn(self) -> tuple[int, int]:
         """(error_code, warn_code)"""
-        return self.arm.get_err_warn_code()
 
-    def ensure_xarm_ok(arm, where=""):
+        code, err_warn = self.arm.get_err_warn_code()
+
+        if code != 0:
+            raise RuntimeError(
+                f"get_err_warn_code failed code={code}"
+            )
+
+        if (
+            not isinstance(err_warn, (list, tuple))
+            or len(err_warn) < 2
+        ):
+            raise RuntimeError(
+                f"invalid get_err_warn_code response: {err_warn!r}"
+            )
+
+        return int(err_warn[0]), int(err_warn[1])
+
+    def ensure_xarm_ok(self, where=""):
+        arm = self
         state = arm.get_state()
         err, warn = arm.get_err_warn()
 
@@ -2214,6 +2511,11 @@ class XArm7:
 
         goal_handle = future.result()
 
+        if goal_handle is None:
+            raise RuntimeError(
+                "MoveTCP goal handle is None"
+            )
+
         if not goal_handle.accepted:
             raise RuntimeError("MoveTCP rejected")
 
@@ -2246,7 +2548,7 @@ class XArm7:
         return True
 
     def moveJ_to_return_pose_direct(
-        arm,
+        self,
         joint_deg=None,
         speed=20,
         mvacc=200,
@@ -2259,7 +2561,7 @@ class XArm7:
         """
 
         if joint_deg is None:
-            joint_deg = RETURN_JOINT_DEG
+            joint_deg = INIT_Q_DEG
 
         print("\n========== RETURN JOINT MOVE ==========")
         print("target joint deg =", joint_deg)
@@ -2267,21 +2569,8 @@ class XArm7:
         print("mvacc =", mvacc)
         print("=======================================\n")
 
-        # XArm7クラスの中にSDK本体が arm.arm として入っている場合
-        sdk_arm = getattr(arm, "arm", None)
-
-        # もし arm.arm が無ければ arm._arm も見る
-        if sdk_arm is None:
-            sdk_arm = getattr(arm, "_arm", None)
-
-        # それでも無ければ、XArm7自体が set_servo_angle を持っているか見る
-        if sdk_arm is None:
-            sdk_arm = arm
-
-        if not hasattr(sdk_arm, "set_servo_angle"):
-            raise RuntimeError(
-                "set_servo_angle が見つからない。XArm7内のSDK本体の変数名を確認して。"
-            )
+        # XArm7 が保持している xArm SDK 本体を使用
+        sdk_arm = self.arm
 
         ret = sdk_arm.set_servo_angle(
             angle=joint_deg,
@@ -2676,14 +2965,14 @@ def main():
     rclpy.init()
 
     node = rclpy.create_node("main_node")
-    executor = rclpy.executors.SingleThreadedExecutor()
+    executor = SingleThreadedExecutor()
     executor.add_node(node)
 
     arm = XArm7(node)
     while not arm.move_tcp._client.wait_for_server(timeout_sec=0.1):
         executor.spin_once(timeout_sec=0.1)
 
-    arm.moveJ_to_init_Q(asynchronous=False)
+    arm.moveJ_to_init_Q_DEG(asynchronous=False)
 
     future = arm.move_tcp.move_tcp(dx=-0.05)
 
@@ -2691,6 +2980,12 @@ def main():
         executor.spin_once(timeout_sec=0.1)
 
     goal_handle = future.result()
+
+    if goal_handle is None:
+        raise RuntimeError(
+            "MoveTCP goal handle is None"
+        )
+
     if not goal_handle.accepted:
         raise RuntimeError("MoveTCP rejected")
 

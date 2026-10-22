@@ -699,10 +699,10 @@ def move_to_mm(inst, target_mm, estop_event=None):
                 pos - target_mm
             )
 
-            print(
-                f"  pos={pos:.2f} mm "
-                f"(err={err:.2f} mm)"
-            )
+            # print(
+            #     f"  pos={pos:.2f} mm "
+            #     f"(err={err:.2f} mm)"
+            # )
 
             if err <= POSITION_TOLERANCE_MM:
                 print("[OK] reached")

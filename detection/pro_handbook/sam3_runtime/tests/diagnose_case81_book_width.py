@@ -24,7 +24,7 @@ RUN = BASE / "captures/100test_offline_SAM3_debug_20260724_173921"
 CASE = RUN / "81"
 INPUT = BASE / "captures/100test/81"
 OUT = CASE / "book_width_diagnosis"
-OLD_CASE = Path("/home/book/pro_book/pro_hand_book_python/captures/100test/81")
+OLD_CASE = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/100test/81")
 GT_MM = 13.7
 STAGES = {
     "raw_valid_depth": "pointcloud_mask_valid_depth_raw.ply",

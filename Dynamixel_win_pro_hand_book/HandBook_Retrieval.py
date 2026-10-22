@@ -22,6 +22,7 @@ import os
 import subprocess
 import sys
 import time
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, TypeVar
@@ -95,6 +96,15 @@ VOLTAGE_DROP_WARNING_V = 0.5
 
 T = TypeVar("T")
 
+# Workerと共有するDynamixel通信ロック（同一プロセス内）
+_DXL_IO_LOCK = threading.RLock()
+
+
+def set_dxl_io_lock(lock: threading.RLock) -> None:
+    """同一Dynamixel接続を使うモジュールと排他ロックを共有する。"""
+    global _DXL_IO_LOCK
+    _DXL_IO_LOCK = lock
+
 
 # =========================================================
 # 通信再試行
@@ -122,7 +132,8 @@ def _dxl_retry(
 
     for attempt in range(1, retries + 1):
         try:
-            result = operation()
+            with _DXL_IO_LOCK:
+                result = operation()
 
             if attempt > 1:
                 print(
@@ -154,9 +165,10 @@ def _dxl_retry(
                         "reopening serial port before retry..."
                     )
 
-                    dxl.reopen_port(
-                        wait_sec=wait_sec
-                    )
+                    with _DXL_IO_LOCK:
+                        dxl.reopen_port(
+                            wait_sec=wait_sec
+                        )
 
                 except Exception as reopen_exc:
                     print(
@@ -229,9 +241,10 @@ def log_dynamixel_voltage(
 
     for dxl_id in _voltage_target_ids():
         try:
-            voltage = float(
-                dxl.read_input_voltage(dxl_id)
-            )
+            with _DXL_IO_LOCK:
+                voltage = float(
+                    dxl.read_input_voltage(dxl_id)
+                )
 
             if dxl_id not in _VOLTAGE_BASELINE_BY_ID:
                 _VOLTAGE_BASELINE_BY_ID[dxl_id] = voltage
@@ -460,7 +473,8 @@ def _probe_dynamixel_bus_once() -> bool:
     try:
         for name, dxl_id in _dynamixel_bus_targets():
             try:
-                model_number = probe.ping(dxl_id)
+                with _DXL_IO_LOCK:
+                    model_number = probe.ping(dxl_id)
 
                 print(
                     "[DXL BUS PROBE] "
@@ -484,7 +498,8 @@ def _probe_dynamixel_bus_once() -> bool:
 
     finally:
         try:
-            probe.close_port()
+            with _DXL_IO_LOCK:
+                probe.close_port()
         except Exception as exc:
             print(
                 "[DXL BUS PROBE] close warning: "
@@ -498,7 +513,8 @@ def _verify_dynamixel_bus_on_object(
     """初期化済みオブジェクトでID1/ID2/ID3すべてを最終確認する。"""
 
     for name, dxl_id in _dynamixel_bus_targets():
-        model_number = dxl.ping(dxl_id)
+        with _DXL_IO_LOCK:
+            model_number = dxl.ping(dxl_id)
 
         print(
             "[DXL BUS VERIFY] "
@@ -901,7 +917,8 @@ def _initialize_after_bus_probe(
     except Exception:
         if recovered_dxl is not None:
             try:
-                recovered_dxl.close_port()
+                with _DXL_IO_LOCK:
+                    recovered_dxl.close_port()
             except Exception:
                 pass
         raise
@@ -919,7 +936,8 @@ def _recover_dynamixel_object_with_ping(
     )
 
     try:
-        old_dxl.close_port()
+        with _DXL_IO_LOCK:
+            old_dxl.close_port()
         print(
             "[DXL LONG RECOVERY] old Dynamixel port closed"
         )
@@ -1049,7 +1067,8 @@ def _recover_dynamixel_object_with_ping(
 
     # 親プロセス側の古いシリアルポートを確実に閉じる
     try:
-        old_dxl.close_port()
+        with _DXL_IO_LOCK:
+            old_dxl.close_port()
     except Exception:
         pass
 
@@ -1206,9 +1225,10 @@ def init_dynamixels() -> Dynamixel:
 
         # 初期化失敗時も可能ならTorqueを切る
         try:
-            dxl.disable_torque(
-                GRIPPER_ID
-            )
+            with _DXL_IO_LOCK:
+                dxl.disable_torque(
+                    GRIPPER_ID
+                )
         except Exception as torque_exc:
             print(
                 "[DXL CLEANUP] disable_torque failed: "
@@ -1216,7 +1236,8 @@ def init_dynamixels() -> Dynamixel:
             )
 
         try:
-            dxl.close_port()
+            with _DXL_IO_LOCK:
+                dxl.close_port()
         except Exception as close_exc:
             print(
                 "[DXL CLEANUP] close_port failed: "
@@ -1612,10 +1633,10 @@ def grasp(
                 retries=1,
             )
 
-            print(
-                "[GRASP DEBUG] "
-                f"velocity={last_velocity}"
-            )
+            # print(
+            #     "[GRASP DEBUG] "
+            #     f"velocity={last_velocity}"
+            # )
 
             if abs(last_velocity) < VELOCITY_THRESHOLD:
                 completion_reason = "velocity_stopped"
@@ -1634,16 +1655,6 @@ def grasp(
             retries=1,
         )
 
-        # 把持後はTorque OFF
-        _dxl_retry(
-            "disable_torque(grasp_complete)",
-            lambda: dxl.disable_torque(
-                GRIPPER_ID
-            ),
-            dxl=dxl,
-            retries=1,
-        )
-
         result = {
             "position": int(last_position),
             "velocity": int(last_velocity),
@@ -1655,6 +1666,16 @@ def grasp(
             f"position={result['position']}, "
             f"velocity={result['velocity']}, "
             f"reason={result['reason']}"
+        )
+
+        # 把持後はTorque OFF
+        _dxl_retry(
+            "disable_torque(grasp_complete)",
+            lambda: dxl.disable_torque(
+                GRIPPER_ID
+            ),
+            dxl=dxl,
+            retries=1,
         )
 
         return result
@@ -1739,10 +1760,10 @@ def open_until_full(
                     retries=1,
                 )
 
-                print(
-                    "[GRIPPER DEBUG] "
-                    f"velocity={last_velocity}"
-                )
+                # print(
+                #     "[GRIPPER DEBUG] "
+                #     f"velocity={last_velocity}"
+                # )
 
                 if abs(last_velocity) < VELOCITY_THRESHOLD:
                     print(
@@ -1829,9 +1850,10 @@ def _cleanup_dynamixel(dxl: Dynamixel | None) -> None:
     )
 
     try:
-        dxl.disable_torque(
-            GRIPPER_ID
-        )
+        with _DXL_IO_LOCK:
+            dxl.disable_torque(
+                GRIPPER_ID
+            )
     except Exception as exc:
         print(
             "[DXL CLEANUP] disable_torque failed: "
@@ -1850,7 +1872,8 @@ def _cleanup_dynamixel(dxl: Dynamixel | None) -> None:
     )
 
     try:
-        dxl.close_port()
+        with _DXL_IO_LOCK:
+            dxl.close_port()
     except Exception as exc:
         print(
             "[DXL CLEANUP] close_port failed: "
@@ -1859,31 +1882,47 @@ def _cleanup_dynamixel(dxl: Dynamixel | None) -> None:
 
 
 if __name__ == "__main__":
-    hand_motors: Dynamixel | None = None
+    # 単体実行。GRIPPERは既存grasp()をそのまま使用する。
+    # SP_LINは以前部品が外れたため、まず False でGRIPPER単体を確認。
+    ENABLE_SP_LIN_STOP_TEST = True
 
+    hand_motors: Dynamixel | None = None
     try:
         hand_motors = init_dynamixels()
-        open_until_width(
+
+        # ① グリッパを全開にする
+        print("[HOME TEST] GRIPPER: opening...")
+        hand_motors = open_until_full(
             hand_motors,
-            65,
+            asynchronous=False,
         )
-        input(
-            "Enterで把持を開始します。"
-        )
-        grasp(hand_motors)
-        time.sleep(3.0)
 
+        # ② 開放完了後、少し待機
+        time.sleep(2.0)
+
+        # ③ グリッパを閉じる
+        print("[HOME TEST] GRIPPER: grasping...")
+        gripper_result = grasp(hand_motors)
+
+        print(f"[HOME TEST] GRIPPER result: {gripper_result}")
+
+        if ENABLE_SP_LIN_STOP_TEST:
+            # 同じDynamixel接続を使用。別プロセスで同時操作しない。
+            from . import HandBook_Storage as Storage
+            result = Storage.home_sp_lin_stop_test(hand_motors)
+            print(f"[HOME TEST] SP_LIN result: {result}")
+        else:
+            print("[HOME TEST] SP_LIN disabled until output cap and mechanism are validated")
     except KeyboardInterrupt:
-        print("KeyboardInterrupt")
-
+        print("[HOME TEST] interrupted")
     except Exception as exc:
-        print(
-            "[DXL FATAL] "
-            f"{_format_exception(exc)}"
-        )
+        print(f"[DXL FATAL] {_format_exception(exc)}")
         raise
-
     finally:
-        _cleanup_dynamixel(
-            hand_motors
-        )
+        if hand_motors is not None:
+            try:
+                with _DXL_IO_LOCK:
+                    hand_motors.disable_torque(SP_LIN_ID)
+            except Exception as exc:
+                print(f"[DXL CLEANUP] SP_LIN torque-off failed: {exc}")
+        _cleanup_dynamixel(hand_motors)

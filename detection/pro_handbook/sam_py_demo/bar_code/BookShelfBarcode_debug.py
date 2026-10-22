@@ -10,8 +10,8 @@ BookShelfBarcode_debug.py
 
 使い方（例）:
   python -m detection.pro_handbook.sam_py_demo.bar_code.BookShelfBarcode_debug \
-    --img /home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode/bookshelf_barcode_capture_selfloc_20260303_161654.png \
-    --shot-dir /home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode \
+    --img /home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode/bookshelf_barcode_capture_selfloc_20260303_161654.png \
+    --shot-dir /home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode \
     --fx 2500 --depth 0.40 --no-wait-nav --no-capture
 
 注意:
@@ -486,7 +486,7 @@ def main():
         if img_path is not None:
             shot_dir = img_path.parent
         else:
-            shot_dir = Path("/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode")
+            shot_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode")
 
     # ROS2
     rclpy.init()

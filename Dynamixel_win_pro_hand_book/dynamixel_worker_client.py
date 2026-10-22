@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import queue
 import subprocess
@@ -14,6 +15,7 @@ from typing import Any
 
 
 RESPONSE_PREFIX = "__DXL_WORKER_JSON__"
+DEFAULT_STORAGE_RELEASE_TIMEOUT_SEC = 5.0
 
 
 class DynamixelWorkerError(
@@ -82,6 +84,10 @@ class DynamixelWorkerClient:
             restart_wait_sec
         )
 
+        # Once a background start has been attempted, the motor state may be
+        # unknown after IPC errors. Never discard/restart this worker automatically.
+        self._sp_lin_start_attempted = False
+        self._shutdown_acknowledged = False
         self._proc: subprocess.Popen[str] | None = None
 
         self._command_lock = (
@@ -158,6 +164,15 @@ class DynamixelWorkerClient:
             ):
                 return
 
+            if self._sp_lin_start_attempted:
+                raise DynamixelWorkerError(
+                    "SP_LIN background start was attempted; automatic worker "
+                    "replacement is blocked until independent stop verification."
+                )
+            if self._proc is not None:
+                # Only reap processes already known to have exited.
+                self._hard_stop()
+
             print(
                 "[DXL CLIENT] "
                 "starting Dynamixel worker..."
@@ -214,7 +229,9 @@ class DynamixelWorkerClient:
                 )
 
             except Exception:
-                self._hard_stop()
+                # Startup timeout is not proof that the worker is idle.
+                if proc.poll() is not None:
+                    self._hard_stop()
                 raise
 
             if (
@@ -227,7 +244,8 @@ class DynamixelWorkerClient:
                     "worker startup failed",
                 )
 
-                self._hard_stop()
+                if proc.poll() is not None:
+                    self._hard_stop()
 
                 raise DynamixelWorkerError(
                     "Dynamixel worker startup "
@@ -244,174 +262,101 @@ class DynamixelWorkerClient:
     # =====================================================
 
     def _hard_stop(self) -> None:
+        """Reap an already-exited worker only. Never signal a live worker.
 
+        SIGTERM/SIGKILL can strand an actively moving actuator, and an IPC
+        timeout cannot establish whether the motor or monitoring thread stopped.
+        """
         proc = self._proc
-        stdout_thread = self._stdout_thread
+        if proc is None:
+            return
+        if proc.poll() is None:
+            raise DynamixelWorkerError(
+                "Refusing to terminate a live worker. Motor state may be "
+                "unknown; verify stop independently before recovery."
+            )
 
+        stdout_thread = self._stdout_thread
         self._proc = None
         self._stdout_queue = None
         self._stdout_thread = None
+        self._shutdown_acknowledged = False
 
-        if proc is None:
-            return
-
-        if proc.poll() is None:
-
-            try:
-                print(
-                    "[DXL CLIENT] "
-                    "terminating old worker: "
-                    f"pid={proc.pid}"
-                )
-
-                proc.terminate()
-
-                proc.wait(
-                    timeout=2.0
-                )
-
-            except Exception:
-
-                try:
-                    print(
-                        "[DXL CLIENT] "
-                        "SIGTERM timeout; "
-                        "killing worker: "
-                        f"pid={proc.pid}"
-                    )
-
-                    proc.kill()
-
-                    proc.wait(
-                        timeout=2.0
-                    )
-
-                except Exception:
-                    pass
-
-        for stream in (
-            proc.stdin,
-            proc.stdout,
-        ):
+        for stream in (proc.stdin, proc.stdout):
             if stream is not None:
-
                 try:
                     stream.close()
-
                 except Exception:
                     pass
-
-        if (
-            stdout_thread is not None
-            and stdout_thread.is_alive()
-        ):
-            stdout_thread.join(
-                timeout=1.0
-            )
+        if stdout_thread is not None and stdout_thread.is_alive():
+            stdout_thread.join(timeout=1.0)
 
     # =====================================================
     # worker再起動
     # =====================================================
     def restart(self) -> None:
-
+        """Only restart a worker that has independently exited, before any
+        SP_LIN background start attempt in this client session.
+        """
         with self._command_lock:
-
-            print(
-                "[DXL CLIENT] "
-                "===== WORKER HARD RESTART ====="
-            )
-
-            # まず旧workerを完全終了
-            self._hard_stop()
-
-            # fresh Python workerを複数回試す
-            #
-            # 重要:
-            # 同じworkerオブジェクトを再利用するのではなく、
-            # 毎回完全に新しいPythonプロセスを起動する。
-            wait_schedule = (
-                self._restart_wait_sec,  # 現在 3秒
-                3.0,
-                5.0,
-            )
-
-            last_exc = None
-
-            for attempt, wait_sec in enumerate(
-                wait_schedule,
-                start=1,
-            ):
-                print(
-                    "[DXL CLIENT] "
-                    f"fresh worker restart attempt="
-                    f"{attempt}/{len(wait_schedule)}, "
-                    f"waiting {wait_sec:.1f} sec..."
+            if self._sp_lin_start_attempted:
+                raise DynamixelWorkerError(
+                    "Restart blocked: SP_LIN background start was attempted. "
+                    "Physical stop is not established by task status alone."
                 )
-
-                time.sleep(wait_sec)
-
-                try:
-                    self.start()
-
-                    print(
-                        "[DXL CLIENT] "
-                        "===== WORKER RESTARTED ===== "
-                        f"attempt={attempt}"
+            if self._proc is not None:
+                if self._proc.poll() is None:
+                    raise DynamixelWorkerError(
+                        "Restart blocked: worker still alive. "
+                        "No automatic termination of a live worker."
                     )
+                self._hard_stop()
+            self.start()
 
-                    return
-
-                except Exception as exc:
-                    last_exc = exc
-
-                    print(
-                        "[DXL CLIENT] "
-                        "fresh worker startup failed: "
-                        f"attempt={attempt}/"
-                        f"{len(wait_schedule)}, "
-                        f"error={type(exc).__name__}: "
-                        f"{exc}"
-                    )
-
-                    # start()内でも失敗時hard_stopされるが、
-                    # 念のため完全終了を保証
-                    self._hard_stop()
-
-            raise DynamixelWorkerError(
-                "Dynamixel worker could not be restarted "
-                "after multiple fresh-process attempts: "
-                f"{type(last_exc).__name__}: {last_exc}"
-            )
     # =====================================================
     # 終了
     # =====================================================
 
     def close(self) -> None:
-
         with self._command_lock:
-
             proc = self._proc
-
             if proc is None:
                 return
+            if proc.poll() is not None:
+                self._hard_stop()
+                return
 
-            if proc.poll() is None:
+            try:
+                status = self._call_once(
+                    {"cmd": "sp_lin_task_status"}, timeout_sec=5.0
+                )
+            except Exception as exc:
+                raise DynamixelWorkerError(
+                    "Worker status is unknown; live process will not be killed."
+                ) from exc
+            if not isinstance(status, dict):
+                raise DynamixelWorkerError("Invalid worker status; close blocked")
+            if (status.get("running") is not False
+                    or status.get("failed") is not False
+                    or status.get("thread_alive") is not False):
+                raise DynamixelWorkerError(
+                    f"SP_LIN not verified idle; close blocked: {status!r}"
+                )
+            if self._sp_lin_start_attempted and status.get("completed") is not True:
+                raise DynamixelWorkerError(
+                    "SP_LIN completion unknown; close blocked."
+                )
 
-                try:
-                    self._call_once(
-                        {
-                            "cmd": "shutdown"
-                        },
-                        timeout_sec=3.0,
-                    )
-
-                except Exception as exc:
-                    print(
-                        "[DXL CLIENT] "
-                        "worker shutdown warning: "
-                        f"{type(exc).__name__}: {exc}"
-                    )
-
+            # Worker shutdown must report success, then exit normally.
+            self._call_once({"cmd": "shutdown"}, timeout_sec=5.0)
+            self._shutdown_acknowledged = True
+            try:
+                proc.wait(timeout=5.0)
+            except subprocess.TimeoutExpired as exc:
+                raise DynamixelWorkerError(
+                    "Worker did not exit after acknowledged shutdown; "
+                    "refusing force termination."
+                ) from exc
             self._hard_stop()
 
     # =====================================================
@@ -619,134 +564,19 @@ class DynamixelWorkerClient:
         timeout_sec: float,
         normalize_closed_before_retry: bool = False,
     ) -> Any:
-
+        """Fail closed on errors: an IPC timeout does not establish a safe
+        worker or motor state, and replaying movement can duplicate commands.
+        """
         with self._command_lock:
-
-            command = str(
-                request.get(
-                    "cmd",
-                    "unknown",
-                )
-            )
-
             try:
-                return self._call_once(
-                    request,
-                    timeout_sec=timeout_sec,
-                )
-
-            except Exception as first_exc:
-
-                # ==========================================
-                # 非通信エラーなら絶対にworker再起動しない
-                # ==========================================
-                if (
-                    isinstance(
-                        first_exc,
-                        DynamixelWorkerCommandError,
-                    )
-                    and not first_exc.restart_worker
-                ):
-
-                    print(
-                        "[DXL CLIENT] "
-                        "non-communication error. "
-                        "Worker restart is NOT performed: "
-                        f"cmd={command}, "
-                        f"error={first_exc}"
-                    )
-
-                    raise
-
-                # ==========================================
-                # 通信異常 or worker/IPC異常
-                # ==========================================
+                return self._call_once(request, timeout_sec=timeout_sec)
+            except Exception as exc:
                 print(
-                    "[DXL CLIENT] "
-                    "restartable failure detected: "
-                    f"cmd={command}, "
-                    f"error="
-                    f"{type(first_exc).__name__}: "
-                    f"{first_exc}"
+                    "[DXL CLIENT] command failed; automatic worker restart "
+                    "and movement retry suppressed: "
+                    f"cmd={request.get('cmd')}, error={type(exc).__name__}: {exc}"
                 )
-
-                print(
-                    "[DXL CLIENT] "
-                    "old worker will be completely "
-                    "killed and a fresh Python worker "
-                    "will be started"
-                )
-
-                try:
-                    self.restart()
-
-                except Exception as restart_exc:
-                    raise DynamixelWorkerError(
-                        "failed to restart "
-                        "Dynamixel worker after "
-                        f"{command} failure: "
-                        f"{restart_exc}"
-                    ) from restart_exc
-
-                # ==========================================
-                # open_until_widthのみ閉状態に正規化
-                # ==========================================
-                if normalize_closed_before_retry:
-
-                    print(
-                        "[DXL CLIENT] "
-                        "normalizing gripper "
-                        "to closed state "
-                        "before retry..."
-                    )
-
-                    try:
-                        self._call_once(
-                            {
-                                "cmd": "grasp",
-                                "timeout_sec": 3.0,
-                            },
-                            timeout_sec=8.0,
-                        )
-
-                    except Exception as normalize_exc:
-                        raise DynamixelWorkerError(
-                            "failed to normalize "
-                            "gripper after worker "
-                            "restart: "
-                            f"{normalize_exc}"
-                        ) from normalize_exc
-
-                print(
-                    "[DXL CLIENT] "
-                    "retrying command after "
-                    "worker restart: "
-                    f"cmd={command}"
-                )
-
-                # 再試行は1回だけ
-                try:
-                    result = self._call_once(
-                        request,
-                        timeout_sec=timeout_sec,
-                    )
-
-                except Exception as second_exc:
-                    raise DynamixelWorkerError(
-                        f"{command} failed even "
-                        "after one worker restart: "
-                        f"{type(second_exc).__name__}: "
-                        f"{second_exc}"
-                    ) from second_exc
-
-                print(
-                    "[DXL CLIENT] "
-                    "command recovered after "
-                    "worker restart: "
-                    f"cmd={command}"
-                )
-
-                return result
+                raise
 
     # =====================================================
     # public API
@@ -823,6 +653,37 @@ class DynamixelWorkerClient:
 
         return self
 
+    def open_for_storage_release(
+        self,
+        timeout_sec: float = DEFAULT_STORAGE_RELEASE_TIMEOUT_SEC,
+    ) -> bool:
+
+        wait_timeout_sec = float(timeout_sec)
+        if not math.isfinite(wait_timeout_sec) or wait_timeout_sec <= 0.0:
+            raise ValueError(
+                "open_for_storage_release timeout_sec must be positive: "
+                f"{timeout_sec}"
+            )
+
+        result = self._call_with_restart(
+            {
+                "cmd": "open_for_storage_release",
+                "timeout_sec": wait_timeout_sec,
+            },
+            timeout_sec=max(
+                8.0,
+                wait_timeout_sec + 5.0,
+            ),
+        )
+
+        if result is not True:
+            raise DynamixelWorkerError(
+                "storage release worker did not confirm success: "
+                f"{result!r}"
+            )
+
+        return True
+
     def ping_all(self) -> None:
 
         self._call_with_restart(
@@ -849,6 +710,23 @@ class DynamixelWorkerClient:
 
         return self
 
+    def expand_sp_lin_right_tilted(
+        self,
+        asynchronous: bool = False,
+    ) -> "DynamixelWorkerClient":
+
+        self._call_with_restart(
+            {
+                "cmd": "expand_sp_lin_right_tilted",
+                "asynchronous": bool(asynchronous),
+            },
+            timeout_sec=(
+                8.0 if asynchronous else 20.0
+            ),
+        )
+
+        return self
+
     def contract_sp_lin_1(
         self,
         asynchronous: bool = False,
@@ -866,22 +744,148 @@ class DynamixelWorkerClient:
 
         return self
 
+    def contract_sp_lin_2_start(
+        self,
+        timeout_sec: float = 20.0,
+    ) -> bool:
+        """
+        SP_LINの収縮・PWM監視をworker内の
+        バックグラウンドスレッドで開始する。
+        """
+        wait_timeout_sec = float(timeout_sec)
+
+        if not math.isfinite(wait_timeout_sec) or wait_timeout_sec <= 0:
+            raise ValueError(
+                f"Invalid SP_LIN timeout: {timeout_sec}"
+            )
+
+        # Record the attempt BEFORE sending. A lost response may still mean
+        # the worker started the actuator.
+        with self._command_lock:
+            self._sp_lin_start_attempted = True
+            result = self._call_once(
+                {
+                    "cmd": "contract_sp_lin_2_start",
+                    "timeout_sec": wait_timeout_sec,
+                },
+                timeout_sec=8.0,
+            )
+
+        if not isinstance(result, dict) or result.get("started") is not True:
+            raise DynamixelWorkerError(
+                f"SP_LIN background start not confirmed: {result!r}"
+            )
+
+        return True
+
+
+    def emergency_stop_sp_lin(self) -> bool:
+        """Request SP_LIN torque OFF; never infer success from a timeout."""
+        with self._command_lock:
+            self._sp_lin_start_attempted = True
+            result = self._call_once(
+                {"cmd": "emergency_stop_sp_lin"}, timeout_sec=5.0
+            )
+        if not isinstance(result, dict) or result.get("torque_off_verified") is not True:
+            raise DynamixelWorkerError(
+                f"SP_LIN torque OFF not confirmed: {result!r}"
+            )
+        return True
+
+    def sp_lin_task_status(self) -> dict[str, Any]:
+        """
+        workerからSP_LINバックグラウンド動作状態を取得する。
+        """
+        # 状態取得は再起動せず、元のworkerに問い合わせる
+        with self._command_lock:
+            result = self._call_once(
+                {"cmd": "sp_lin_task_status"},
+                timeout_sec=5.0,
+            )
+
+        if not isinstance(result, dict):
+            raise DynamixelWorkerError(
+                f"Invalid SP_LIN task status: {result!r}"
+            )
+
+        for key in ("running", "completed", "failed", "error", "thread_alive"):
+            if key not in result:
+                raise DynamixelWorkerError(
+                    f"Missing SP_LIN task status field: {key}"
+                )
+
+        return result
+
     def contract_sp_lin_2(
         self,
         asynchronous: bool = False,
+        timeout_sec: float | None = None,
     ) -> "DynamixelWorkerClient":
 
+        wait_timeout_sec = 15.0 if timeout_sec is None else float(timeout_sec)
+        if not math.isfinite(wait_timeout_sec) or wait_timeout_sec <= 0.0:
+            raise ValueError(
+                "contract_sp_lin_2 timeout_sec must be positive: "
+                f"{timeout_sec}"
+            )
+
+        request = {
+            "cmd": "contract_sp_lin_2",
+            "asynchronous": bool(asynchronous),
+        }
+        if timeout_sec is not None:
+            request["timeout_sec"] = wait_timeout_sec
+
         self._call_with_restart(
-            {
-                "cmd": "contract_sp_lin_2",
-                "asynchronous": bool(asynchronous),
-            },
+            request,
             timeout_sec=(
-                8.0 if asynchronous else 20.0
+                8.0 if asynchronous
+                else wait_timeout_sec + 110.0
             ),
         )
 
         return self
+
+    def contract_sp_lin_pwm_home(
+        self,
+        timeout_sec: float = 100.0,
+    ) -> dict[str, Any]:
+        """
+        SP_LINをPWM監視方式で収縮する。
+        完了するまで同期的に待つ。
+        """
+        wait_timeout_sec = float(timeout_sec)
+
+        if (
+            not math.isfinite(wait_timeout_sec)
+            or wait_timeout_sec <= 0.0
+        ):
+            raise ValueError(
+                "Invalid SP_LIN homing timeout"
+            )
+
+        # 原点復帰は非冪等な動作なので、
+        # 通信異常時に自動で再実行しない。
+        with self._command_lock:
+            result = self._call_once(
+                {
+                    "cmd": "contract_sp_lin_pwm_home",
+                    "timeout_sec": wait_timeout_sec,
+                },
+                timeout_sec=wait_timeout_sec + 10.0,
+            )
+
+        if not isinstance(result, dict):
+            raise DynamixelWorkerError(
+                f"Invalid homing result: {result!r}"
+            )
+
+        if result.get("reason") != "high_pwm_detected":
+            raise DynamixelWorkerError(
+                f"SP_LIN PWM stop not confirmed: {result!r}"
+            )
+
+        return result
 
     def rotate_spacer(
         self,

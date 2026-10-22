@@ -59,7 +59,7 @@ def main_sequence(
 
         Xarm7 = XArm7()
         Xarm7.moveJ_to_init_Q()
-        bar_dir = Path("/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode")
+        bar_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode")
         bar_dir.mkdir(parents=True, exist_ok=True)
         #Xarm7.moveL_z_offset(BOOK_CAPTURE) #2号館の書架用に撮影姿勢を下げる
         bookshelf_barcode_identified = bookshelf_barcode_sequence(bookshelf_ID, bar_dir) #書架バーコード認識

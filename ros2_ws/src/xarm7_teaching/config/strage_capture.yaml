@@ -1,0 +1,19 @@
+joint_order:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+waypoints:
+- name: p0
+  q:
+  - 88.7
+  - -57.8
+  - 174.4
+  - 72.4
+  - 28.3
+  - 13.8
+  - 33.6
+

@@ -1,0 +1,1047 @@
+{
+  "forced_angle": 90,
+  "num_masks": 4,
+  "num_ocr_boxes": 26,
+  "assignments": [
+    {
+      "ocr_index": 1,
+      "text": "房",
+      "matched": "mask_2",
+      "best_iou": 0.10902647488013342,
+      "best_intersection": 1046,
+      "best_union": 9594,
+      "best_text_cover": 0.9330954504906334,
+      "text_area": 1121,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17121,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.10902647488013342,
+          "intersection": 1046,
+          "union": 9594,
+          "text_cover": 0.9330954504906334
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13499,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11588,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 2,
+      "text": "",
+      "matched": "mask_2",
+      "best_iou": 0.12648387435655006,
+      "best_intersection": 1204,
+      "best_union": 9519,
+      "best_text_cover": 1.0,
+      "text_area": 1204,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17204,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.12648387435655006,
+          "intersection": 1204,
+          "union": 9519,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13582,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11671,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 3,
+      "text": "",
+      "matched": "mask_2",
+      "best_iou": 0.3033099297893681,
+      "best_intersection": 3024,
+      "best_union": 9970,
+      "best_text_cover": 0.8702158273381295,
+      "text_area": 3475,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19475,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.3033099297893681,
+          "intersection": 3024,
+          "union": 9970,
+          "text_cover": 0.8702158273381295
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15853,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13942,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 4,
+      "text": "",
+      "matched": "mask_4",
+      "best_iou": 0.04939333142256616,
+      "best_intersection": 517,
+      "best_union": 10467,
+      "best_text_cover": 1.0,
+      "text_area": 517,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16517,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10036,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12895,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.04939333142256616,
+          "intersection": 517,
+          "union": 10467,
+          "text_cover": 1.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 5,
+      "text": "",
+      "matched": "mask_4",
+      "best_iou": 0.3892232731441674,
+      "best_intersection": 4074,
+      "best_union": 10467,
+      "best_text_cover": 1.0,
+      "text_area": 4074,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20074,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13593,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16452,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.3892232731441674,
+          "intersection": 4074,
+          "union": 10467,
+          "text_cover": 1.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 6,
+      "text": "44",
+      "matched": "mask_1",
+      "best_iou": 0.009875,
+      "best_intersection": 158,
+      "best_union": 16000,
+      "best_text_cover": 1.0,
+      "text_area": 158,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.009875,
+          "intersection": 158,
+          "union": 16000,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 9677,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12536,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10625,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 7,
+      "text": "",
+      "matched": "mask_1",
+      "best_iou": 0.081,
+      "best_intersection": 1296,
+      "best_union": 16000,
+      "best_text_cover": 1.0,
+      "text_area": 1296,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.081,
+          "intersection": 1296,
+          "union": 16000,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10815,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13674,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11763,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 8,
+      "text": "一",
+      "matched": "mask_1",
+      "best_iou": 0.4953125,
+      "best_intersection": 7925,
+      "best_union": 16000,
+      "best_text_cover": 1.0,
+      "text_area": 7925,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.4953125,
+          "intersection": 7925,
+          "union": 16000,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17444,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20303,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18392,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 9,
+      "text": "）三",
+      "matched": "mask_3",
+      "best_iou": 0.12724188075618031,
+      "best_intersection": 1575,
+      "best_union": 12378,
+      "best_text_cover": 1.0,
+      "text_area": 1575,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17575,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11094,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.12724188075618031,
+          "intersection": 1575,
+          "union": 12378,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12042,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 10,
+      "text": "",
+      "matched": "mask_3",
+      "best_iou": 0.5557228915662651,
+      "best_intersection": 7011,
+      "best_union": 12616,
+      "best_text_cover": 0.9671678852255483,
+      "text_area": 7249,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 23249,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16768,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.5557228915662651,
+          "intersection": 7011,
+          "union": 12616,
+          "text_cover": 0.9671678852255483
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17716,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 11,
+      "text": "電気推進口ケッ小入門",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 3224,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 19224,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12743,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15602,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13691,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 12,
+      "text": "斗口",
+      "matched": "mask_4",
+      "best_iou": 0.13964135826020602,
+      "best_intersection": 1464,
+      "best_union": 10484,
+      "best_text_cover": 0.9885212694125591,
+      "text_area": 1481,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17481,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11000,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13859,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.13964135826020602,
+          "intersection": 1464,
+          "union": 10484,
+          "text_cover": 0.9885212694125591
+        }
+      ]
+    },
+    {
+      "ocr_index": 13,
+      "text": "",
+      "matched": "mask_4",
+      "best_iou": 0.07270469093340977,
+      "best_intersection": 761,
+      "best_union": 10467,
+      "best_text_cover": 1.0,
+      "text_area": 761,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16761,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10280,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13139,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.07270469093340977,
+          "intersection": 761,
+          "union": 10467,
+          "text_cover": 1.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 14,
+      "text": "川",
+      "matched": "mask_1",
+      "best_iou": 0.083,
+      "best_intersection": 1328,
+      "best_union": 16000,
+      "best_text_cover": 1.0,
+      "text_area": 1328,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.083,
+          "intersection": 1328,
+          "union": 16000,
+          "text_cover": 1.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10847,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13706,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11795,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 15,
+      "text": "回",
+      "matched": "mask_4",
+      "best_iou": 0.03358458162389085,
+      "best_intersection": 352,
+      "best_union": 10481,
+      "best_text_cover": 0.9617486338797814,
+      "text_area": 366,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16366,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 9885,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12744,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.03358458162389085,
+          "intersection": 352,
+          "union": 10481,
+          "text_cover": 0.9617486338797814
+        }
+      ]
+    },
+    {
+      "ocr_index": 16,
+      "text": "",
+      "matched": "mask_3",
+      "best_iou": 0.039177750906892385,
+      "best_intersection": 486,
+      "best_union": 12405,
+      "best_text_cover": 0.9473684210526315,
+      "text_area": 513,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16513,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10032,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.039177750906892385,
+          "intersection": 486,
+          "union": 12405,
+          "text_cover": 0.9473684210526315
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10980,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 17,
+      "text": "口",
+      "matched": "mask_2",
+      "best_iou": 0.06838319608047534,
+      "best_intersection": 656,
+      "best_union": 9593,
+      "best_text_cover": 0.8986301369863013,
+      "text_area": 730,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16730,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.06838319608047534,
+          "intersection": 656,
+          "union": 9593,
+          "text_cover": 0.8986301369863013
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13108,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11197,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 18,
+      "text": "-",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 7888,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 23888,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 17407,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 20266,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18355,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 19,
+      "text": "",
+      "matched": "mask_4",
+      "best_iou": 0.22604720589607238,
+      "best_intersection": 2423,
+      "best_union": 10719,
+      "best_text_cover": 0.9057943925233645,
+      "text_area": 2675,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18675,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12194,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15053,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.22604720589607238,
+          "intersection": 2423,
+          "union": 10719,
+          "text_cover": 0.9057943925233645
+        }
+      ]
+    },
+    {
+      "ocr_index": 20,
+      "text": "E",
+      "matched": "mask_3",
+      "best_iou": 0.01898376282413765,
+      "best_intersection": 235,
+      "best_union": 12379,
+      "best_text_cover": 0.9957627118644068,
+      "text_area": 236,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16236,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 9755,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.01898376282413765,
+          "intersection": 235,
+          "union": 12379,
+          "text_cover": 0.9957627118644068
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10703,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 21,
+      "text": "飞口",
+      "matched": "mask_1",
+      "best_iou": 0.18310034947578632,
+      "best_intersection": 2934,
+      "best_union": 16024,
+      "best_text_cover": 0.9918864097363083,
+      "text_area": 2958,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.18310034947578632,
+          "intersection": 2934,
+          "union": 16024,
+          "text_cover": 0.9918864097363083
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12477,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15336,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13425,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 22,
+      "text": "口",
+      "matched": "mask_4",
+      "best_iou": 0.07490207318238273,
+      "best_intersection": 784,
+      "best_union": 10467,
+      "best_text_cover": 1.0,
+      "text_area": 784,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16784,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10303,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13162,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.07490207318238273,
+          "intersection": 784,
+          "union": 10467,
+          "text_cover": 1.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 23,
+      "text": "1",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 688,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16688,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 10207,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13066,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 11155,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 24,
+      "text": "A",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 2844,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18844,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 12363,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15222,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 13311,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 25,
+      "text": "",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 93352,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 109352,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 102871,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 105730,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 103819,
+          "text_cover": 0.0
+        }
+      ]
+    },
+    {
+      "ocr_index": 26,
+      "text": "1",
+      "matched": null,
+      "best_iou": 0.0,
+      "best_intersection": 0,
+      "best_union": 0,
+      "best_text_cover": 0.0,
+      "text_area": 5873,
+      "per_mask_scores": [
+        {
+          "name": "mask_1",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 21873,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_2",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 15392,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_3",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 18251,
+          "text_cover": 0.0
+        },
+        {
+          "name": "mask_4",
+          "iou": 0.0,
+          "intersection": 0,
+          "union": 16340,
+          "text_cover": 0.0
+        }
+      ]
+    }
+  ]
+}

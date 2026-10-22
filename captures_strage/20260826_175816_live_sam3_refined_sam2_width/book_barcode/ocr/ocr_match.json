@@ -1,0 +1,18 @@
+{
+  "matched": false,
+  "target": "",
+  "target_digits": "",
+  "matched_text": null,
+  "matched_digits": null,
+  "texts": [
+    "ISBN978-4-627-84691-3",
+    "C3004 ￥3200E",
+    "9784627846913",
+    "定価（本体3200円+税）",
+    "1923004032008"
+  ],
+  "input_image": "/home/book/pro_book_SAM3/pro_hand_book_python/captures_strage/20260826_175816_live_sam3_refined_sam2_width/book_barcode/ocr/ocr_input.png",
+  "method": "shared_cached_paddleocr",
+  "ocr_overlay_path": "/home/book/pro_book_SAM3/pro_hand_book_python/captures_strage/20260826_175816_live_sam3_refined_sam2_width/book_barcode/ocr/ocr_overlay.png",
+  "worker_pid": 148409
+}

@@ -50,7 +50,7 @@ def bookshelf_barcode_sequence(barcode_number_input: str, shot_dir: Path):
     return barcode_indentification
 
 if __name__ == "__main__":
-    shot_dir = Path("/home/book/pro_book/pro_hand_book_python/captures")
+    shot_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures")
     barcode_number = "1H14-6"
     #barcode_number = input("barcode number?")
     bookshelf_barcode_sequence(barcode_number, shot_dir)

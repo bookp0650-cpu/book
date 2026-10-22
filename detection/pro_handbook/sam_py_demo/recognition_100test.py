@@ -4,7 +4,7 @@
 100冊認識精度検証用スクリプト．
 
 使い方:
-  cd /home/book/pro_book/pro_hand_book_python
+  cd /home/book/pro_book_SAM3/pro_hand_book_python
 
   python -m detection.pro_handbook.sam_py_demo.recognition_100test \
     --master-json master_20260216.json \

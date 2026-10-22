@@ -13,7 +13,7 @@ from contextlib import redirect_stdout, redirect_stderr
 # =========================
 # 設定
 # =========================
-BASE_DIR = Path("/home/book/pro_book/pro_hand_book_python").resolve()
+BASE_DIR = Path("/home/book/pro_book_SAM3/pro_hand_book_python").resolve()
 
 # 元の入力データ
 TEST_BASE_DIR = BASE_DIR / "captures" / "100test"

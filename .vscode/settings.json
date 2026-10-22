@@ -1,7 +1,11 @@
 {
-    "python.defaultInterpreterPath": "/home/book/pro_book/pro_hand_book_python/.pro_hand_book_fixed/bin/python",
-
-    "python.analysis.extraPaths": [
-        "/home/book/pro_book/pro_hand_book_python/.pro_hand_book_fixed/lib/python3.10/site-packages"
-    ]
+    "python.defaultInterpreterPath": "/home/book/pro_book_SAM3/pro_hand_book_python/.pro_hand_book_fixed/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "code-runner.executorMap": {
+        "python": "/home/book/pro_book_SAM3/pro_hand_book_python/.pro_hand_book_fixed/bin/python3 -u"
+    },
+    "code-runner.runInTerminal": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "none"
+    }
 }

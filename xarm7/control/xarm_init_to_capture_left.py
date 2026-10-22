@@ -3,7 +3,7 @@
 # xarm7 モジュールのパスを明示的に追加
 # ==========================
 import sys
-sys.path.append("/home/book/pro_book/pro_hand_book_python")
+sys.path.append("/home/book/pro_book_SAM3/pro_hand_book_python")
 
 # ==========================
 # import

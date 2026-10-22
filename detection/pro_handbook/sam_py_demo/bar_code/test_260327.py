@@ -1126,7 +1126,7 @@ def main():
         executor = SingleThreadedExecutor()
         executor.add_node(node)
 
-        shot_dir = Path("/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode_test")
+        shot_dir = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode_test")
         shot_dir.mkdir(parents=True, exist_ok=True)
 
         # trigger

@@ -4,7 +4,7 @@
 import sys
 from pathlib import Path
 
-# /home/book/pro_book/pro_hand_book_python を import パスに追加
+# /home/book/pro_book_SAM3/pro_hand_book_python を import パスに追加
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -29,7 +29,7 @@ from xarm7.control.xarm7 import XArm7
 
 CONFIG_PATH = "Retrieval_integration.yaml"
 
-SAVE_DIR = Path("/home/book/pro_book/pro_hand_book_python/xarm7/tcp_calib_logs")
+SAVE_DIR = Path("/home/book/pro_book_SAM3/pro_hand_book_python/xarm7/tcp_calib_logs")
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
 CSV_PATH = SAVE_DIR / "tcp_pivot_samples.csv"

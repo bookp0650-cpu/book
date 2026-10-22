@@ -60,6 +60,9 @@ class RealSensePersistentSession:
         self.start_count = 0
         self.capture_count = 0
         self.stop_count = 0
+        self.pipeline_start_time_s: float | None = None
+        self.initial_warmup_time_s: float | None = None
+        self.pipeline_stop_time_s: float | None = None
 
         self._pipeline = None
         self._config = None
@@ -104,13 +107,19 @@ class RealSensePersistentSession:
             )
             self._align = rs.align(rs.stream.color)
 
+            pipeline_start_started = time.perf_counter()
             self._profile = self._pipeline.start(self._config)
+            self.pipeline_start_time_s = (
+                time.perf_counter() - pipeline_start_started
+            )
             self._started = True
             self._ever_started = True
             self.start_count += 1
 
+            warmup_started = time.perf_counter()
             for _ in range(self.warmup_frame_count):
                 self._pipeline.wait_for_frames()
+            self.initial_warmup_time_s = time.perf_counter() - warmup_started
             print(
                 "[CAMERA] warm-up complete: "
                 f"discarded={self.warmup_frame_count}"
@@ -121,6 +130,7 @@ class RealSensePersistentSession:
         shot_dir: str | Path,
         *,
         depth_filter: Callable,
+        save_capture_artifacts: bool = True,
     ) -> tuple[np.ndarray, np.ndarray, object, float, dict]:
         """Save one post-request aligned RGB-D pair without stopping."""
         with self._lock:
@@ -142,9 +152,10 @@ class RealSensePersistentSession:
                 raise FileNotFoundError(
                     f"capture output directory does not exist: {shot_dir}"
                 )
-            if (shot_dir / "after_init_rgb.png").exists() or (
-                shot_dir / "after_init_depth.npy"
-            ).exists():
+            if save_capture_artifacts and (
+                (shot_dir / "after_init_rgb.png").exists()
+                or (shot_dir / "after_init_depth.npy").exists()
+            ):
                 raise FileExistsError(
                     f"refusing to overwrite captured RGB-D in {shot_dir}"
                 )
@@ -203,12 +214,6 @@ class RealSensePersistentSession:
             depth_scale = float(
                 device.first_depth_sensor().get_depth_scale()
             )
-            cv2.imwrite(
-                str(shot_dir / "after_init_rgb.png"),
-                color_np,
-            )
-            np.save(shot_dir / "after_init_depth.npy", depth_np)
-
             intrinsics_payload = {
                 "width": int(intr.width),
                 "height": int(intr.height),
@@ -220,10 +225,16 @@ class RealSensePersistentSession:
                 "coeffs": [float(value) for value in intr.coeffs],
                 "depth_scale": depth_scale,
             }
-            _write_json(
-                shot_dir / "camera_intrinsics.json",
-                intrinsics_payload,
-            )
+            if save_capture_artifacts:
+                cv2.imwrite(
+                    str(shot_dir / "after_init_rgb.png"),
+                    color_np,
+                )
+                np.save(shot_dir / "after_init_depth.npy", depth_np)
+                _write_json(
+                    shot_dir / "camera_intrinsics.json",
+                    intrinsics_payload,
+                )
 
             self.capture_count += 1
             capture_completed_at = datetime.now().astimezone()
@@ -286,10 +297,11 @@ class RealSensePersistentSession:
                     "pipeline_kept_active": True,
                 },
             }
-            _write_json(
-                shot_dir / "realsense_capture_metadata.json",
-                metadata,
-            )
+            if save_capture_artifacts:
+                _write_json(
+                    shot_dir / "realsense_capture_metadata.json",
+                    metadata,
+                )
 
             print(
                 "[CAMERA] capture complete: "
@@ -306,9 +318,13 @@ class RealSensePersistentSession:
                 return
 
             print("[CAMERA] persistent RealSense stop")
+            pipeline_stop_started = time.perf_counter()
             try:
                 self._pipeline.stop()
             finally:
+                self.pipeline_stop_time_s = (
+                    time.perf_counter() - pipeline_stop_started
+                )
                 self._started = False
                 self.stop_count += 1
                 print(
@@ -316,6 +332,10 @@ class RealSensePersistentSession:
                     f"start_count={self.start_count}, "
                     f"capture_count={self.capture_count}, "
                     f"stop_count={self.stop_count}"
+                )
+                print(
+                    "[TIMING][CAMERA STOP]\n"
+                    f"pipeline_stop: {self.pipeline_stop_time_s:.3f} s"
                 )
 
     def __enter__(self):

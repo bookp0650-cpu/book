@@ -3,7 +3,7 @@
 # xarm7 モジュールのパスを明示的に追加
 # ==========================
 import sys
-sys.path.append("/home/book/pro_book/pro_hand_book_python")
+sys.path.append("/home/book/pro_book_SAM3/pro_hand_book_python")
 
 # ==========================
 # import
@@ -25,7 +25,7 @@ from xarm7.control.xarm7 import XArm7
 # XARM_HOST = "192.168.1.208" #AC
 XARM_HOST = "192.168.2.197" # DC controller
 BASE_DIR = os.path.expanduser(
-    "~/pro_book/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
+    "~/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config"
 )
 
 YAML_NAME = "capture_to_init_v2.yaml"

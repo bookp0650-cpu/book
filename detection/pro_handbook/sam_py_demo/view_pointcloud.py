@@ -1280,7 +1280,7 @@ def parse_args():
     parser.add_argument(
         "--base",
         type=str,
-        default="/home/book/pro_book/pro_hand_book_python/captures/100test/62",
+        default="/home/book/pro_book_SAM3/pro_hand_book_python/captures/100test/62",
         help="対象ログフォルダ．",
     )
 

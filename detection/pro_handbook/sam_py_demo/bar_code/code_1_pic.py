@@ -97,7 +97,7 @@ def barcode_inference(barcode_number, image_path): #写真読み込む&バーコ
     #sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
     #sobel_combined = cv2.convertScaleAbs(cv2.magnitude(sobelx, sobely))
     #canny = cv2.Canny(img, 100, 200)
-    _path = "/home/book/pro_book/pro_hand_book_python/captures/20260119_134439/bbox.png"
+    _path = "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260119_134439/bbox.png"
     # 解码图像　写真を解析（元コード同様 binary を使う）
     decode_data = decode(img)
     print("decode_data list", decode_data)
@@ -122,153 +122,318 @@ def barcode_inference(barcode_number, image_path): #写真読み込む&バーコ
 import cv2
 from pyzbar.pyzbar import decode
 
-
-def barcode_perception(barcode_number, img):
+def barcode_perception(
+    barcode_number,
+    img,
+    debug_dir=None,
+):
     """
-    画像からバーコードを検出し、指定番号と一致するか確認する。
+    Morphology処理後の画像のみを使って
+    バーコードを認識する。
 
     Returns
     -------
-    tuple[str, object | list | None]
-
-    status:
-        "success"
-            指定されたバーコードと一致
-
-        "wrong_barcode"
-            バーコードは検出されたが、指定番号とは不一致
-
-        "no_barcode"
-            バーコード自体が1件も検出されなかった
-
-        "error"
-            画像またはデコード処理でエラー
-
-    data:
-        success:
-            一致したDecodedオブジェクト
-
-        wrong_barcode:
-            検出されたDecodedオブジェクトのリスト
-
-        no_barcode / error:
-            None
+    ("success", Decoded)
+    ("wrong_barcode", list[Decoded])
+    ("no_barcode", None)
+    ("error", None)
     """
 
     # =====================================
-    # 入力画像確認
+    # 入力確認
     # =====================================
     if img is None:
-        print("[ERROR] barcode_perception(): img is None")
+        print(
+            "[ERROR] "
+            "barcode_perception(): img is None"
+        )
         return "error", None
 
-    if not hasattr(img, "size") or img.size == 0:
-        print("[ERROR] barcode_perception(): img is empty")
+    if (
+        not hasattr(img, "size")
+        or img.size == 0
+    ):
+        print(
+            "[ERROR] "
+            "barcode_perception(): img is empty"
+        )
         return "error", None
 
-    target = str(barcode_number).strip()
+    if barcode_number is None:
+        target = None
+    else:
+        target = str(
+            barcode_number
+        ).strip()
 
-    # =====================================
-    # バーコード検出
-    # =====================================
     try:
-        blur = cv2.GaussianBlur(
-            img,
-            (3, 3),
-            0,
+        # =====================================
+        # 1. Gray
+        # =====================================
+        if len(img.shape) == 3:
+
+            if img.shape[2] == 4:
+                gray = cv2.cvtColor(
+                    img,
+                    cv2.COLOR_BGRA2GRAY,
+                )
+
+            else:
+                gray = cv2.cvtColor(
+                    img,
+                    cv2.COLOR_BGR2GRAY,
+                )
+
+        else:
+            gray = img.copy()
+
+        # =====================================
+        # 2. ノイズ除去
+        # =====================================
+        denoised = cv2.medianBlur(
+            gray,
+            3,
         )
 
-        decode_data = decode(blur)
+        # =====================================
+        # 3. Adaptive Threshold
+        # =====================================
+        binary = cv2.adaptiveThreshold(
+            denoised,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            71,
+            9,
+        )
+
+        # =====================================
+        # 4. Morphology
+        #
+        # 黒バーを一度白へ反転して、
+        # CLOSEで切れた線を補強する
+        # =====================================
+        binary_inv = cv2.bitwise_not(
+            binary
+        )
+
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_RECT,
+            (3, 3),
+        )
+
+        reinforced_inv = cv2.morphologyEx(
+            binary_inv,
+            cv2.MORPH_CLOSE,
+            kernel,
+            iterations=1,
+        )
+
+        # 黒バー / 白背景へ戻す
+        morph = cv2.bitwise_not(
+            reinforced_inv
+        )
+
+        # =====================================
+        # Morphology結果だけ保存
+        # =====================================
+        if debug_dir is not None:
+
+            debug_dir = Path(
+                debug_dir
+            )
+
+            debug_dir.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            save_path = (
+                debug_dir
+                / "morph.png"
+            )
+
+            ok = cv2.imwrite(
+                str(save_path),
+                morph,
+            )
+
+            if ok:
+                print(
+                    "[BARCODE DEBUG] "
+                    f"saved: {save_path}"
+                )
+            else:
+                print(
+                    "[BARCODE DEBUG] "
+                    f"save failed: {save_path}"
+                )
+
+        # =====================================
+        # Morphology画像だけでdecode
+        # =====================================
+        decode_data = decode(
+            morph
+        )
 
     except Exception as e:
+
         print(
-            "[ERROR] Barcode decode failed:",
+            "[ERROR] "
+            "Barcode preprocessing/decode failed:",
             repr(e),
         )
+
         return "error", None
 
-    print("\n===== BARCODE CHECK =====")
-    print("TARGET       :", repr(target))
-    print("NUM DETECTED :", len(decode_data))
-    print("-------------------------")
+    print("")
+    print(
+        "===== BARCODE CHECK ====="
+    )
+    print(
+        "TARGET       :",
+        repr(target),
+    )
+    print(
+        "NUM DETECTED :",
+        len(decode_data),
+    )
+    print(
+        "METHOD       : morphology"
+    )
+    print(
+        "-------------------------"
+    )
 
     # =====================================
-    # バーコードが1件も検出されなかった
-    # → 右面確認へ進むため no_barcode
+    # バーコードなし
     # =====================================
     if not decode_data:
-        print(">>> BARCODE NOT DETECTED <<<\n")
-        return "no_barcode", None
 
-    # 正常に文字列化できたバーコード数
+        print(
+            ">>> BARCODE NOT DETECTED <<<"
+        )
+
+        return (
+            "no_barcode",
+            None,
+        )
+
     valid_decode_count = 0
 
     # =====================================
-    # 1件以上のバーコードを確認
+    # 検出バーコードを確認
     # =====================================
-    for i, barcode_data in enumerate(decode_data):
-        try:
-            raw_data = barcode_data.data
+    for i, barcode_data in enumerate(
+        decode_data
+    ):
 
-            if isinstance(raw_data, (bytes, bytearray)):
-                detected = raw_data.decode(
-                    "utf-8",
-                    errors="replace",
-                ).strip()
+        try:
+            raw_data = (
+                barcode_data.data
+            )
+
+            if isinstance(
+                raw_data,
+                (bytes, bytearray),
+            ):
+
+                detected = (
+                    raw_data.decode(
+                        "utf-8",
+                        errors="replace",
+                    ).strip()
+                )
+
             else:
-                detected = str(raw_data).strip()
+                detected = str(
+                    raw_data
+                ).strip()
 
             valid_decode_count += 1
 
         except Exception as e:
+
             print(
-                f"[{i}] DECODE ERROR:",
+                f"[{i}] "
+                "DECODE ERROR:",
                 repr(e),
             )
-            print("-------------------------")
+
             continue
 
-        match = detected == target
+        match = (
+            target is None
+            or detected == target
+        )
 
-        print(f"[{i}] DETECTED :", repr(detected))
-        print(f"[{i}] MATCH    :", match)
+        print(
+            f"[{i}] DETECTED :",
+            repr(detected),
+        )
+
+        print(
+            f"[{i}] MATCH    :",
+            match,
+        )
+
         print(
             f"[{i}] TYPE     :",
-            getattr(barcode_data, "type", None),
+            getattr(
+                barcode_data,
+                "type",
+                None,
+            ),
         )
+
         print(
             f"[{i}] POS      :",
-            getattr(barcode_data, "rect", None),
+            getattr(
+                barcode_data,
+                "rect",
+                None,
+            ),
         )
-        print("-------------------------")
 
-        # =================================
-        # 指定バーコードと一致
-        # =================================
-        if match:
-            print(">>> BARCODE SUCCESS <<<\n")
-            return "success", barcode_data
-
-    # decode_dataは存在したが、
-    # 全データの処理に失敗した場合
-    if valid_decode_count == 0:
         print(
-            ">>> BARCODE DATA PROCESSING ERROR <<<\n"
+            "-------------------------"
         )
-        return "error", None
 
-    # =====================================
-    # バーコードは検出したが番号が違う
-    # =====================================
+        if match:
+
+            print(
+                ">>> BARCODE SUCCESS <<<"
+            )
+
+            return (
+                "success",
+                barcode_data,
+            )
+
+    if valid_decode_count == 0:
+
+        print(
+            ">>> BARCODE DATA "
+            "PROCESSING ERROR <<<"
+        )
+
+        return (
+            "error",
+            None,
+        )
+
     print(
         ">>> BARCODE DETECTED, "
-        "BUT WRONG BARCODE <<<\n"
+        "BUT WRONG BARCODE <<<"
     )
 
-    return "wrong_barcode", decode_data
+    return (
+        "wrong_barcode",
+        decode_data,
+    )
 
 if __name__ == '__main__':
-    image_path = Path("/home/book/pro_book/pro_hand_book_python/captures/20260119_134439/book_barcode_capture_20260119_134520.png")
-    #image_path = "/home/book/pro_book/pro_hand_book_python/captures/20251224_155932/before_init_rgb.png"
+    image_path = Path("/home/book/pro_book_SAM3/pro_hand_book_python/captures/20260119_134439/book_barcode_capture_20260119_134520.png")
+    #image_path = "/home/book/pro_book_SAM3/pro_hand_book_python/captures/20251224_155932/before_init_rgb.png"
     bar_code = "15 14"
     barcode_inference(bar_code, image_path)

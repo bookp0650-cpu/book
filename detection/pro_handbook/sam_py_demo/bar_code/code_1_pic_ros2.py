@@ -596,7 +596,7 @@ def main():
 
         # 保存ディレクトリ
         shot_dir = Path(
-            "/home/book/pro_book/pro_hand_book_python/captures/bookshelf_barcode_test"
+            "/home/book/pro_book_SAM3/pro_hand_book_python/captures/bookshelf_barcode_test"
         )
 
         # ターゲットバーコードを指定したい場合はここで入力

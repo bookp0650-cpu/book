@@ -13,7 +13,12 @@ import numpy as np
 from PIL import Image
 
 from .model_loader import load_storage_models
-from .predictor import infer_array, infer_storage_to_npz, infer_to_npz
+from .predictor import (
+    infer_array,
+    infer_storage_to_npz,
+    infer_to_npz,
+    release_cuda_cache,
+)
 from .settings import (
     BOOK_END_MODEL_PATH,
     FIXED_TEST_IMAGE,
@@ -45,10 +50,11 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
+            loaded = STATE["loaded"]
             self._send(
-                200 if STATE["loaded"] else 503,
+                200 if loaded else 503,
                 {
-                    "ready": bool(STATE["loaded"]),
+                    "ready": bool(loaded),
                     "error": STATE["error"],
                     "capabilities": ["single_model", "storage_dual_model"],
                     "models": {
@@ -58,6 +64,23 @@ class Handler(BaseHTTPRequestHandler):
                     "model_loads": STATE["loads"],
                     "request_counts": STATE["requests"],
                     "warmup": STATE["warmup"],
+                    "model_load_seconds": {
+                        "book_spine": getattr(
+                            getattr(loaded, "book_spine", None),
+                            "model_load_seconds",
+                            None,
+                        ),
+                        "book_end": getattr(
+                            getattr(loaded, "book_end", None),
+                            "model_load_seconds",
+                            None,
+                        ),
+                        "total": getattr(
+                            loaded,
+                            "total_model_load_seconds",
+                            None,
+                        ),
+                    },
                     "uptime_seconds": time.time() - STATE["started"],
                 },
             )
@@ -125,6 +148,11 @@ class Handler(BaseHTTPRequestHandler):
                         inp,
                         out,
                         str(body.get("prompt", "book spine")),
+                    )
+                    # Retrieval starts PaddleOCR after this response. Release
+                    # only unused allocator cache; storage inference is unchanged.
+                    meta["cuda_cache_release_seconds"] = release_cuda_cache(
+                        STATE["loaded"]
                     )
                     STATE["requests"]["single"] += 1
                 LOG.info(

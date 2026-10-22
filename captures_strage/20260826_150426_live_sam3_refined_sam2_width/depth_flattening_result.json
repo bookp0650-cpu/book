@@ -1,0 +1,36 @@
+{
+  "enabled": false,
+  "median_source": "selected_mask_fallback",
+  "valid_depth_count": 18571,
+  "valid_depth_ratio": 0.9965656023611483,
+  "median_depth_raw": null,
+  "median_depth_m": null,
+  "mad": null,
+  "p10": null,
+  "p90": null,
+  "raw_mask_area_px": 18635,
+  "final_mask_area_px": 18635,
+  "flattened_pixel_count": null,
+  "pointcloud_point_count": 18571,
+  "pca_input_point_count": 18571,
+  "all_final_mask_pixels_assigned_median": false,
+  "pointcloud_equals_pca_input": false,
+  "fallback": false,
+  "fallback_reason": null,
+  "normal_ransac": {
+    "used": true,
+    "reason": "ok",
+    "point_count": 18571,
+    "distance_threshold_m": 0.008,
+    "ransac_n": 3,
+    "num_iterations": 1200,
+    "plane_model": [
+      -0.101168604295167,
+      -0.021804612181991232,
+      0.9946303194617391,
+      -0.39543716682232577
+    ],
+    "inlier_count": 18571,
+    "inlier_ratio": 1.0
+  }
+}

@@ -537,8 +537,8 @@
 #     ap.add_argument("target", nargs="?", help="画像ファイル or 画像フォルダ（省略時は ./images）")
 
 #     # model
-#     ap.add_argument("--encoder", default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx")
-#     ap.add_argument("--decoder", default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx")
+#     ap.add_argument("--encoder", default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx")
+#     ap.add_argument("--decoder", default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx")
 #     ap.add_argument("--device", choices=["gpu", "cpu", "auto"], default="gpu")
 #     # AMG crop params
 #     ap.add_argument("--crop_overlap_ratio", type=float, default=0.34, help="クロップ重なり率(0..0.5)")
@@ -1294,8 +1294,8 @@ def _parse_args():
     ap.add_argument("target", nargs="?", help="画像ファイル or 画像フォルダ（省略時は ./images）")
 
     # model
-    ap.add_argument("--encoder", default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx")
-    ap.add_argument("--decoder", default="/home/book/pro_book/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx")
+    ap.add_argument("--encoder", default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.encoder.onnx")
+    ap.add_argument("--decoder", default="/home/book/pro_book_SAM3/pro_hand_book_python/models/sam_vit_h_4b8939.decoder.onnx")
     ap.add_argument("--device", choices=["gpu", "cpu", "auto"], default="gpu")
     # AMG crop params
     ap.add_argument("--crop_overlap_ratio", type=float, default=0.34, help="クロップ重なり率(0..0.5)")
