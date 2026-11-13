@@ -1,0 +1,879 @@
+[
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "1",
+    "ISBN_number": "9784063637717",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "2",
+    "ISBN_number": "9784063637823",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "3",
+    "ISBN_number": "9784063638103",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "4",
+    "ISBN_number": "9784063638325",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "5",
+    "ISBN_number": "9784063638578",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "6",
+    "ISBN_number": "9784063638905",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Fairy Tail",
+    "display_name": "講談社",
+    "SPEC_1": "真島ヒロ",
+    "SPEC_2": "7",
+    "ISBN_number": "9784063639148",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Liar Game",
+    "display_name": "集英社",
+    "SPEC_1": "甲斐谷忍",
+    "SPEC_2": "1",
+    "ISBN_number": "9784088768557",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "45",
+    "ISBN_number": "9784088746272",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "3",
+    "ISBN_number": "9784088725697",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "あした天気になあれ",
+    "display_name": "講談社",
+    "SPEC_1": "ちばてつや",
+    "SPEC_2": "32",
+    "ISBN_number": "9784063112559",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "うさまるといっしょ",
+    "display_name": "宝島社",
+    "SPEC_1": "sakumaru",
+    "ISBN_number": "9784800265364",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "イ・オ・ン",
+    "display_name": "集英社",
+    "SPEC_1": "種村有菜",
+    "ISBN_number": "9784088560533",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "カイジ",
+    "display_name": "講談社",
+    "SPEC_1": "福本伸行",
+    "SPEC_2": "11",
+    "ISBN_number": "9784063368048",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ガラスの仮面",
+    "display_name": "白泉社文庫",
+    "SPEC_1": "美内すずえ",
+    "SPEC_2": "1",
+    "ISBN_number": "9784592880011",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "9",
+    "ISBN_number": "9784063639513",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ノーサイド",
+    "display_name": "集英社",
+    "SPEC_1": "池田文春",
+    "SPEC_2": "2",
+    "ISBN_number": "9784088750699",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "1",
+    "ISBN_number": "9784062779432",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "春待つ僕ら",
+    "display_name": "講談社",
+    "SPEC_1": "あなしん",
+    "SPEC_2": "5",
+    "ISBN_number": "9784063658699",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "本気!",
+    "display_name": "秋田書店",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "1",
+    "ISBN_number": "9784253048668",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "東京",
+    "display_name": "集英社",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "7",
+    "ISBN_number": "9784088592701",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "監獄学園",
+    "display_name": "講談社",
+    "SPEC_1": "平本アキラ",
+    "SPEC_2": "11",
+    "ISBN_number": "9784063823875",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "銀魂",
+    "display_name": "集英社",
+    "SPEC_1": "空知英秋",
+    "SPEC_2": "7",
+    "ISBN_number": "9784088738062",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "闇金ウシジマくん外伝肉蝮伝説",
+    "display_name": "小学館",
+    "SPEC_1": "真鍋昌平 速戸ゆう",
+    "SPEC_2": "2",
+    "ISBN_number": "9784091898548",
+    "bookshelf_ID": "1-1-1-1",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "20",
+    "ISBN_number": "9784088735528",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "6",
+    "ISBN_number": "9784088726427",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "31",
+    "ISBN_number": "9784088735511",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "かんしゃく玉のゆううつ",
+    "display_name": "集英社",
+    "SPEC_1": "種村有菜",
+    "ISBN_number": "9784088560809",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "10",
+    "ISBN_number": "9784063639735",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "11",
+    "ISBN_number": "9784063840124",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "12",
+    "ISBN_number": "9784063840407",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "13",
+    "ISBN_number": "9784063840643",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "14",
+    "ISBN_number": "9784063840971",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "15",
+    "ISBN_number": "9784063841213",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "16",
+    "ISBN_number": "9784063841473",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "21",
+    "ISBN_number": "9784063842951",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "35",
+    "ISBN_number": "9784063848274",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "36",
+    "ISBN_number": "9784063848649",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "37",
+    "ISBN_number": "9784063949100",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ダイヤのA",
+    "display_name": "講談社",
+    "SPEC_1": "寺嶋裕二",
+    "SPEC_2": "38",
+    "ISBN_number": "9784063949438",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ミッドナイト",
+    "display_name": "秋田書店",
+    "SPEC_1": "手塚治虫",
+    "SPEC_2": "5",
+    "ISBN_number": "9784253047852",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "モンキーターン",
+    "display_name": "小学館",
+    "SPEC_1": "河合克敏",
+    "SPEC_2": "6",
+    "ISBN_number": "9784091251664",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "2",
+    "ISBN_number": "9784062779449",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "弱虫",
+    "display_name": "日本文芸社",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "27",
+    "ISBN_number": "9784537104592",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "晴れ、ときどき殺人",
+    "display_name": "角川文庫",
+    "SPEC_1": "赤川次郎",
+    "ISBN_number": "9784041497159",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "知らないと危ない「犯罪捜査と裁判」基礎知識",
+    "display_name": "講談社文庫",
+    "SPEC_1": "河上和雄",
+    "ISBN_number": "9784062637329",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "私がいてもいなくても",
+    "display_name": "集英社",
+    "SPEC_1": "いくえみ綾",
+    "SPEC_2": "2",
+    "ISBN_number": "9784088475424",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "聖ポリス・Seika",
+    "display_name": "小学館",
+    "SPEC_1": "飯坂友佳子",
+    "ISBN_number": "9784091344939",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "金田一少年の推理",
+    "display_name": "講談社",
+    "SPEC_1": "さとうふみや",
+    "ISBN_number": "9784063199192",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "銀魂",
+    "display_name": "集英社",
+    "SPEC_1": "空知英秋",
+    "SPEC_2": "6",
+    "ISBN_number": "9784088737812",
+    "bookshelf_ID": "1-1-1-2",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "21",
+    "ISBN_number": "9784088735733",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "72",
+    "ISBN_number": "9784088802206",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "11",
+    "ISBN_number": "9784088727974",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "33",
+    "ISBN_number": "9784088735931",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "37",
+    "ISBN_number": "9784088738024",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "46",
+    "ISBN_number": "9784088743820",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "こちら、団地探偵局",
+    "display_name": "角川文庫",
+    "SPEC_1": "赤川次郎",
+    "ISBN_number": "9784041497395",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "もやしもん",
+    "display_name": "講談社",
+    "SPEC_1": "石川雅之",
+    "SPEC_2": "1",
+    "ISBN_number": "9784063521061",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "カラミティヘッド",
+    "display_name": "講談社",
+    "SPEC_1": "虎哉孝征",
+    "SPEC_2": "1",
+    "ISBN_number": "9784063106497",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "コボちゃん",
+    "display_name": "蒼鷹社",
+    "SPEC_1": "植田まさし",
+    "SPEC_2": "9",
+    "ISBN_number": "9784915579097",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ドラゴンボール",
+    "display_name": "集英社",
+    "SPEC_1": "鳥山明",
+    "SPEC_2": "33",
+    "ISBN_number": "9784088516882",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ミッドナイト",
+    "display_name": "秋田書店",
+    "SPEC_1": "手塚治虫",
+    "SPEC_2": "4",
+    "ISBN_number": "9784253047845",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "ロマンティック",
+    "display_name": "角川文庫",
+    "SPEC_1": "赤川次郎",
+    "ISBN_number": "9784041497371",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "僕の初恋をキミに捧ぐ",
+    "display_name": "小学館",
+    "SPEC_1": "青木琴美",
+    "SPEC_2": "4",
+    "ISBN_number": "9784091305305",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "3",
+    "ISBN_number": "9784062779593",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "4",
+    "ISBN_number": "9784062779609",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "5",
+    "ISBN_number": "9784062779616",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "6",
+    "ISBN_number": "9784062779623",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "7",
+    "ISBN_number": "9784062779630",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "寄生獣",
+    "display_name": "講談社文庫",
+    "SPEC_1": "岩明均",
+    "SPEC_2": "8",
+    "ISBN_number": "9784062779647",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "忙しい花嫁",
+    "display_name": "角川文庫",
+    "SPEC_1": "赤川次郎",
+    "ISBN_number": "9784041497388",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "招かれた女",
+    "display_name": "角川文庫",
+    "SPEC_1": "赤川次郎",
+    "ISBN_number": "9784041497210",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "本気!",
+    "display_name": "秋田書店",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "2",
+    "ISBN_number": "9784253048675",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "本気!",
+    "display_name": "秋田書店",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "11",
+    "ISBN_number": "9784253048767",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "金田一少年の疾走",
+    "display_name": "講談社",
+    "SPEC_1": "さとうふみや",
+    "ISBN_number": "9784063340822",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "銀魂",
+    "display_name": "集英社",
+    "SPEC_1": "空知英秋",
+    "SPEC_2": "9",
+    "ISBN_number": "9784088738642",
+    "bookshelf_ID": "1-1-1-3",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Death Note",
+    "display_name": "集英社",
+    "SPEC_1": "小畑健",
+    "SPEC_2": "4",
+    "ISBN_number": "9784088736716",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Hunter×Hunter",
+    "display_name": "集英社",
+    "SPEC_1": "富樫義博",
+    "SPEC_2": "18",
+    "ISBN_number": "9784088735160",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "42",
+    "ISBN_number": "9784088745121",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "Naruto",
+    "display_name": "集英社",
+    "SPEC_1": "岸本斉史",
+    "SPEC_2": "57",
+    "ISBN_number": "9784088702711",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "38",
+    "ISBN_number": "9784088738390",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "39",
+    "ISBN_number": "9784088738727",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "40",
+    "ISBN_number": "9784088740034",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "54",
+    "ISBN_number": "9784088746623",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "58",
+    "ISBN_number": "9784088700458",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "One Piece",
+    "display_name": "集英社",
+    "SPEC_1": "尾田栄一郎",
+    "SPEC_2": "60",
+    "ISBN_number": "9784088701257",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "きみのカケラ",
+    "display_name": "小学館",
+    "SPEC_1": "高橋しん",
+    "SPEC_2": "1",
+    "ISBN_number": "9784091266118",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "スタイルばつぐん!ダイエット",
+    "display_name": "実業之日本社",
+    "SPEC_1": "マイバースデイ編集部",
+    "ISBN_number": "9784408391250",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "九条の大罪",
+    "display_name": "小学館",
+    "SPEC_1": "真鍋昌平",
+    "SPEC_2": "1",
+    "ISBN_number": "9784098608485",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "九条の大罪",
+    "display_name": "小学館",
+    "SPEC_1": "真鍋昌平",
+    "SPEC_2": "2",
+    "ISBN_number": "9784098610440",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "八犬伝",
+    "display_name": "角川グループパブリッシング",
+    "SPEC_1": "あべ美幸",
+    "SPEC_2": "2",
+    "ISBN_number": "9784048546393",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "新世紀エヴァンゲリオン",
+    "display_name": "角川書店",
+    "SPEC_1": "貞本義行",
+    "SPEC_2": "4",
+    "ISBN_number": "9784047131972",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "新妹魔王の契約者",
+    "display_name": "KADOKAWA",
+    "SPEC_1": "みやこかしわ",
+    "SPEC_2": "3",
+    "ISBN_number": "9784041019023",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "本気!",
+    "display_name": "秋田書店",
+    "SPEC_1": "立原あゆみ",
+    "SPEC_2": "5",
+    "ISBN_number": "9784253048705",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "白兵武者",
+    "display_name": "小学館",
+    "SPEC_1": "石渡治",
+    "SPEC_2": "11",
+    "ISBN_number": "9784091533012",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "裏切りは僕の名前を知っている",
+    "display_name": "角川グループホールディングス",
+    "SPEC_1": "小田切ほたる",
+    "ISBN_number": "9784041207529",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "銀魂",
+    "display_name": "集英社",
+    "SPEC_1": "空知英秋",
+    "SPEC_2": "8",
+    "ISBN_number": "9784088738444",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "魍魎の匣",
+    "display_name": "角川グループパブリッシング",
+    "SPEC_1": "志水アキ",
+    "SPEC_2": "5",
+    "ISBN_number": "9784048545051",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  },
+  {
+    "book_name": "黒執事",
+    "display_name": "スクウェア・エニックス",
+    "SPEC_1": "枢やな",
+    "SPEC_2": "23",
+    "ISBN_number": "9784757549975",
+    "bookshelf_ID": "1-1-1-4",
+    "book_width": "14"
+  }
+]

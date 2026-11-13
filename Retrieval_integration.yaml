@@ -3,7 +3,7 @@ robot:
     host: 192.168.2.197
 
 books:
-  master_file:  /home/book/pro_book_SAM3/pro_hand_book_python/master_json/master_20260216_30.json #master_20260225_tohan.json
+  master_file: /home/book/pro_book_SAM3/pro_hand_book_python/master_json/master_2go.json #master_20260216.json #/home/book/pro_book_SAM3/pro_hand_book_python/master_json/master_20260216_30.json #master_20260225_tohan.json
 
 linear_lift:
   home_mm: 140.0
@@ -11,7 +11,11 @@ linear_lift:
 
 paths:
   waypoint:
-    init_to_capture: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration.yaml
+paths:
+  waypoint:
+    init_to_capture:
+      right: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_right.yaml
+      left: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/init_to_capture_v2_integration_left.yaml
 
     capture_to_init:
       right: /home/book/pro_book_SAM3/pro_hand_book_python/ros2_ws/src/xarm7_teaching/config/capture_to_init_v2_integration.yaml
@@ -23,8 +27,7 @@ paths:
   log:
     retrieval: /home/book/pro_book_SAM3/pro_hand_book_python/captures/retrieval_log.ods
 # ---------------- 通信設定 ----------------
-target_ip: "172.20.10.2"  #"192.168.0.200"
-
+target_ip: "192.168.1.32" #"192.168.1.32" "192.168.0.200"
 cmd_vel_sender:
   ros__parameters:
     tcp_port: 5065
